@@ -5,6 +5,14 @@ from models import User, Category, Account, Transaction
 from schemas import UserCreate, UserResponse, CategoryCreate, CategoryResponse, AccountCreate, AccountResponse, TransactionCreate, TransactionResponse, SummaryResponse
 
 app = FastAPI() 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
