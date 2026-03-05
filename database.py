@@ -7,8 +7,11 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-connect_args = {"sslmode": "require"} if DATABASE_URL and DATABASE_URL.startswith("postgresql") else {}
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"sslmode": "require"},
+    pool_pre_ping=True
+)
 
 SessionLocal = sessionmaker(
   autocommit=False,
