@@ -324,9 +324,11 @@ def get_user_summary(user_id: int, db: Session = Depends(get_db)):
   
   income = db.query(Transaction).filter(Transaction.transaction_type == "income").filter(Transaction.user_id == user_id).all()
   total_income = sum(t.amount for t in income)
+  total_income = round(total_income, 2)
 
   expense = db.query(Transaction).filter(Transaction.transaction_type == "expense").filter(Transaction.user_id == user_id).all()
   total_expense = sum(t.amount for t in expense)
+  total_expense = round(total_expense, 2)
 
   net_balance = round((total_income - total_expense), 2)
   return {
