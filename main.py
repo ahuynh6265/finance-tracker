@@ -5,7 +5,10 @@ from models import User, Category, Account, Transaction
 from schemas import UserCreate, UserResponse, CategoryCreate, CategoryResponse, AccountCreate, AccountResponse, TransactionCreate, TransactionResponse, SummaryResponse
 
 app = FastAPI() 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"DB init warning: {e}")
 
 def get_db():
   db = SessionLocal()
