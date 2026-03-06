@@ -12,7 +12,7 @@ class TransactionType(str, Enum):
   expense = "expense"
 
 class SummaryResponse(BaseModel):
-  model_config = ConfigDict(from_attributes=True)
+  model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
   total_income: float 
   total_expense: float 
