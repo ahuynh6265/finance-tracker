@@ -14,8 +14,8 @@ class TransactionType(str, Enum):
 class SummaryResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
-  total_income: float 
-  total_expense: float 
+  income: float 
+  expenses: float 
   net_balance: float = Field(alias="net balance")
 
 #category 
