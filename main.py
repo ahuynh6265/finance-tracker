@@ -341,15 +341,20 @@ def get_user_summary(user_id: int, db: Session = Depends(get_db)):
   if not user: 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User ID not found") 
   
+  account = db.query(Account).filter(Account.id == user_id).filter(Account.balance).all()
+  account_balance = sum(a.balance for a in account)
   income = db.query(Transaction).filter(Transaction.transaction_type == "income").filter(Transaction.user_id == user_id).all()
   total_income = sum(t.amount for t in income)
+  
   total_income = round(total_income, 2)
 
   expense = db.query(Transaction).filter(Transaction.transaction_type == "expense").filter(Transaction.user_id == user_id).all()
   total_expense = sum(t.amount for t in expense)
   total_expense = round(total_expense, 2)
+  
 
   net_balance = round((total_income - total_expense), 2)
+  net_balance = account_balance + net_balance
   return {
     "income": total_income,
     "expenses": total_expense,
