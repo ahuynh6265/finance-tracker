@@ -344,7 +344,7 @@ def get_user_summary(user_id: int, db: Session = Depends(get_db)):
   checking_savings = db.query(Account).filter(Account.user_id == user_id).filter(Account.account_type != "credit").all()
   credit = db.query(Account).filter(Account.user_id == user_id).filter(Account.account_type == "credit").all()
 
-  net_balance = round(sum(a.balance for a in checking_savings) - sum(c.balance for c in credit), 2)
+  net_balance = round(sum(a.balance for a in checking_savings) + sum(c.balance for c in credit), 2)
 
   income = db.query(Transaction).filter(Transaction.transaction_type == "income").filter(Transaction.user_id == user_id).all()
   total_income = sum(t.amount for t in income)
