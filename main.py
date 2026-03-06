@@ -355,8 +355,6 @@ def get_user_summary(user_id: int, db: Session = Depends(get_db)):
   total_expense = sum(t.amount for t in expense)
   total_expense = round(total_expense, 2)
   
-
-  net_balance = round(sum(a.balance for a in account), 2)
   return {
     "income": total_income,
     "expenses": total_expense,
