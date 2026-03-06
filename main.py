@@ -129,6 +129,14 @@ def delete_user_category(user_id: int, category_id: int, db: Session = Depends(g
   if category.user_id != user_id:
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Category ID {category_id} does not belong to {user.name}")
   
+  for transaction in category.transaction:
+    account = db.query(Account).filter(Account.id == transaction.account_id).first() 
+    if account:
+      if transaction.transaction_type =="income":
+        account.balance -= transaction.amount
+      else:
+        account.balance += transaction.amount
+  
   db.delete(category)
   db.commit() 
   return 
@@ -283,6 +291,7 @@ def create_user_transactions(user_id: int, transactions_data: list[TransactionCr
         account.balance += t.amount
       else:
         account.balance -= t.amount
+    
 
   db.add_all(new_transactions)
   db.commit() 
