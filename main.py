@@ -341,13 +341,8 @@ def get_user_summary(user_id: int, db: Session = Depends(get_db)):
   if not user: 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User ID not found") 
   
-  account = db.query(Account).filter(Account.user_id == user_id).filter(Account.account_type != "credit").all()
-  account_balance = sum(a.balance for a in account)
-  account_balance = round(account_balance, 2)
-
-  credit_card = db.query(Account).filter(Account.user_id == user_id).filter(Account.account_type == "credit").all() 
-  money_due = sum(c.balance for c in credit_card)
-  money_due = round(money_due, 2)
+  account = db.query(Account).filter(Account.user_id == user_id).all()
+  net_balance = round(sum(a.balance for a in account), 2)
 
   income = db.query(Transaction).filter(Transaction.transaction_type == "income").filter(Transaction.user_id == user_id).all()
   total_income = sum(t.amount for t in income)
@@ -359,8 +354,7 @@ def get_user_summary(user_id: int, db: Session = Depends(get_db)):
   total_expense = round(total_expense, 2)
   
 
-  net_balance = round((total_income - total_expense), 2)
-  net_balance = account_balance + net_balance - money_due
+  net_balance = round(sum(a.balance for a in account), 2)
   return {
     "income": total_income,
     "expenses": total_expense,
