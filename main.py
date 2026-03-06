@@ -264,7 +264,9 @@ def create_user_transactions(user_id: int, transactions_data: list[TransactionCr
   user = db.query(User).filter(user_id == User.id).first()
   if not user: 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User ID not found")
-  new_transactions = [Transaction (
+  new_transactions = []
+  for t in transactions_data:
+    new_transaction= Transaction (
     user_id = user_id,
     account_id = t.account_id,
     category_id = t.category_id,
@@ -272,7 +274,16 @@ def create_user_transactions(user_id: int, transactions_data: list[TransactionCr
     transaction_type = t.transaction_type, 
     description = t.description,
     date = t.date
-  ) for t in transactions_data]
+    )
+    new_transactions.append(new_transaction)
+
+    account = db.query(Account).filter(t.account_id == Account.id).first() 
+    if account:
+      if t.transaction_type == "income":
+        account.balance += t.amount
+      else:
+        account.balance -= t.amount
+
   db.add_all(new_transactions)
   db.commit() 
   for transaction in new_transactions:
@@ -290,6 +301,14 @@ def delete_user_transaction(user_id: int, transaction_id: int, db: Session = Dep
   
   if transaction.user_id != user_id: 
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Transaction ID {transaction_id} does not belong to {user.name}")
+  
+  account = db.query(Account).filter(transaction.account_id == Account.id).first() 
+  if transaction.transaction_type == "income":
+    account.balance -= transaction.amount
+  else:
+    account.balance += transaction.amount
+    
+
   db.delete(transaction)
   db.commit()
   return
@@ -316,7 +335,7 @@ def update_user_transaction(user_id: int, transaction_id: int, transaction_data:
   return transaction 
 
 #summary endpoint 
-@app.get("/users/{user_id}/summary")
+@app.get("/users/{user_id}/summary", response_model=SummaryResponse)
 def get_user_summary(user_id: int, db: Session = Depends(get_db)): 
   user = db.query(User).filter(user_id == User.id).first()
   if not user: 

@@ -12,10 +12,11 @@ class TransactionType(str, Enum):
   expense = "expense"
 
 class SummaryResponse(BaseModel):
+  model_config = ConfigDict(from_attributes=True)
+
   total_income: float 
   total_expense: float 
-  net_balance: float 
-
+  net_balance: float = Field(alias="net balance")
 
 #category 
 class CategoryCreate(BaseModel): 
