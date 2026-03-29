@@ -81,8 +81,8 @@ class UserResponse(BaseModel):
   email: str 
   created_at: datetime 
   updated_at: datetime
-  category: list[CategoryResponse]
-  account: list[AccountResponse]
-  transaction: list[TransactionResponse]
+  categories: list[CategoryResponse]
+  accounts: list[AccountResponse]
+  transactions: list[TransactionResponse]
   
 

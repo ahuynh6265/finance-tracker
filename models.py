@@ -11,9 +11,9 @@ class User(Base):
   created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
   updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-  category = relationship("Category", back_populates="user", cascade="all, delete")
-  account = relationship("Account", back_populates="user", cascade="all, delete")
-  transaction = relationship("Transaction", back_populates="user", cascade="all, delete")
+  categories = relationship("Category", back_populates="user", cascade="all, delete")
+  accounts = relationship("Account", back_populates="user", cascade="all, delete")
+  transactions = relationship("Transaction", back_populates="user", cascade="all, delete")
 
 class Category(Base): 
   __tablename__ ="category"
@@ -21,8 +21,8 @@ class Category(Base):
   user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
   name = Column(String, nullable=False)
 
-  user = relationship("User", back_populates="category")
-  transaction = relationship("Transaction", back_populates="category", cascade="all, delete")
+  user = relationship("User", back_populates="categories")
+  transactions = relationship("Transaction", back_populates="category", cascade="all, delete")
   
 class Account(Base): 
   __tablename__="account"
@@ -34,8 +34,8 @@ class Account(Base):
   created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
   updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-  user = relationship("User", back_populates="account")
-  transaction = relationship("Transaction", back_populates="account", cascade="all, delete")
+  user = relationship("User", back_populates="accounts")
+  transactions = relationship("Transaction", back_populates="account", cascade="all, delete")
 
 class Transaction(Base): 
   __tablename__="transaction"
@@ -49,6 +49,6 @@ class Transaction(Base):
   date = Column(Date, nullable=False)
   created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-  user = relationship("User", back_populates="transaction")
-  category = relationship("Category", back_populates="transaction")
-  account = relationship("Account", back_populates="transaction")
+  user = relationship("User", back_populates="transactions")
+  category = relationship("Category", back_populates="transactions")
+  account = relationship("Account", back_populates="transactions")

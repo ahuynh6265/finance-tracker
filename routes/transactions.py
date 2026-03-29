@@ -10,7 +10,7 @@ router = APIRouter()
 @router.get("/users/{user_id}/transactions", response_model=list[TransactionResponse])
 def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
   user = user_lookup(user_id, db)
-  return user.transaction
+  return user.transactions
 
 #standard single get route
 @router.get("/users/{user_id}/transactions/{transaction_id}", response_model=TransactionResponse) 
@@ -24,14 +24,14 @@ def get_user_transaction(user_id: int, transaction_id: int, db: Session = Depend
 def get_category_transactions(user_id: int, category_id: int, db: Session = Depends(get_db)):
   user_lookup(user_id, db)
   category = category_lookup(category_id, db, user_id)  
-  return category.transaction 
+  return category.transactions 
 
 #get route from user/account 
 @router.get("/users/{user_id}/accounts/{account_id}/transactions", response_model=list[TransactionResponse])
 def get_account_transactions(user_id: int, account_id: int, db: Session = Depends(get_db)):
   user_lookup(user_id, db)
   account = account_lookup(account_id, db, user_id) 
-  return account.transaction
+  return account.transactions
 
 @router.post("/users/{user_id}/transactions", response_model=list[TransactionResponse], status_code=status.HTTP_201_CREATED)
 def create_user_transactions(user_id: int, transactions_data: list[TransactionCreate], db: Session = Depends(get_db)): 
@@ -80,7 +80,14 @@ def delete_user_transaction(user_id: int, transaction_id: int, db: Session = Dep
 @router.put("/users/{user_id}/transactions/{transaction_id}", response_model=TransactionResponse)
 def update_user_transaction(user_id: int, transaction_id: int, transaction_data: TransactionCreate, db: Session = Depends(get_db)): 
   user_lookup(user_id, db)
-  transaction = transaction_lookup(transaction_id, db, user_id)  
+  transaction = transaction_lookup(transaction_id, db, user_id) 
+  account = account_lookup(transaction.account_id, db, user_id)
+  if account: 
+    if transaction.transaction_type == "income": 
+      account.balance -= transaction.amount 
+    else:
+      account.balance += transaction.amount
+
   transaction.account_id = transaction_data.account_id
   transaction.category_id = transaction_data.category_id
   transaction.amount = transaction_data.amount
@@ -88,6 +95,13 @@ def update_user_transaction(user_id: int, transaction_id: int, transaction_data:
   transaction.description = transaction_data.description 
   transaction.date = transaction_data.date
 
+  #check if account being updated is the same account 
+  account = account_lookup(transaction.account_id, db, user_id)
+  if transaction.transaction_type == "income": 
+    account.balance += transaction.amount 
+  else:
+    account.balance -= transaction.amount
+  
   db.commit() 
   db.refresh(transaction)
   return transaction 

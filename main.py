@@ -20,8 +20,5 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-try:
-    Base.metadata.create_all(bind=engine)
-except Exception as e:
-    print(f"DB init warning: {e}")
+
 

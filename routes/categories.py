@@ -10,7 +10,7 @@ router = APIRouter()
 @router.get("/users/{user_id}/categories", response_model=list[CategoryResponse])
 def get_user_categories(user_id: int, db: Session =  Depends(get_db)):
   user = user_lookup(user_id, db)
-  return user.category 
+  return user.categories 
 
 @router.get("/users/{user_id}/categories/{category_id}", response_model=CategoryResponse)
 def get_user_category(user_id: int, category_id: int, db: Session = Depends(get_db)):
@@ -43,7 +43,7 @@ def delete_user_category(user_id: int, category_id: int, db: Session = Depends(g
   user_lookup(user_id, db)
   category = category_lookup(category_id, db, user_id) 
   
-  for transaction in category.transaction:
+  for transaction in category.transactions:
     account = account_lookup(transaction.account_id, db)
     if account:
       if transaction.transaction_type =="income":
