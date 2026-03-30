@@ -87,7 +87,40 @@ function Transactions(){
       <input type = "date" value = {date} onChange = {(e) => setDate(e.target.value)}></input> 
       <button onClick = {handleCreate}>Create Transaction</button>
 
-      
+      {transactions.map(transaction =>
+        <div key = {transaction.id}>
+          {(current_id === transaction.id)
+          ? (
+            <div>
+              <select value = {newAccountID} onChange = {(e) => setNewAccountID(e.target.value)}>
+                {accounts.map(account =>
+                <option key = {account.id} value = {account.id}>{account.bank_name}</option>
+                )}
+              </select>
+              <select value = {newCategoryID} onChange = {(e) => setNewCategoryID(e.target.value)}>
+              {categories.map(category =>
+                <option key = {category.id} value = {category.id}>{category.name}</option>
+              )}
+              </select>
+              <input value = {newAmount} onChange = {(e) => setNewAmount(e.target.value)}></input>
+              <select value = {newTransactionType} onChange = {(e) => setNewTransactionType(e.target.value)}>
+                <option value = "income">Income</option>
+                <option value = "expense">Expense</option>
+              </select>
+              <input value = {newDescription} onChange = {(e) => setNewDescription(e.target.value)}></input>
+              <input type = "date" value = {newDate} onChange = {(e) => setNewDate(e.target.value)}></input>
+              <button onClick = {() => handleUpdate(transaction.id)}>Save Transaction</button>
+            </div>
+          )
+          : (
+            <div>
+              <div>{accounts.find(a => a.id === transaction.account_id).bank_name} - {categories.find(c => c.id === transaction.category_id).name} - {transaction.amount} - {transaction.transaction_type} - {transaction.description} - {transaction.date}</div>
+              <button onClick = {() => handleDelete(transaction.id)}>Delete Transaction</button>
+              <button onClick = {() => {setID(transaction.id); setNewAccountID(transaction.account_id); setNewCategoryID(transaction.category_id); setNewAmount(transaction.amount); setNewTransactionType(transaction.transaction_type); setNewDescription(transaction.description); setNewDate(transaction.date)}}> Edit Transaction Info</button>
+            </div>
+          )
+         }</div>
+      )}
     </div>
   )
 }

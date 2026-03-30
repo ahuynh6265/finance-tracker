@@ -24,7 +24,6 @@ function Accounts(){
       setBank("")
       setType("checking")
       setBalance(0)
-      s
     }))
   }
 

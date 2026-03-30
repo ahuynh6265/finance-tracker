@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
 from routes.users import router as users_router
 from routes.categories import router as categories_router
