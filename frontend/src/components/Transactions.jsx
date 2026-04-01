@@ -1,17 +1,12 @@
 import {useState, useEffect} from "react"
-import {getTransactions, createTransaction, deleteTransaction, updateTransaction, getAccounts, getCategories, deleteCategory, createCategory, updateCategory} from "../api/api"
+import {getTransactions, deleteTransaction, updateTransaction, getAccounts, getCategories, deleteCategory, createCategory, updateCategory} from "../api/api"
+import CreateTransactionModal from "./CreateTransactionModal"
 
 function Transactions(){
   //transaction variables
   const [transactions, setTransactions] = useState(null)
   const [accounts, setAccounts] = useState(null)
   const [categories, setCategories] = useState(null)
-  const [account_id, setAccountID] = useState("")
-  const [category_id, setCategoryID] = useState("")
-  const [amount, setAmount] = useState(0)
-  const [transaction_type, setTransactionType] = useState("income")
-  const [description, setDescription] = useState("")
-  const [date, setDate] = useState("")
 
   //transaction updates
   const [current_id, setID] = useState(null)
@@ -38,30 +33,11 @@ function Transactions(){
     }).catch(err => console.error(err))
     getAccounts().then(response => {
       setAccounts(response.data)
-      if (response.data.length > 0){
-        setAccountID(response.data[0].id)
-      }
     }).catch(err => console.error(err))
     getCategories().then(response => {
       setCategories(response.data)
-      if (response.data.length > 0){
-        setCategoryID(response.data[0].id)
-      }
     }).catch(err => console.error(err))
   }, [])
-
-  function handleCreate() {
-    createTransaction({account_id: Number(account_id), category_id: Number(category_id), amount: Number(amount), transaction_type: transaction_type, description: description, date: date}).then(() => getTransactions().then(response => {
-      setTransactions(response.data)
-      setAccountID(Number(accounts[0].id))
-      setCategoryID(Number(categories[0].id))
-      setAmount(Number(0))
-      setTransactionType("income")
-      setDescription("")
-      setDate("")
-      setShowCreate(false)
-    }).catch(err => console.error(err)))
-  }
 
   function handleDelete(transaction_id) {
     deleteTransaction(transaction_id).then(() => getTransactions().then(response => {
@@ -114,59 +90,15 @@ function Transactions(){
     <button onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
     <button onClick = {(e) => setShowCategories(true)}>Manage Categories</button> 
     {showCreate ? (
-      <div className = "modal-overlay">
-        <div className = "modal-content">
-          <h1 className = "absolute top-4 left-4 text-gray-300 text-xl font-semibold">Create New Transaction</h1>
-          <button className = "absolute top-4 right-4 text-white font-semibold" onClick = {(e) => setShowCreate(false)}>Close</button>
-
-          <div className = "flex gap-4">
-            <div className = "w-full">
-              <h2 className = "text-white font-semibold">Select Account</h2>
-              <select className = "modal-input" value = {account_id} onChange = {(e) => setAccountID(e.target.value)}>
-                {accounts.map(account =>
-                  <option key = {account.id} value = {account.id}>{account.bank_name}</option>
-                )}
-              </select> 
-            </div>
-            <div className = "w-full">
-              <h2 className = "text-white font-semibold">Select Category</h2>
-              <select className = "modal-input" value = {category_id} onChange = {(e) => setCategoryID(e.target.value)}>
-                {categories.map(category =>
-                  <option key = {category.id} value = {category.id}>{category.name}</option>
-                )}
-              </select>
-            </div>
-          </div>
-
-          <div className = "flex gap-4">  
-            <div className = "w-full">
-              <h2 className = "text-white font-semibold">Enter Amount</h2>
-              <input className = "modal-input" placeholder = "Enter Amount" value = {amount} onChange = {(e) => setAmount(e.target.value)}></input>
-            </div>
-            <div className = "w-full">
-              <h2 className = "text-white font-semibold">Select Type</h2>
-              <select className = "modal-input" value = {transaction_type} onChange = {(e) => setTransactionType(e.target.value)}>
-                <option value = "income">Income</option>
-                <option value = "expense">Expense</option>
-              </select>
-            </div>
-          </div>
-
-          <div className = "flex gap-4">   
-            <div className = "w-full">   
-              <h2 className = "text-white font-semibold">Description</h2>
-              <input className = "modal-input" value = {description} onChange = {(e) => setDescription(e.target.value)}></input>
-            </div>
-            <div className = "w-full">
-              <h2 className = "text-white font-semibold">Date of Transaction</h2>
-              <input className = "modal-input" type = "date" value = {date} onChange = {(e) => setDate(e.target.value)}></input> 
-            </div>
-          </div>
-
-          <button className = "text-white font-semibold" onClick = {handleCreate}>Create</button>
-          
-        </div>
-      </div> 
+    <CreateTransactionModal
+      accounts = {accounts}
+      categories = {categories}
+      onCreated = {() => {
+        getTransactions().then(response => setTransactions(response.data))
+        setShowCreate(false)
+      }}
+      onClose = {() => setShowCreate(false)}
+    />
     ) : null}
 
     {showCategories ? (
