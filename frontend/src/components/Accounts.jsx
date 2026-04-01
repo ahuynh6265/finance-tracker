@@ -1,15 +1,11 @@
 import {useState, useEffect} from "react"
-import {getAccounts, deleteAccount, updateAccount} from "../api/api"
+import {getAccounts, deleteAccount} from "../api/api"
 import CreateAccountModal from "./CreateAccountModal"
+import EditAccountModal from "./EditAccountModal"
 
 function Accounts() {
   const [accounts, setAccounts] = useState(null)
-
   const [current_id, setID] = useState(null)
-  const [newBank, setNewBank] = useState("")
-  const [newAccountType, setNewAccountType] = useState("checking")
-  const [newBalance, setNewBalance] = useState(0)
-
   const [showCreate, setShowCreate] = useState(false)
 
   useEffect (() => {
@@ -21,16 +17,6 @@ function Accounts() {
   function handleDelete(account_id) {
     deleteAccount(account_id).then(() => getAccounts().then(response => {
       setAccounts(response.data)
-    }).catch(err => console.error(err)))
-  }
-
-  function handleUpdate(account_id) {
-    updateAccount(account_id, {bank_name: newBank, account_type: newAccountType, balance: newBalance}).then(() => getAccounts().then(response => {
-      setAccounts(response.data)
-      setID(null)
-      setNewBank("")
-      setNewAccountType("checking")
-      setNewBalance(0)
     }).catch(err => console.error(err)))
   }
 
@@ -49,35 +35,14 @@ function Accounts() {
       ): null}
 
       {current_id ? (
-        <div className = "modal-overlay">
-        <div className = "modal-content">
-          <h1 className = "absolute top-4 left-4 text-gray-300 text-xl font-semibold">Edit Bank Account</h1>
-          <button className = "absolute top-4 right-4 text-white font-semibold" onClick = {(e) => setID(null)}>Close</button>
-
-          <div className = "flex gap-4">
-            <div className = "w-full">
-              <input className = "modal-input" placeholder = "Enter Bank Name" value = {newBank} onChange = {(e) => setNewBank(e.target.value)}></input>
-            </div>
-          </div>
-
-          <div className = "flex gap-4">
-            <div className = "w-full">
-              <h2 className = "text-white font-semibold">Select Account Type</h2>
-              <select className = "modal-input" value = {newAccountType} onChange = {(e) => setNewAccountType(e.target.value)}>
-              <option value = "checking">Checking</option> 
-              <option value = "savings">Saving</option> 
-              <option value = "credit">Credit</option> 
-              </select>
-            </div>
-            <div className = "w-full">
-              <h2 className = "text-white font-semibold">Enter Balance</h2>
-              <input className = "modal-input" value = {newBalance} onChange = {(e) => setNewBalance(e.target.value)}></input> 
-            </div>
-          </div>
-
-          <button className = "text-white font-semibold" onClick = {(e) => handleUpdate(current_id)}>Save Changes</button>
-        </div>
-      </div>
+        <EditAccountModal
+        account = {accounts.find (a => a.id === current_id)}
+        onUpdated = {() => {
+          getAccounts().then(response => setAccounts(response.data))
+          setID(null)
+        }}
+        onClose = {() => setID(null)}
+        />
       ): null}
 
       <div className = "flex gap-4 mt-6">
@@ -96,7 +61,7 @@ function Accounts() {
 
                   <div className = "flex justify-center">
                     <button className = "mr-2" onClick = {() => handleDelete(account.id)}>Delete</button>
-                    <button onClick = {() => {setID(account.id); setNewBank(account.bank_name); setNewAccountType(account.account_type); setNewBalance(account.balance)}}>Edit</button>
+                    <button onClick = {() => {setID(account.id)}}>Edit</button>
                   </div>
                   
                 </div>
