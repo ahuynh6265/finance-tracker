@@ -7,7 +7,7 @@ function EditAccountModal({account, onUpdated, onClose}) {
   const [newBalance, setNewBalance] = useState(account.balance)
 
   function handleUpdate() {
-    updateAccount(account.id, {bank_name: newBank, account_type: newAccountType, balance: newBalance}).then(() => {
+    updateAccount(account.id, {bank_name: newBank, account_type: newAccountType, balance: Number(newBalance)}).then(() => {
       onUpdated()
     }).catch(err => console.error(err))
   }

@@ -7,7 +7,7 @@ function CreateAccountModal({onCreated, onClose}) {
   const [balance, setBalance] = useState(0)
 
   function handleCreate() {
-    createAccount({bank_name: bank_name, account_type: account_type, balance: balance}).then(() => {
+    createAccount({bank_name: bank_name, account_type: account_type, balance: Number(balance)}).then(() => {
       onCreated()
     }).catch(err => console.error(err))
   }
