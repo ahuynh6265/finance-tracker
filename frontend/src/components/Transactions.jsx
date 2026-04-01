@@ -1,7 +1,8 @@
 import {useState, useEffect} from "react"
-import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategory, createCategory, updateCategory} from "../api/api"
+import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategory} from "../api/api"
 import CreateTransactionModal from "./CreateTransactionModal"
 import EditTransactionModal from "./EditTransactionModal"
+import ManageCategoriesModal from "./ManageCategoriesModal"
 
 function Transactions(){
   //transaction variables
@@ -15,12 +16,8 @@ function Transactions(){
   //modal 
   const [showCreate, setShowCreate] = useState(false)
   const [showCategories, setShowCategories] = useState(false)
-  const [showCreateCategories, setShowCreateCategories] = useState(false)
 
-  //category 
-  const [name, setName] = useState("")
-  const [newName, setNewName] = useState("")
-  const [editCategoryID, setEditCategoryID] = useState("")
+
 
   useEffect (() => {
     getTransactions().then(response => {
@@ -50,21 +47,6 @@ function Transactions(){
     }).catch(err => console.error(err)))
   }
 
-  function handleCreateCategory() {
-    createCategory({name: name}).then(() => getCategories().then(response => {
-      setCategories(response.data)
-      setName("")
-      setShowCreateCategories(false)
-    }).catch(err => console.error(err)))
-  }
-
-  function handleUpdateCategory(category_id) {
-    updateCategory(category_id, {name: newName}).then(() => getCategories().then(response => {
-      setCategories(response.data)
-      setEditCategoryID("")
-      setNewName("")
-    }).catch(err => console.error(err)))
-  }
 
   if (!transactions || !accounts || !categories) return <div>Loading...</div>
   else return (
@@ -84,45 +66,16 @@ function Transactions(){
     ) : null}
 
     {showCategories ? (
-      <div className = "modal-overlay">
-        <div className = "modal-content">
-          <h1 className = "absolute top-4 left-4 text-gray-300 text-xl font-semibold">Manage Categories</h1>
-          <button className = "absolute top-4 right-4 text-white font-semibold" onClick = {(e) => {setShowCategories(false); setEditCategoryID("")}}>Close</button>
-          <table>
-            <tbody>
-              {categories.map(category =>
-                <tr key = {category.id}> 
-                  {(editCategoryID === category.id) ? (
-                    <>
-                      <td><input value = {newName} onChange = {(e) => setNewName(e.target.value)}></input></td>
-                      <td><button onClick = {(e) =>handleUpdateCategory(category.id)}>Save Category</button></td>
-                    </>
-                  ): (
-                    <>
-                    <td>{category.name}</td>
-                        <td>
-                          <button className = "mr-2" onClick = {() =>handleDeleteCategory(category.id)}>Delete</button>
-                          <button onClick = {() => {setEditCategoryID(category.id); setNewName(category.name)}}>Edit</button>
-                        </td>
-                      </>
-                  )}
-                </tr>
-              )}
-            </tbody>
-          </table>
-          <button onClick = {(e) => setShowCreateCategories(true)}>Create</button> 
-          {(showCreateCategories) ? (
-            <div className = "-mt-4">
-              <input className = "w-full" placeholder = "Enter Category Name" value = {name} onChange = {(e) => setName(e.target.value)}></input>
-              <div className = "flex justify-around p-6">
-                <button className = "text-gray-300 text-l font-semibold" onClick = {handleCreateCategory}>Save Category</button>
-                <button className = "text-gray-300 text-l font-semibold" onClick = {(e) => setShowCreateCategories(false)}>Discard</button>
-              </div>
-            </div>
-          ): null}  
-        </div>
-    </div> 
+      <ManageCategoriesModal
+      categories = {categories}
+      onDeleteCategory = {handleDeleteCategory}
+      onCategoryChanged = {() => {
+        getCategories().then(response => setCategories(response.data))
+      }}
+      onClose = {() => setShowCategories(false)}
+      />
     ): null}
+
     {current_id ? (
       <EditTransactionModal
       transaction = {transactions.find (t => t.id  === current_id)}
@@ -135,6 +88,7 @@ function Transactions(){
       onClose = {() => setID(null)}
       />
     ): null}
+
       <table className = "transactions-table"> 
         <thead>
           <tr>

@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react"
+import {useState} from "react"
 import {updateTransaction} from "../api/api"
 
 function EditTransactionModal({transaction, accounts, categories, onUpdated, onClose}) {

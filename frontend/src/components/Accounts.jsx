@@ -1,11 +1,9 @@
 import {useState, useEffect} from "react"
-import {getAccounts, createAccount, deleteAccount, updateAccount} from "../api/api"
+import {getAccounts, deleteAccount, updateAccount} from "../api/api"
+import CreateAccountModal from "./CreateAccountModal"
 
-function Accounts(){
+function Accounts() {
   const [accounts, setAccounts] = useState(null)
-  const [bank_name, setBank] = useState("")
-  const [account_type, setType] = useState("checking")
-  const [balance, setBalance] = useState(0)
 
   const [current_id, setID] = useState(null)
   const [newBank, setNewBank] = useState("")
@@ -19,15 +17,6 @@ function Accounts(){
       setAccounts(response.data)
     }).catch(err => console.error(err))
   }, [])
-
-  function handleCreate() {
-    createAccount({bank_name: bank_name, account_type: account_type, balance: balance}).then(() => getAccounts().then(response => {
-      setAccounts(response.data)
-      setBank("")
-      setType("checking")
-      setBalance(0)
-    }).catch(err => console.error(err)))
-  }
 
   function handleDelete(account_id) {
     deleteAccount(account_id).then(() => getAccounts().then(response => {
@@ -50,35 +39,13 @@ function Accounts(){
     <div>
       <button className = "text-white" onClick = {(e) => setShowCreate(true)}>Add Account</button>
       {showCreate ? (
-        <div className = "modal-overlay">
-          <div className = "modal-content">
-            <h1 className = "absolute top-4 left-4 text-gray-300 text-xl font-semibold">Create New Account</h1>
-            <button className = "absolute top-4 right-4 text-white font-semibold" onClick = {(e) => setShowCreate(false)}>Close</button>
-
-            <div className = "flex gap-4">
-              <div className = "w-full">
-                <input className = "modal-input" placeholder = "Enter Bank Name" value = {bank_name} onChange = {(e) => setBank(e.target.value)}></input>
-              </div>
-            </div>
-
-            <div className = "flex gap-4">
-              <div className = "w-full">
-                <h2 className = "text-white font-semibold">Select Account Type</h2>
-                <select className = "modal-input" value = {account_type} onChange = {(e) => setType(e.target.value)}>
-                <option value = "checking">Checking</option> 
-                <option value = "savings">Saving</option> 
-                <option value = "credit">Credit</option> 
-                </select>
-              </div>
-              <div className = "w-full">
-                <h2 className = "text-white font-semibold">Enter Balance</h2>
-                <input className = "modal-input" value = {balance} onChange = {(e) => setBalance(e.target.value)}></input> 
-              </div>
-            </div>
-
-            <button className = "text-white font-semibold" onClick = {handleCreate}>Create Account</button>
-          </div>
-        </div>
+        <CreateAccountModal
+        onCreated = {() => {
+          getAccounts().then(response => setAccounts(response.data))
+          setShowCreate(false)
+        }}
+        onClose = {() => setShowCreate(false)}
+        />
       ): null}
 
       {current_id ? (
