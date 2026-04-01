@@ -35,19 +35,19 @@ function Transactions(){
   useEffect (() => {
     getTransactions().then(response => {
       setTransactions(response.data)
-    })
+    }).catch(err => console.error(err))
     getAccounts().then(response => {
       setAccounts(response.data)
       if (response.data.length > 0){
         setAccountID(response.data[0].id)
       }
-    })
+    }).catch(err => console.error(err))
     getCategories().then(response => {
       setCategories(response.data)
       if (response.data.length > 0){
         setCategoryID(response.data[0].id)
       }
-    })
+    }).catch(err => console.error(err))
   }, [])
 
   function handleCreate() {
@@ -60,13 +60,13 @@ function Transactions(){
       setDescription("")
       setDate("")
       setShowCreate(false)
-    }))
+    }).catch(err => console.error(err)))
   }
 
   function handleDelete(transaction_id) {
     deleteTransaction(transaction_id).then(() => getTransactions().then(response => {
       setTransactions(response.data)
-    }))
+    }).catch(err => console.error(err)))
   }
 
   function handleUpdate(transaction_id) {
@@ -79,7 +79,7 @@ function Transactions(){
       setNewTransactionType("income")
       setNewDescription("")
       setNewDate("")
-    }))
+    }).catch(err => console.error(err)))
   }
 
   function handleDeleteCategory(category_id) {
@@ -89,7 +89,7 @@ function Transactions(){
       getCategories().then(response => {
         setCategories(response.data)
       })
-    }))
+    }).catch(err => console.error(err)))
   }
 
   function handleCreateCategory() {
@@ -97,7 +97,7 @@ function Transactions(){
       setCategories(response.data)
       setName("")
       setShowCreateCategories(false)
-    }))
+    }).catch(err => console.error(err)))
   }
 
   function handleUpdateCategory(category_id) {
@@ -105,7 +105,7 @@ function Transactions(){
       setCategories(response.data)
       setEditCategoryID("")
       setNewName("")
-    }))
+    }).catch(err => console.error(err)))
   }
 
   if (!transactions || !accounts || !categories) return <div>Loading...</div>

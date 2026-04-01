@@ -7,7 +7,7 @@ function Summary() {
   useEffect (() => {
     getSummary().then(response => {
       setSummary(response.data)
-    })
+    }).catch(err => console.error(err))
   }, [])
   if (!summary) return <div>Loading...</div> 
   else return (

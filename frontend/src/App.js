@@ -14,9 +14,7 @@ function App (){
       <Link className = "nav-link" to = "/transactions">Transactions</Link>
 
       <hr className = "mt-auto line"></hr>
-      <div className = "text-white">Support</div>
-      <div className = "text-white">Settings</div>
-      <div className = "text-white">Name</div>
+      <div className = "text-white">Alex</div>
       
     </div>
 
