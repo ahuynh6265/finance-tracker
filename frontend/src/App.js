@@ -2,11 +2,13 @@ import Summary from "./components/Summary"
 import Accounts from "./components/Accounts"
 import Transactions from "./components/Transactions"
 import Login from "./components/Login"
+import Register from "./components/Register"
 import {BrowserRouter, Routes, Route, Link} from "react-router-dom"
 import {useState} from "react"
 
 function App (){
   const [loggedIn, setLoggedIn] = useState(false)
+  const [name, setName] = useState(false)
 
   return(
   <BrowserRouter>
@@ -20,12 +22,12 @@ function App (){
       <Link className = "nav-link" to = "/transactions">Transactions</Link>
 
       <hr className = "mt-auto line"></hr>
-      <div className = "text-white">Alex</div>
+      <div className = "text-white capitalize">{name}</div>
   
     </div>
     <div className = "main-content">
       <Routes>
-        <Route path = "/" element = {<Summary />}></Route>
+        <Route path = "/" element = {<Summary name = {name}/>}></Route>
         <Route path = "/accounts" element = {<Accounts />}></Route>
         <Route path = "/transactions" element = {<Transactions />}></Route>
       </Routes>
@@ -34,7 +36,9 @@ function App (){
   ): (
     <div>
       <Routes>
-        <Route path = "/*" element = {<Login onLogin = {() => setLoggedIn(true)} />}></Route> 
+        <Route path = "/*" element = {<Login onLogin = {(data) => {setLoggedIn(true); setName(data)}
+        } />}></Route> 
+        <Route path = "/register" element = {<Register />}></Route>
       </Routes>
   </div> 
   )}

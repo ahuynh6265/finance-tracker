@@ -1,9 +1,9 @@
 import {useState, useEffect} from "react"
 import {getSummary} from "../api/api"
 
-function Summary() {
+function Summary({name}) {
   const [summary, setSummary] = useState(null)
-
+  
   useEffect (() => {
     getSummary().then(response => {
       setSummary(response.data)
@@ -12,7 +12,7 @@ function Summary() {
   if (!summary) return <div>Loading...</div> 
   else return (
     <div>
-      <div className = "page-title">Welcome, Alex</div>
+      <div className = "page-title capitalize">Welcome, {name}</div>
       <div className = "banner"></div>
       <div className = "grid-layout">
         <div className = "card row-span-3 p-6">My Accounts</div>

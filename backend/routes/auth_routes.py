@@ -23,8 +23,8 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
   user = db.query(User).filter(User.email == user_data.email).first()
   if user: 
     if auth.verify_password(user_data.password, user.hashed_password):
-      token = auth.create_token(user_data.email, user.id)
-      return {"access_token": token, "token_type": "bearer"} 
+      token = auth.create_token(user.name, user_data.email, user.id)
+      return {"access_token": token, "token_type": "bearer", "name": user.name} 
     else:
       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect.")
   

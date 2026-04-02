@@ -8,9 +8,9 @@ function Login({onLogin}) {
   const navigate = useNavigate()
 
   function handleLogin() {
-    userLogin({email: email, password: password}).then(response =>{
+    userLogin({email: email, password: password}).then(response => {
       setAuthToken(response.data.access_token)
-      onLogin()
+      onLogin(response.data.name)
       navigate("/")
     }).catch(err => console.error(err))
   }

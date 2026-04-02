@@ -17,8 +17,6 @@ function Transactions(){
   const [showCreate, setShowCreate] = useState(false)
   const [showCategories, setShowCategories] = useState(false)
 
-
-
   useEffect (() => {
     getTransactions().then(response => {
       setTransactions(response.data)
