@@ -48,7 +48,7 @@ function Accounts() {
       <div className = "flex gap-4 mt-6">
         <div className = "border border-solid w-[55%] rounded-xl">
           <h2 className = "text-white font-semibold m-6">Connected Cards</h2>
-          <div className = "max-h-[300px] overflow-y-auto pb-2">
+          <div className = "h-[300px] overflow-y-auto pb-2">
             {accounts.map(account =>
               <div className= "card mx-6 mb-6 p-2" key = {account.id}>
                 <div className = "flex justify-between">

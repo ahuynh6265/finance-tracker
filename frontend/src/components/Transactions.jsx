@@ -47,12 +47,28 @@ function Transactions(){
     }).catch(err => console.error(err)))
   }
 
+  function guardTransactions() {
+    return(
+    <div>
+      {(accounts.length === 0 && categories.length === 0) ? (
+        <p className = "text-white font-semibold">Add an Account or Category before creating a transaction</p>
+      ): null}
+      {(accounts.length === 0 && categories.length > 0) ? (
+        <p className = "text-white font-semibold">Add an Account before creating a transaction</p>
+      ): null}
+      {(categories.length === 0 && accounts.length > 0) ? (
+        <p className = "text-white font-semibold">Add a Category before creating a transaction</p>
+      ): null}
+    </div>
+    )
+  }
 
   if (!transactions || !accounts || !categories) return <div>Loading...</div>
   else return (
     <div>
-    <button onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
-    <button onClick = {(e) => setShowCategories(true)}>Manage Categories</button> 
+    {guardTransactions()}
+    <button className = "text-white font-semibold" disabled = {accounts.length === 0 || categories.length === 0} onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
+    <button className = "text-white font-semibold" onClick = {(e) => setShowCategories(true)}>Create/Manage Categories</button> 
     {showCreate ? (
     <CreateTransactionModal
       accounts = {accounts}
