@@ -1,17 +1,26 @@
-# Finance Tracker API
-A RESTful API for personal finance management. Track income and expenses across multiple bank accounts and custom categories, with a summary endpoint that aggregates your financial data.
+# Finance Tracker
+A full-stack personal finance app. Track income and expenses across multiple bank accounts and custom categories, with a summary endpoint that aggregates your financial data.
 
 ## Live Demo
-https://finance-tracker-production-fb3d.up.railway.app/docs
+https://finance-tracker-navy-xi.vercel.app/
 
 ## Tech Stack
+### Backend
 - **FastAPI** — API framework
 - **SQLAlchemy** — ORM and database modeling
 - **PostgreSQL** — Database (Neon)
 - **Alembic** — Database migrations
 - **Pydantic** — Data validation and serialization
 
-> Local development uses SQLite by default. The live deployment uses PostgreSQL.
+### Frontend
+- **React**
+- **Axios** 
+- **Tailwind CSS** 
+
+### Deployment 
+- **Render** - For backend
+- **Vercel** - For frontend
+- **Neon** - For database
 
 ## Features
 - Full CRUD on users, accounts, categories, and transactions
@@ -20,12 +29,18 @@ https://finance-tracker-production-fb3d.up.railway.app/docs
 - Enum validation on account type and transaction type
 - Cascade deletes — deleting a user removes all associated data
 - ISO date formatting and field-level validation via Pydantic
+- React dashboard with summary stats 
+- Modal-based CRUD for accounts/categories/transactions 
+- Responsive card layout
+
+## Known Limitations 
+- Authentication is not yet implemented, User ID currently hardcoded for demo
 
 ## Getting Started
 **1. Clone the repo**
 ```bash
 git clone https://github.com/ahuynh6265/finance-tracker.git
-cd finance-tracker
+cd finance-tracker/backend
 ```
 **2. Install dependencies**
 ```bash
@@ -41,6 +56,14 @@ uvicorn main:app --reload
 ```
 **5. Open API docs**
 Navigate to `http://127.0.0.1:8000/docs` for the interactive Swagger UI.
+
+**6. Start the frontend**
+```bash 
+cd ../frontend 
+npm install
+npm start
+```
+> Need to create a `.env` in the frontend folder with `REACT_APP_API_URL=http://localhost:8000` for local development
 
 ## API Endpoints
 ### Users
