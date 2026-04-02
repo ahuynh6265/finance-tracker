@@ -8,7 +8,7 @@ import {useState} from "react"
 
 function App (){
   const [loggedIn, setLoggedIn] = useState(false)
-  const [name, setName] = useState(false)
+  const [name, setName] = useState("")
 
   return(
   <BrowserRouter>
