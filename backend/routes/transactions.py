@@ -3,44 +3,41 @@ from sqlalchemy.orm import Session
 from database import get_db 
 from models import Transaction
 from schemas import TransactionCreate, TransactionResponse 
-from dependencies import user_lookup, transaction_lookup, category_lookup, account_lookup
+from dependencies import transaction_lookup, category_lookup, account_lookup
+import auth
 
 router = APIRouter()
 
-@router.get("/users/{user_id}/transactions", response_model=list[TransactionResponse])
-def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
-  user = user_lookup(user_id, db)
-  return user.transactions
+@router.get("/transactions", response_model=list[TransactionResponse])
+def get_user_transactions(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  transactions = db.query(Transaction).filter(Transaction.user_id == current_user["id"]).all()
+  return transactions
 
 #standard single get route
-@router.get("/users/{user_id}/transactions/{transaction_id}", response_model=TransactionResponse) 
-def get_user_transaction(user_id: int, transaction_id: int, db: Session = Depends(get_db)):
-  user_lookup(user_id, db)
-  transaction = transaction_lookup(transaction_id, db, user_id) 
+@router.get("/transactions/{transaction_id}", response_model=TransactionResponse) 
+def get_user_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  transaction = transaction_lookup(transaction_id, db, current_user["id"]) 
   return transaction 
 
 #get route from user/category 
-@router.get("/users/{user_id}/categories/{category_id}/transactions", response_model=list[TransactionResponse])
-def get_category_transactions(user_id: int, category_id: int, db: Session = Depends(get_db)):
-  user_lookup(user_id, db)
-  category = category_lookup(category_id, db, user_id)  
+@router.get("/categories/{category_id}/transactions", response_model=list[TransactionResponse])
+def get_category_transactions(category_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  category = category_lookup(category_id, db, current_user["id"])  
   return category.transactions 
 
 #get route from user/account 
-@router.get("/users/{user_id}/accounts/{account_id}/transactions", response_model=list[TransactionResponse])
-def get_account_transactions(user_id: int, account_id: int, db: Session = Depends(get_db)):
-  user_lookup(user_id, db)
-  account = account_lookup(account_id, db, user_id) 
+@router.get("/accounts/{account_id}/transactions", response_model=list[TransactionResponse])
+def get_account_transactions(account_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  account = account_lookup(account_id, db, current_user["id"]) 
   return account.transactions
 
-@router.post("/users/{user_id}/transactions", response_model=list[TransactionResponse], status_code=status.HTTP_201_CREATED)
-def create_user_transactions(user_id: int, transactions_data: list[TransactionCreate], db: Session = Depends(get_db)): 
-  user_lookup(user_id, db)
- 
+@router.post("/transactions", response_model=list[TransactionResponse], status_code=status.HTTP_201_CREATED)
+def create_user_transactions(transactions_data: list[TransactionCreate], db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+  
   new_transactions = []
   for t in transactions_data:
     new_transaction= Transaction (
-    user_id = user_id,
+    user_id = current_user["id"],
     account_id = t.account_id,
     category_id = t.category_id,
     amount = t.amount,
@@ -50,7 +47,7 @@ def create_user_transactions(user_id: int, transactions_data: list[TransactionCr
     )
     new_transactions.append(new_transaction)
 
-    account = account_lookup(t.account_id, db, user_id) 
+    account = account_lookup(t.account_id, db, current_user["id"]) 
     if account:
       if t.transaction_type == "income":
         account.balance += t.amount
@@ -63,11 +60,10 @@ def create_user_transactions(user_id: int, transactions_data: list[TransactionCr
     db.refresh(transaction)
   return new_transactions 
 
-@router.delete("/users/{user_id}/transactions/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user_transaction(user_id: int, transaction_id: int, db: Session = Depends(get_db)): 
-  user_lookup(user_id, db)
-  transaction = transaction_lookup(transaction_id, db, user_id)  
-  account = account_lookup(transaction.account_id, db, user_id) 
+@router.delete("/transactions/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+  transaction = transaction_lookup(transaction_id, db, current_user["id"])  
+  account = account_lookup(transaction.account_id, db, current_user["id"]) 
   if transaction.transaction_type == "income":
     account.balance -= transaction.amount
   else:
@@ -77,11 +73,10 @@ def delete_user_transaction(user_id: int, transaction_id: int, db: Session = Dep
   db.commit()
   return
 
-@router.put("/users/{user_id}/transactions/{transaction_id}", response_model=TransactionResponse)
-def update_user_transaction(user_id: int, transaction_id: int, transaction_data: TransactionCreate, db: Session = Depends(get_db)): 
-  user_lookup(user_id, db)
-  transaction = transaction_lookup(transaction_id, db, user_id) 
-  account = account_lookup(transaction.account_id, db, user_id)
+@router.put("/transactions/{transaction_id}", response_model=TransactionResponse)
+def update_user_transaction(transaction_id: int, transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+  transaction = transaction_lookup(transaction_id, db, current_user["id"]) 
+  account = account_lookup(transaction.account_id, db, current_user["id"])
   if account: 
     if transaction.transaction_type == "income": 
       account.balance -= transaction.amount 
@@ -96,7 +91,7 @@ def update_user_transaction(user_id: int, transaction_id: int, transaction_data:
   transaction.date = transaction_data.date
 
   #check if account being updated is the same account 
-  account = account_lookup(transaction.account_id, db, user_id)
+  account = account_lookup(transaction.account_id, db, current_user["id"])
   if transaction.transaction_type == "income": 
     account.balance += transaction.amount 
   else:

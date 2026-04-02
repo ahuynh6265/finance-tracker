@@ -8,6 +8,7 @@ class User(Base):
   id = Column(Integer, primary_key=True, autoincrement=True)
   name = Column(String, nullable=False)
   email = Column(String, nullable=False)
+  hashed_password = Column(String, nullable=False)
   created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
   updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

@@ -3,48 +3,45 @@ from sqlalchemy.orm import Session
 from database import get_db 
 from models import Category
 from schemas import CategoryCreate, CategoryResponse
-from dependencies import user_lookup, category_lookup, account_lookup
+from dependencies import category_lookup, account_lookup
+import auth
 
 router = APIRouter()
 
-@router.get("/users/{user_id}/categories", response_model=list[CategoryResponse])
-def get_user_categories(user_id: int, db: Session =  Depends(get_db)):
-  user = user_lookup(user_id, db)
-  return user.categories 
+@router.get("/categories", response_model=list[CategoryResponse])
+def get_user_categories(db: Session =  Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  categories = db.query(Category).filter(Category.user_id == current_user["id"]).all()
+  return categories
 
-@router.get("/users/{user_id}/categories/{category_id}", response_model=CategoryResponse)
-def get_user_category(user_id: int, category_id: int, db: Session = Depends(get_db)):
-  user_lookup(user_id, db)
-  category = category_lookup(category_id, db, user_id)
+@router.get("/categories/{category_id}", response_model=CategoryResponse)
+def get_user_category(category_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  category = category_lookup(category_id, db, current_user["id"])
   return category
 
-@router.post("/users/{user_id}/categories", response_model=list[CategoryResponse], status_code=status.HTTP_201_CREATED)
-def create_user_categories(user_id: int, categories_data: list[CategoryCreate], db: Session = Depends(get_db)): 
-  user_lookup(user_id, db)
-  new_categories = [Category (user_id = user_id, name = c.name)for c in categories_data]
+@router.post("/categories", response_model=list[CategoryResponse], status_code=status.HTTP_201_CREATED)
+def create_user_categories(categories_data: list[CategoryCreate], db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+  new_categories = [Category (user_id = current_user["id"], name = c.name)for c in categories_data]
   db.add_all(new_categories)
   db.commit() 
   for category in new_categories:
     db.refresh(category)
   return new_categories 
 
-@router.put("/users/{user_id}/categories/{category_id}", response_model=CategoryResponse)
-def update_user_category(user_id: int, category_id: int, category_data: CategoryCreate, db: Session = Depends(get_db)): 
-  user_lookup(user_id, db)
-  category = category_lookup(category_id, db, user_id) 
+@router.put("/categories/{category_id}", response_model=CategoryResponse)
+def update_user_category(category_id: int, category_data: CategoryCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+  category = category_lookup(category_id, db, current_user["id"]) 
   
   category.name = category_data.name
   db.commit()
   db.refresh(category)
   return category
 
-@router.delete("/users/{user_id}/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user_category(user_id: int, category_id: int, db: Session = Depends(get_db)):
-  user_lookup(user_id, db)
-  category = category_lookup(category_id, db, user_id) 
+@router.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user_category(category_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  category = category_lookup(category_id, db, current_user["id"]) 
   
   for transaction in category.transactions:
-    account = account_lookup(transaction.account_id, db)
+    account = account_lookup(transaction.account_id, db, current_user["id"])
     if account:
       if transaction.transaction_type =="income":
         account.balance -= transaction.amount

@@ -72,6 +72,7 @@ class TransactionResponse(BaseModel):
 class UserCreate(BaseModel): 
   name: str = Field(min_length=1)
   email: str = Field(min_length=5)
+  password: str 
 
 class UserResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
@@ -81,8 +82,8 @@ class UserResponse(BaseModel):
   email: str 
   created_at: datetime 
   updated_at: datetime
-  categories: list[CategoryResponse]
-  accounts: list[AccountResponse]
-  transactions: list[TransactionResponse]
   
 
+class UserLogin(BaseModel):
+  email: str 
+  password: str
