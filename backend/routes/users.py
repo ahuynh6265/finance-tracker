@@ -7,10 +7,6 @@ from dependencies import user_lookup
 
 router = APIRouter() 
 
-@router.get("/users", response_model=list[UserResponse])
-def get_users(db: Session = Depends(get_db)): 
-  return db.query(User).all()
-
 @router.get("/users/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_db)):
   user = user_lookup(user_id, db)
