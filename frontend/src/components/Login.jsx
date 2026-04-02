@@ -1,0 +1,26 @@
+import {useState} from "react"
+import {userLogin, setAuthToken} from "../api/api"
+import {useNavigate} from "react-router-dom"
+
+function Login({onLogin}) {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const navigate = useNavigate()
+
+  function handleLogin() {
+    userLogin({email: email, password: password}).then(response =>{
+      setAuthToken(response.data.access_token)
+      onLogin()
+      navigate("/")
+    }).catch(err => console.error(err))
+  }
+
+  return (
+    <div>
+      <input className = "mr-2" value = {email} placeholder = "Email" onChange = {(e) => setEmail(e.target.value)}></input>
+      <input type = "password" value = {password} placeholder = "Password" onChange = {(e) => setPassword(e.target.value)}></input>
+      <button onClick = {handleLogin}>Login</button>
+    </div>
+  )
+}
+export default Login
