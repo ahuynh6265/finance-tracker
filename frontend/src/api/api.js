@@ -32,3 +32,8 @@ export function refreshData(getAPI, setState) {
     setState(response.data)
   }).catch(err => console.error(err))
 }
+
+export const getBudgets = () => api.get("/budgets")
+export const createBudget = (budget_data) => api.post("/budgets", budget_data)
+export const deleteBudget = (budget_id) => api.delete(`/budgets/${budget_id}`)
+export const updateBudget = (budget_id, budget_data) => api.patch(`/budgets/${budget_id}`, budget_data)

@@ -3,6 +3,7 @@ import Accounts from "./components/Accounts"
 import Transactions from "./components/Transactions"
 import Login from "./components/Login"
 import Register from "./components/Register"
+import Budgets from "./components/Budgets"
 import {BrowserRouter, Routes, Route, Link} from "react-router-dom"
 import {useState} from "react"
 
@@ -20,6 +21,7 @@ function App (){
       <Link className = "nav-link" to = "/">Dashboard</Link>
       <Link className = "nav-link" to = "/accounts">Accounts</Link>
       <Link className = "nav-link" to = "/transactions">Transactions</Link>
+      <Link className = "nav-link" to = "/budgets">Budgets</Link> 
 
       <hr className = "mt-auto line"></hr>
       <div className = "text-white capitalize">{name}</div>
@@ -30,6 +32,7 @@ function App (){
         <Route path = "/" element = {<Summary name = {name}/>}></Route>
         <Route path = "/accounts" element = {<Accounts />}></Route>
         <Route path = "/transactions" element = {<Transactions />}></Route>
+        <Route path = "/budgets" element = {<Budgets />}></Route>
       </Routes>
     </div> 
   </>
