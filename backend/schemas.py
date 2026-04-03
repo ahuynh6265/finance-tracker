@@ -83,7 +83,23 @@ class UserResponse(BaseModel):
   created_at: datetime 
   updated_at: datetime
   
-
 class UserLogin(BaseModel):
   email: str 
   password: str
+
+class BudgetCreate(BaseModel):
+  category_id: int 
+  budget_limit: float = Field(gt=0)
+
+class BudgetUpdate(BaseModel):
+  budget_limit: float = Field(gt=0)
+class BudgetResponse(BaseModel):
+  model_config = ConfigDict(from_attributes=True)
+
+  id: int
+  user_id: int 
+  category_id: int 
+  current_total: float
+  budget_limit: float 
+  created_at: datetime
+  updated_at: datetime

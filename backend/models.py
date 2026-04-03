@@ -15,6 +15,7 @@ class User(Base):
   categories = relationship("Category", back_populates="user", cascade="all, delete")
   accounts = relationship("Account", back_populates="user", cascade="all, delete")
   transactions = relationship("Transaction", back_populates="user", cascade="all, delete")
+  budgets = relationship("Budget", back_populates="user", cascade="all, delete")
 
 class Category(Base): 
   __tablename__ ="category"
@@ -24,6 +25,7 @@ class Category(Base):
 
   user = relationship("User", back_populates="categories")
   transactions = relationship("Transaction", back_populates="category", cascade="all, delete")
+  budget = relationship("Budget", back_populates="category", uselist=False)
   
 class Account(Base): 
   __tablename__="account"
@@ -53,3 +55,15 @@ class Transaction(Base):
   user = relationship("User", back_populates="transactions")
   category = relationship("Category", back_populates="transactions")
   account = relationship("Account", back_populates="transactions")
+
+class Budget(Base): 
+  __tablename__="budget"
+  id = Column(Integer, primary_key=True, autoincrement=True)
+  user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+  category_id = Column(Integer, ForeignKey("category.id"), nullable=False, unique=True)
+  budget_limit = Column(Float, nullable=False)
+  created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+  updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+  user = relationship("User", back_populates="budgets")
+  category = relationship("Category", back_populates="budget")
