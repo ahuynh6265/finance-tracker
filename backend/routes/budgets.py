@@ -77,7 +77,7 @@ def delete_budget(budget_id: int, db: Session = Depends(get_db), current_user: d
   db.commit()
   return 
 
-@router.put("/budgets/{budget_id}", response_model=BudgetResponse)
+@router.patch("/budgets/{budget_id}", response_model=BudgetResponse)
 def update_budget(budget_id: int, budget_data: BudgetUpdate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   budget = budget_lookup(budget_id, db, current_user["id"])
 
