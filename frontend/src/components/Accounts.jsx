@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react"
-import {getAccounts, deleteAccount} from "../api/api"
+import {getAccounts, deleteAccount, refreshData} from "../api/api"
 import CreateAccountModal from "./CreateAccountModal"
 import EditAccountModal from "./EditAccountModal"
 
@@ -9,15 +9,11 @@ function Accounts() {
   const [showCreate, setShowCreate] = useState(false)
 
   useEffect (() => {
-    getAccounts().then(response => {
-      setAccounts(response.data)
-    }).catch(err => console.error(err))
+    refreshData(getAccounts, setAccounts)
   }, [])
 
   function handleDelete(account_id) {
-    deleteAccount(account_id).then(() => getAccounts().then(response => {
-      setAccounts(response.data)
-    }).catch(err => console.error(err)))
+    deleteAccount(account_id).then(() => refreshData(getAccounts, setAccounts))
   }
 
   if (!accounts) return <div>Loading...</div>
@@ -27,7 +23,7 @@ function Accounts() {
       {showCreate ? (
         <CreateAccountModal
         onCreated = {() => {
-          getAccounts().then(response => setAccounts(response.data))
+          refreshData(getAccounts, setAccounts)
           setShowCreate(false)
         }}
         onClose = {() => setShowCreate(false)}
@@ -38,7 +34,7 @@ function Accounts() {
         <EditAccountModal
         account = {accounts.find (a => a.id === current_id)}
         onUpdated = {() => {
-          getAccounts().then(response => setAccounts(response.data))
+          refreshData(getAccounts, setAccounts)
           setID(null)
         }}
         onClose = {() => setID(null)}

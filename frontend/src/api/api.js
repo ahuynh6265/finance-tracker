@@ -26,3 +26,9 @@ export const userLogin = (user_data) => api.post(`/auth/login`, user_data)
 export const setAuthToken = (token) => {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
+
+export function refreshData(getAPI, setState) {
+  return getAPI().then(response => {
+    setState(response.data)
+  }).catch(err => console.error(err))
+}

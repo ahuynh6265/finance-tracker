@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react"
-import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategory} from "../api/api"
+import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategory, refreshData} from "../api/api"
 import CreateTransactionModal from "./CreateTransactionModal"
 import EditTransactionModal from "./EditTransactionModal"
 import ManageCategoriesModal from "./ManageCategoriesModal"
@@ -18,31 +18,20 @@ function Transactions(){
   const [showCategories, setShowCategories] = useState(false)
 
   useEffect (() => {
-    getTransactions().then(response => {
-      setTransactions(response.data)
-    }).catch(err => console.error(err))
-    getAccounts().then(response => {
-      setAccounts(response.data)
-    }).catch(err => console.error(err))
-    getCategories().then(response => {
-      setCategories(response.data)
-    }).catch(err => console.error(err))
+    refreshData(getTransactions, setTransactions)
+    refreshData(getAccounts, setAccounts)
+    refreshData(getCategories, setCategories)
   }, [])
 
   function handleDelete(transaction_id) {
-    deleteTransaction(transaction_id).then(() => getTransactions().then(response => {
-      setTransactions(response.data)
-    }).catch(err => console.error(err)))
+    deleteTransaction(transaction_id).then(() => refreshData(getTransactions, setTransactions))
   }
 
   function handleDeleteCategory(category_id) {
     //transactions need to refresh before categories, will crash otherwise
-    deleteCategory(category_id).then(() => getTransactions().then(response => {
-      setTransactions(response.data)
-      getCategories().then(response => {
-        setCategories(response.data)
-      })
-    }).catch(err => console.error(err)))
+    deleteCategory(category_id).then(() => {
+      refreshData(getTransactions, setTransactions).then(() => refreshData(getCategories, setCategories))
+    })
   }
 
   function guardTransactions() {
@@ -72,7 +61,7 @@ function Transactions(){
       accounts = {accounts}
       categories = {categories}
       onCreated = {() => {
-        getTransactions().then(response => setTransactions(response.data))
+        refreshData(getTransactions, setTransactions)
         setShowCreate(false)
       }}
       onClose = {() => setShowCreate(false)}
@@ -84,7 +73,7 @@ function Transactions(){
       categories = {categories}
       onDeleteCategory = {handleDeleteCategory}
       onCategoryChanged = {() => {
-        getCategories().then(response => setCategories(response.data))
+        refreshData(getCategories, setCategories)
       }}
       onClose = {() => setShowCategories(false)}
       />
@@ -96,7 +85,7 @@ function Transactions(){
       accounts = {accounts}
       categories = {categories}
       onUpdated = {() => {
-        getTransactions().then(response => setTransactions(response.data))
+        refreshData(getTransactions, setTransactions)
         setID(null)
       }}
       onClose = {() => setID(null)}

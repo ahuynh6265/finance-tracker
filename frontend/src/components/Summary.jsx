@@ -1,13 +1,11 @@
 import {useState, useEffect} from "react"
-import {getSummary} from "../api/api"
+import {getSummary, refreshData} from "../api/api"
 
 function Summary({name}) {
   const [summary, setSummary] = useState(null)
   
   useEffect (() => {
-    getSummary().then(response => {
-      setSummary(response.data)
-    }).catch(err => console.error(err))
+    refreshData(getSummary, setSummary)
   }, [])
   if (!summary) return <div>Loading...</div> 
   else return (
