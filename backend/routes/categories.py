@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db 
 from models import Category
 from schemas import CategoryCreate, CategoryResponse
-from dependencies import category_lookup, account_lookup
+from dependencies import category_lookup, account_lookup, adjust_balance
 import auth
 
 router = APIRouter()
@@ -42,11 +42,7 @@ def delete_user_category(category_id: int, db: Session = Depends(get_db), curren
   
   for transaction in category.transactions:
     account = account_lookup(transaction.account_id, db, current_user["id"])
-    if account:
-      if transaction.transaction_type =="income":
-        account.balance -= transaction.amount
-      else:
-        account.balance += transaction.amount
+    adjust_balance(account, transaction, True)
   
   db.delete(category)
   db.commit() 

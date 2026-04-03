@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db 
 from models import Transaction
 from schemas import TransactionCreate, TransactionResponse 
-from dependencies import transaction_lookup, category_lookup, account_lookup
+from dependencies import transaction_lookup, category_lookup, account_lookup, adjust_balance
 import auth
 
 router = APIRouter()
@@ -48,11 +48,7 @@ def create_user_transactions(transactions_data: list[TransactionCreate], db: Ses
     new_transactions.append(new_transaction)
 
     account = account_lookup(t.account_id, db, current_user["id"]) 
-    if account:
-      if t.transaction_type == "income":
-        account.balance += t.amount
-      else:
-        account.balance -= t.amount
+    adjust_balance(account, new_transaction)
     
   db.add_all(new_transactions)
   db.commit() 
@@ -64,10 +60,7 @@ def create_user_transactions(transactions_data: list[TransactionCreate], db: Ses
 def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   transaction = transaction_lookup(transaction_id, db, current_user["id"])  
   account = account_lookup(transaction.account_id, db, current_user["id"]) 
-  if transaction.transaction_type == "income":
-    account.balance -= transaction.amount
-  else:
-    account.balance += transaction.amount
+  adjust_balance(account, transaction, True)
     
   db.delete(transaction)
   db.commit()
@@ -77,11 +70,8 @@ def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), 
 def update_user_transaction(transaction_id: int, transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   transaction = transaction_lookup(transaction_id, db, current_user["id"]) 
   account = account_lookup(transaction.account_id, db, current_user["id"])
-  if account: 
-    if transaction.transaction_type == "income": 
-      account.balance -= transaction.amount 
-    else:
-      account.balance += transaction.amount
+  #remove current balance before updating
+  adjust_balance(account, transaction, True)
 
   transaction.account_id = transaction_data.account_id
   transaction.category_id = transaction_data.category_id
@@ -90,12 +80,9 @@ def update_user_transaction(transaction_id: int, transaction_data: TransactionCr
   transaction.description = transaction_data.description 
   transaction.date = transaction_data.date
 
-  #check if account being updated is the same account 
+  #check if account being updated is the same account, if it is the same account the new transaction amount will be added back into account if not the new account's balance is updated
   account = account_lookup(transaction.account_id, db, current_user["id"])
-  if transaction.transaction_type == "income": 
-    account.balance += transaction.amount 
-  else:
-    account.balance -= transaction.amount
+  adjust_balance(account, transaction)
   
   db.commit() 
   db.refresh(transaction)

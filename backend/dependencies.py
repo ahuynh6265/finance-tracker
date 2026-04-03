@@ -34,5 +34,18 @@ def transaction_lookup(transaction_id, db, user_id):
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Transaction ID {transaction_id} does not belong to user")
   
   return transaction 
-  
 
+def adjust_balance(account, transaction, reverse=False):
+  #if transaction is being created/updated into current/new account
+  if not reverse: 
+    if transaction.transaction_type == "income": 
+      account.balance += transaction.amount 
+    else:
+      account.balance -= transaction.amount
+  
+  #if transaction is being deleted/replaced from current account
+  else: 
+    if transaction.transaction_type == "income": 
+      account.balance -= transaction.amount 
+    else:
+      account.balance += transaction.amount
