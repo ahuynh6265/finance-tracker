@@ -47,8 +47,8 @@ def create_user_transactions(transactions_data: list[TransactionCreate], db: Ses
     )
     new_transactions.append(new_transaction)
 
-    account = account_lookup(t.account_id, db, current_user["id"]) 
-    adjust_balance(account, new_transaction)
+  account = account_lookup(t.account_id, db, current_user["id"]) 
+  adjust_balance(account, new_transaction)
     
   db.add_all(new_transactions)
   db.commit() 
