@@ -21,15 +21,15 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.post("/auth/login")
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
   user = db.query(User).filter(User.email == user_data.email).first()
-  if user: 
-    if auth.verify_password(user_data.password, user.hashed_password):
-      token = auth.create_token(user.name, user_data.email, user.id)
-      return {"access_token": token, "token_type": "bearer", "name": user.name} 
-    else:
-      raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect.")
-  
   if not user:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect")
+  
+  if not auth.verify_password(user_data.password, user.hashed_password):
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect.")
+  
+  access_token, refresh_token = auth.create_token(user.name, user_data.email, user.id)
+  return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer", "name": user.name} 
+  
   
 @router.get("/auth/me")
 def get_email(token: dict = Depends(auth.get_current_user)):
