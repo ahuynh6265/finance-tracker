@@ -103,3 +103,6 @@ class BudgetResponse(BaseModel):
   budget_limit: float 
   created_at: datetime
   updated_at: datetime
+
+class RefreshRequest(BaseModel):
+  refresh_token: str 

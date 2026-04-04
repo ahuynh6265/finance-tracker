@@ -33,3 +33,15 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     
   return current_user
+
+def refresh_access_token(token: str):
+  try: 
+    current_user = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    if current_user["type"] != "refresh":
+      raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+  except JWTError:
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+  
+  new_access_token, _ = create_token(current_user["name"], current_user["email"], current_user["id"])
+  
+  return new_access_token 

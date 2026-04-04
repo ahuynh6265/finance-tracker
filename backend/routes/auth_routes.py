@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session 
 from database import get_db
 from models import User 
-from schemas import UserCreate, UserLogin, UserResponse 
+from schemas import UserCreate, UserLogin, UserResponse, RefreshRequest 
 import auth 
 
 router = APIRouter()
@@ -34,3 +34,8 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
 @router.get("/auth/me")
 def get_email(token: dict = Depends(auth.get_current_user)):
   return token["email"]
+
+@router.post("/auth/refresh")
+def refresh(refresh_token: RefreshRequest):
+  new_access_token = auth.refresh_access_token(refresh_token.refresh_token)
+  return {"access_token": new_access_token, "token_type": "bearer"}
