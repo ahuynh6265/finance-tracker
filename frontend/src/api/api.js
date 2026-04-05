@@ -44,8 +44,9 @@ api.interceptors.response.use(
   response => response,
   error => {
     const status = error.response ? error.response.status : null; 
-    //if refresh token is expired it will also return 401, this will prevent an infinite loop
-    if (status === 401 && error.config.url !== "/auth/refresh") {
+    //if refresh token is expired it will also return 401, this will prevent an infinite loop 
+    //added login to if statement to prevent website refresh on user error 
+    if (status === 401 && error.config.url !== "/auth/refresh" && error.config.url !== "/auth/login") {
       const refresh_token = localStorage.getItem("refresh")
       if (!refresh_token) {window.location.href = "/login"}
       else{
