@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime, date 
 from enum import Enum 
+from decimal import Decimal
 
 class AccountType(str, Enum):
   checking = "checking"
@@ -14,9 +15,9 @@ class TransactionType(str, Enum):
 class SummaryResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
-  income: float 
-  expenses: float 
-  net_balance: float = Field(alias="net balance")
+  income: Decimal 
+  expenses: Decimal 
+  net_balance: Decimal = Field(alias="net balance")
 
 #category 
 class CategoryCreate(BaseModel): 
@@ -33,7 +34,7 @@ class CategoryResponse(BaseModel):
 class AccountCreate(BaseModel):
   bank_name: str = Field(min_length=1)
   account_type: AccountType
-  balance: float = Field(ge=0)
+  balance: Decimal = Field(ge=0)
 
 class AccountResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
@@ -42,7 +43,7 @@ class AccountResponse(BaseModel):
   user_id: int 
   bank_name: str 
   account_type: AccountType
-  balance: float
+  balance: Decimal
   created_at: datetime 
   updated_at: datetime
 
@@ -50,7 +51,7 @@ class AccountResponse(BaseModel):
 class TransactionCreate(BaseModel):
   account_id: int 
   category_id: int
-  amount: float = Field(gt=0)
+  amount: Decimal = Field(gt=0)
   transaction_type: TransactionType
   description: str = Field(min_length=1)
   date: date
@@ -62,7 +63,7 @@ class TransactionResponse(BaseModel):
   user_id: int 
   account_id: int 
   category_id: int
-  amount: float 
+  amount: Decimal 
   transaction_type: TransactionType
   description: str
   date: date 
@@ -89,18 +90,18 @@ class UserLogin(BaseModel):
 
 class BudgetCreate(BaseModel):
   category_id: int 
-  budget_limit: float = Field(gt=0)
+  budget_limit: Decimal = Field(gt=0)
 
 class BudgetUpdate(BaseModel):
-  budget_limit: float = Field(gt=0)
+  budget_limit: Decimal = Field(gt=0)
 class BudgetResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
 
   id: int
   user_id: int 
   category_id: int 
-  current_total: float
-  budget_limit: float 
+  current_total: Decimal
+  budget_limit: Decimal 
   created_at: datetime
   updated_at: datetime
 

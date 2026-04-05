@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Date, ForeignKey, Numeric
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime, timezone
@@ -33,7 +33,7 @@ class Account(Base):
   user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
   bank_name = Column(String, nullable=False)
   account_type = Column(String, nullable=False)
-  balance = Column(Float, nullable=False)
+  balance = Column(Numeric(10,2), nullable=False)
   created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
   updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
@@ -46,7 +46,7 @@ class Transaction(Base):
   user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
   account_id = Column(Integer, ForeignKey("account.id"), nullable=False)
   category_id = Column(Integer, ForeignKey("category.id"), nullable=False)
-  amount = Column(Float, nullable=False)
+  amount = Column(Numeric(10,2), nullable=False)
   transaction_type = Column(String, nullable=False)
   description = Column(String, nullable=False)
   date = Column(Date, nullable=False)
@@ -61,7 +61,7 @@ class Budget(Base):
   id = Column(Integer, primary_key=True, autoincrement=True)
   user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
   category_id = Column(Integer, ForeignKey("category.id"), nullable=False, unique=True)
-  budget_limit = Column(Float, nullable=False)
+  budget_limit = Column(Numeric(10,2), nullable=False)
   created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
   updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
