@@ -23,6 +23,13 @@ function App (){
     } 
   }, [])
 
+  function logOut() {
+    localStorage.removeItem("access")
+    localStorage.removeItem("refresh")
+    localStorage.removeItem("name")
+    setLoggedIn(false)
+  }
+
   return(
   <BrowserRouter>
   {loggedIn ? (
@@ -37,6 +44,7 @@ function App (){
 
       <hr className = "mt-auto line"></hr>
       <div className = "text-white capitalize">{name}</div>
+      <button className = "text-left text-white" onClick = {logOut}>Sign Out</button>
   
     </div>
     <div className = "main-content">

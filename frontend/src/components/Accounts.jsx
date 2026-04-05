@@ -69,7 +69,7 @@ function Accounts() {
         <div className = "flex flex-col w-[45%] gap-6">
           <div className = "card p-4">
             <div className = "text-white text-sm">Total Balance</div>
-            <div className = "text-white text-2xl">${accounts.reduce((sum, a) => sum + a.balance, 0).toFixed(2)}</div>
+            <div className = "text-white text-2xl">${accounts.reduce((sum, a) => sum + Number(a.balance), 0)}</div>
           </div>
           <div className = "card p-4">
             <div className = "text-white text-sm">Active Accounts</div>
