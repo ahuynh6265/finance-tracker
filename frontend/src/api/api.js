@@ -37,3 +37,26 @@ export const getBudgets = () => api.get("/budgets")
 export const createBudget = (budget_data) => api.post("/budgets", budget_data)
 export const deleteBudget = (budget_id) => api.delete(`/budgets/${budget_id}`)
 export const updateBudget = (budget_id, budget_data) => api.patch(`/budgets/${budget_id}`, budget_data)
+
+export const refreshToken = (refresh_token) => api.post("/auth/refresh", {"refresh_token": refresh_token})
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error.response ? error.response.status : null; 
+    //if refresh token is expired it will also return 401, this will prevent an infinite loop
+    if (status === 401 && error.config.url !== "/auth/refresh") {
+      const refresh_token = localStorage.getItem("refresh")
+      if (!refresh_token) {window.location.href = "/login"}
+      else{
+        return refreshToken(refresh_token).then(response => {
+          localStorage.setItem("access", response.data.access_token)
+          setAuthToken(response.data.access_token)
+          error.config.headers["Authorization"] = `Bearer ${response.data.access_token}`
+          return api(error.config)
+        }).catch(() => {window.location.href = "/login"})
+      }  
+    }
+    return Promise.reject(error)
+  }
+)

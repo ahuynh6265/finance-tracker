@@ -4,12 +4,24 @@ import Transactions from "./components/Transactions"
 import Login from "./components/Login"
 import Register from "./components/Register"
 import Budgets from "./components/Budgets"
+import {setAuthToken} from "./api/api"
 import {BrowserRouter, Routes, Route, Link} from "react-router-dom"
-import {useState} from "react"
+import {useState, useEffect} from "react"
 
 function App (){
   const [loggedIn, setLoggedIn] = useState(false)
   const [name, setName] = useState("")
+
+  useEffect (() => {
+    const access_token = localStorage.getItem("access")
+    const refresh_token = localStorage.getItem("refresh")
+
+    if (access_token && refresh_token) {
+      setLoggedIn(true)
+      setName(localStorage.getItem("name"))
+      setAuthToken(access_token)
+    } 
+  }, [])
 
   return(
   <BrowserRouter>
@@ -39,7 +51,7 @@ function App (){
   ): (
     <div>
       <Routes>
-        <Route path = "/*" element = {<Login onLogin = {(data) => {setLoggedIn(true); setName(data)}
+        <Route path = "/*" element = {<Login onLogin = {(data) => {setLoggedIn(true); setName(localStorage.getItem("name"))}
         } />}></Route> 
         <Route path = "/register" element = {<Register />}></Route>
       </Routes>
