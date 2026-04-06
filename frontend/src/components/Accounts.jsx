@@ -1,7 +1,6 @@
 import {useState, useEffect} from "react"
 import {getAccounts, deleteAccount, refreshData} from "../api/api"
-import CreateAccountModal from "./CreateAccountModal"
-import EditAccountModal from "./EditAccountModal"
+import AccountModal from "./AccountModal"
 
 function Accounts() {
   const [accounts, setAccounts] = useState(null)
@@ -31,8 +30,9 @@ function Accounts() {
       <button className = "text-white" onClick = {(e) => setShowCreate(true)}>Add Account</button>
       <div className = "text-red-400">{error}</div>
       {showCreate ? (
-        <CreateAccountModal
-        onCreated = {() => {
+        <AccountModal
+        account = {null}
+        onSuccess = {() => {
           refreshData(getAccounts, setAccounts)
           setShowCreate(false)
         }}
@@ -41,9 +41,9 @@ function Accounts() {
       ): null}
 
       {current_id ? (
-        <EditAccountModal
+        <AccountModal
         account = {accounts.find (a => a.id === current_id)}
-        onUpdated = {() => {
+        onSuccess = {() => {
           refreshData(getAccounts, setAccounts)
           setID(null)
         }}
