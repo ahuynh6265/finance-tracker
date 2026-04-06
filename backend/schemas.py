@@ -1,7 +1,8 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, field_validator, Field
 from datetime import datetime, date 
 from enum import Enum 
 from decimal import Decimal
+import validators
 
 class AccountType(str, Enum):
   checking = "checking"
@@ -21,7 +22,14 @@ class SummaryResponse(BaseModel):
 
 #category 
 class CategoryCreate(BaseModel): 
-  name: str = Field(min_length=1)
+  name: str 
+
+  @field_validator("name")
+  @classmethod
+  def check_name(cls, value: str) -> str:
+    if len(value) < 1:
+      raise ValueError("Category name can't be left empty.")
+    return value
 
 class CategoryResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
@@ -32,10 +40,23 @@ class CategoryResponse(BaseModel):
 
 #account 
 class AccountCreate(BaseModel):
-  bank_name: str = Field(min_length=1)
+  bank_name: str 
   account_type: AccountType
-  balance: Decimal = Field(ge=0)
+  balance: Decimal 
 
+  @field_validator("bank_name")
+  @classmethod
+  def check_bank_name(cls, value: str) -> str: 
+    if len(value) < 1: 
+      raise ValueError("Bank name can't be left empty.")
+    return value 
+  
+  @field_validator("balance")
+  @classmethod
+  def check_name(cls, value: Decimal) -> Decimal:
+    if value < 0:
+      raise ValueError("Balance can't be a negative number.")
+    return value
 class AccountResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
 
@@ -72,8 +93,17 @@ class TransactionResponse(BaseModel):
 #users 
 class UserCreate(BaseModel): 
   name: str = Field(min_length=1)
-  email: str = Field(min_length=5)
+  email: str 
   password: str 
+
+  @field_validator("email")
+  @classmethod
+  def check_email(cls, value: str) -> str:
+    if len(value) < 1:
+      raise ValueError("Email can't be left empty.")
+    elif not validators.email(value):
+      raise ValueError("Not a valid email.")
+    return value
 
 class UserResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
