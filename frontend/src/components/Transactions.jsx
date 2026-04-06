@@ -16,6 +16,7 @@ function Transactions(){
   //modal 
   const [showCreate, setShowCreate] = useState(false)
   const [showCategories, setShowCategories] = useState(false)
+  const [error, setError] = useState("")
 
   useEffect (() => {
     refreshData(getTransactions, setTransactions)
@@ -24,7 +25,15 @@ function Transactions(){
   }, [])
 
   function handleDelete(transaction_id) {
-    deleteTransaction(transaction_id).then(() => refreshData(getTransactions, setTransactions))
+    setError("")
+    deleteTransaction(transaction_id).then(() => refreshData(getTransactions, setTransactions)).catch(err => {
+      if (err.response) {
+        setError(err.response.data.detail)
+      }
+      else {
+        setError("Something went wrong.")
+      }
+    })
   }
 
   function handleDeleteCategory(category_id) {
@@ -121,6 +130,7 @@ function Transactions(){
       )}
       </tbody>
     </table>
+    <div className = "text-red-400">{error}</div>
     </div>
   )
 }

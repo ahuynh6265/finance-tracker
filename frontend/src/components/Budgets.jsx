@@ -8,14 +8,22 @@ function Budgets() {
   const [categories, setCategories] = useState(null)  
   const [current_id, setID] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
-
+  const [error, setError] = useState("")
   useEffect (() => {
     refreshData(getBudgets, setBudgets)
     refreshData(getCategories, setCategories)
   }, [])
 
   function handleDelete(budget_id){
-    deleteBudget(budget_id).then(() => refreshData(getBudgets, setBudgets))
+    setError("")
+    deleteBudget(budget_id).then(() => refreshData(getBudgets, setBudgets)).catch(err => {
+      if (err.response) {
+        setError(err.response.data.detail)
+      }
+      else {
+        setError("Something went wrong.")
+      }
+    })
   }
 
   if (!budgets || !categories) return <div>Loading...</div>
@@ -57,6 +65,7 @@ function Budgets() {
           </div>
         )}
       </div>
+      <div className = "text-red-400">{error}</div>
     </div>
   )
 }

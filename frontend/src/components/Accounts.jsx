@@ -7,19 +7,29 @@ function Accounts() {
   const [accounts, setAccounts] = useState(null)
   const [current_id, setID] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
+  const [error, setError] = useState("")
 
   useEffect (() => {
     refreshData(getAccounts, setAccounts)
   }, [])
 
   function handleDelete(account_id) {
-    deleteAccount(account_id).then(() => refreshData(getAccounts, setAccounts))
+    setError("")
+    deleteAccount(account_id).then(() => refreshData(getAccounts, setAccounts)).catch(err => {
+      if (err.response) {
+        setError(err.response.data.detail)
+      }
+      else {
+        setError("Something went wrong.")
+      }
+    })
   }
 
   if (!accounts) return <div>Loading...</div>
   else return (
     <div>
       <button className = "text-white" onClick = {(e) => setShowCreate(true)}>Add Account</button>
+      <div className = "text-red-400">{error}</div>
       {showCreate ? (
         <CreateAccountModal
         onCreated = {() => {
@@ -59,7 +69,6 @@ function Accounts() {
                     <button className = "mr-2" onClick = {() => handleDelete(account.id)}>Delete</button>
                     <button onClick = {() => {setID(account.id)}}>Edit</button>
                   </div>
-                  
                 </div>
               </div>
             )}
