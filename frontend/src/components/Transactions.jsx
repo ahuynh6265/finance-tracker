@@ -1,21 +1,20 @@
 import {useState, useEffect} from "react"
-import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategory, refreshData} from "../api/api"
+import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategoryTransactions, refreshData} from "../api/api"
 import CreateTransactionModal from "./CreateTransactionModal"
 import EditTransactionModal from "./EditTransactionModal"
-import ManageCategoriesModal from "./ManageCategoriesModal"
 
 function Transactions(){
   //transaction variables
   const [transactions, setTransactions] = useState(null)
   const [accounts, setAccounts] = useState(null)
   const [categories, setCategories] = useState(null)
+  const [category_id, setCategoryID] = useState("")
 
   //transaction updates
   const [current_id, setID] = useState(null)
   
   //modal 
   const [showCreate, setShowCreate] = useState(false)
-  const [showCategories, setShowCategories] = useState(false)
   const [error, setError] = useState("")
 
   useEffect (() => {
@@ -36,12 +35,14 @@ function Transactions(){
     })
   }
 
-  function handleDeleteCategory(category_id) {
-    //transactions need to refresh before categories, will crash otherwise
-    deleteCategory(category_id).then(() => {
+  //clear transaction from select category
+  /*
+  function handleClearCategoryTransactions(category_id) {
+    setError("")
+    deleteCategoryTransactions(category_id).then(() => {
       refreshData(getTransactions, setTransactions).then(() => refreshData(getCategories, setCategories))
     })
-  }
+  }*/
 
   function guardTransactions() {
     return(
@@ -64,7 +65,7 @@ function Transactions(){
     <div>
     {guardTransactions()}
     <button className = "text-white font-semibold" disabled = {accounts.length === 0 || categories.length === 0} onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
-    <button className = "text-white font-semibold" onClick = {(e) => setShowCategories(true)}>Create/Manage Categories</button> 
+
     {showCreate ? (
     <CreateTransactionModal
       accounts = {accounts}
@@ -76,17 +77,6 @@ function Transactions(){
       onClose = {() => setShowCreate(false)}
     />
     ) : null}
-
-    {showCategories ? (
-      <ManageCategoriesModal
-      categories = {categories}
-      onDeleteCategory = {handleDeleteCategory}
-      onCategoryChanged = {() => {
-        refreshData(getCategories, setCategories)
-      }}
-      onClose = {() => setShowCategories(false)}
-      />
-    ): null}
 
     {current_id ? (
       <EditTransactionModal
