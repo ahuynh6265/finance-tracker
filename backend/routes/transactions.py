@@ -34,6 +34,7 @@ def get_account_transactions(account_id: int, db: Session = Depends(get_db), cur
 @router.post("/transactions", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
 def create_user_transaction(transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   new_transaction = Transaction(
+    user_id = current_user["id"], 
     account_id = transaction_data.account_id,
     category_id = transaction_data.category_id, 
     amount = transaction_data.amount, 
