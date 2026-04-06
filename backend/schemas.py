@@ -72,10 +72,27 @@ class AccountResponse(BaseModel):
 class TransactionCreate(BaseModel):
   account_id: int 
   category_id: int
-  amount: Decimal = Field(gt=0)
+  amount: Decimal 
   transaction_type: TransactionType
-  description: str = Field(min_length=1)
+  description: str 
   date: date
+
+  @field_validator("amount")
+  @classmethod 
+  def check_amount(cls, value: Decimal) -> Decimal:
+    if value == 0:
+      raise ValueError("Amount can't be zero.")
+    elif value < 0: 
+      raise ValueError("Amount can't be negative.")
+    return value
+  
+  @field_validator("description")
+  @classmethod
+  def check_description(cls, value: str) -> str:
+    if len(value) < 1:
+      raise ValueError("Description can't be empty.")
+    return value
+  
 
 class TransactionResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
@@ -120,10 +137,29 @@ class UserLogin(BaseModel):
 
 class BudgetCreate(BaseModel):
   category_id: int 
-  budget_limit: Decimal = Field(gt=0)
+  budget_limit: Decimal
+
+  @field_validator("budget_limit")
+  @classmethod
+  def check_budget_limit(cls, value: Decimal) -> Decimal:
+    if value == 0:
+      raise ValueError("Budget limit can't be zero.")
+    elif value < 0: 
+      raise ValueError("Budget limit can't be negative.")
+    return value
 
 class BudgetUpdate(BaseModel):
-  budget_limit: Decimal = Field(gt=0)
+  budget_limit: Decimal 
+
+  @field_validator("budget_limit")
+  @classmethod
+  def check_budget_limit(cls, value: Decimal) -> Decimal:
+    if value == 0:
+      raise ValueError("Budget limit can't be zero.")
+    elif value < 0: 
+      raise ValueError("Budget limit can't be negative.")
+    return value
+  
 class BudgetResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
 
