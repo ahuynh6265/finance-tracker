@@ -1,7 +1,6 @@
 import {useState, useEffect} from "react"
 import {getBudgets, deleteBudget, getCategories, refreshData} from "../api/api"
-import CreateBudgetModal from "./CreateBudgetModal"
-import EditBudgetModal from "./EditBudgetModal"
+import BudgetModal from "./BudgetModal"
 
 function Budgets() {
   const [budgets, setBudgets] = useState(null)
@@ -31,10 +30,11 @@ function Budgets() {
     <div>
       <button className = "text-white font-semibold" onClick = {(e) => setShowCreate(true)}>Create Budget</button> 
       {showCreate ? (
-        <CreateBudgetModal
+        <BudgetModal
+        budget = {null}
         budgets = {budgets}
         categories = {categories}
-        onCreated = {() => {
+        onSuccess = {() => {
           refreshData(getBudgets, setBudgets)
           setShowCreate(false)
         }}
@@ -43,10 +43,11 @@ function Budgets() {
       ): null}
 
       {current_id ? (
-        <EditBudgetModal
+        <BudgetModal
         budget = {budgets.find (b => b.id === current_id)}
+        budgets = {budgets}
         categories = {categories}
-        onUpdated = {() => {
+        onSuccess = {() => {
           refreshData(getBudgets, setBudgets)
           setID(null)
         }}
