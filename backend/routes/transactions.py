@@ -31,31 +31,27 @@ def get_account_transactions(account_id: int, db: Session = Depends(get_db), cur
   account = account_lookup(account_id, db, current_user["id"]) 
   return account.transactions
 
-@router.post("/transactions", response_model=list[TransactionResponse], status_code=status.HTTP_201_CREATED)
-def create_user_transactions(transactions_data: list[TransactionCreate], db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+@router.post("/transactions", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
+def create_user_transactions(transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   
-  new_transactions = []
-  for t in transactions_data:
-    new_transaction= Transaction (
-    user_id = current_user["id"],
-    account_id = t.account_id,
-    category_id = t.category_id,
-    amount = t.amount,
-    transaction_type = t.transaction_type, 
-    description = t.description,
-    date = t.date
-    )
-    category_lookup(t.category_id, db, current_user["id"])
-    account = account_lookup(t.account_id, db, current_user["id"]) 
-    adjust_balance(account, new_transaction)
-    new_transactions.append(new_transaction)
+  new_transaction = Transaction(
+    account_id = transaction_data.account_id,
+    category_id = transaction_data.category_id, 
+    amount = transaction_data.amount, 
+    transaction_type = transaction_data.transaction_type,
+    description = transaction_data.description, 
+    date = transaction_data.date
+  )
+  category_lookup(new_transaction.category_id, db, current_user["id"])
+  account = account_lookup(new_transaction.account_id, db, current_user["id"]) 
+  adjust_balance(account, new_transaction)
+  new_transaction.append(new_transaction)
 
     
-  db.add_all(new_transactions)
+  db.add(new_transaction)
   db.commit() 
-  for transaction in new_transactions:
-    db.refresh(transaction)
-  return new_transactions 
+  db.refresh(new_transaction)
+  return new_transaction 
 
 @router.delete("/transactions/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 

@@ -18,19 +18,17 @@ def get_user_account(account_id: int, db: Session = Depends(get_db), current_use
   account = account_lookup(account_id, db, current_user["id"])
   return account 
 
-@router.post("/accounts", response_model=list[AccountResponse], status_code=status.HTTP_201_CREATED)
-def create_user_accounts(accounts_data: list[AccountCreate], db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
-  new_accounts = [Account (
+@router.post("/accounts", response_model=AccountResponse, status_code=status.HTTP_201_CREATED)
+def create_user_accounts(account_data: AccountCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+  new_account = Account(
     user_id = current_user["id"], 
-    bank_name = a.bank_name, 
-    account_type = a.account_type, 
-    balance = a.balance
-  ) for a in accounts_data] 
-  db.add_all(new_accounts)
+    bank_name = account_data.bank_name, 
+    account_type = account_data.account_type, 
+    balance = account_data.balance)
+  db.add(new_account)
   db.commit() 
-  for account in new_accounts:
-    db.refresh(account)
-  return new_accounts 
+  db.refresh(new_account)
+  return new_account 
 
 @router.delete("/accounts/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user_account(account_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):

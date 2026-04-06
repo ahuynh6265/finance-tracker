@@ -18,14 +18,13 @@ def get_user_category(category_id: int, db: Session = Depends(get_db), current_u
   category = category_lookup(category_id, db, current_user["id"])
   return category
 
-@router.post("/categories", response_model=list[CategoryResponse], status_code=status.HTTP_201_CREATED)
-def create_user_categories(categories_data: list[CategoryCreate], db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
-  new_categories = [Category (user_id = current_user["id"], name = c.name)for c in categories_data]
-  db.add_all(new_categories)
+@router.post("/categories", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
+def create_user_categories(category_data: CategoryCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+  new_category = Category(user_id = current_user["id"], name = category_data.name)
+  db.add(new_category)
   db.commit() 
-  for category in new_categories:
-    db.refresh(category)
-  return new_categories 
+  db.refresh(new_category)
+  return new_category 
 
 @router.put("/categories/{category_id}", response_model=CategoryResponse)
 def update_user_category(category_id: int, category_data: CategoryCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
