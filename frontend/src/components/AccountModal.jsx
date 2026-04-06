@@ -6,8 +6,7 @@ function AccountModal({account, onSuccess, onClose}) {
 
   const [bank_name, setBank] = useState(account ? account.bank_name : "")
   const [account_type, setType] = useState(account ? account.account_type : "checking")
-  const [balance, setBalance] = useState(account ? account.balance : "0")
-
+  const [balance, setBalance] = useState(account ? account.balance : 0)
 
   function handleSubmit() {
     setError("")

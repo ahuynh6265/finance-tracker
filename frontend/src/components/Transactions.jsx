@@ -1,7 +1,6 @@
 import {useState, useEffect} from "react"
 import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategoryTransactions, refreshData} from "../api/api"
-import CreateTransactionModal from "./CreateTransactionModal"
-import EditTransactionModal from "./EditTransactionModal"
+import TransactionModal from "./TransactionModal"
 
 function Transactions(){
   //transaction variables
@@ -67,10 +66,11 @@ function Transactions(){
     <button className = "text-white font-semibold" disabled = {accounts.length === 0 || categories.length === 0} onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
 
     {showCreate ? (
-    <CreateTransactionModal
+    <TransactionModal
+      transaction = {null}
       accounts = {accounts}
       categories = {categories}
-      onCreated = {() => {
+      onSuccess = {() => {
         refreshData(getTransactions, setTransactions)
         setShowCreate(false)
       }}
@@ -79,11 +79,11 @@ function Transactions(){
     ) : null}
 
     {current_id ? (
-      <EditTransactionModal
+      <TransactionModal
       transaction = {transactions.find (t => t.id  === current_id)}
       accounts = {accounts}
       categories = {categories}
-      onUpdated = {() => {
+      onSuccess = {() => {
         refreshData(getTransactions, setTransactions)
         setID(null)
       }}
