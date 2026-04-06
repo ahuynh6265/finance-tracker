@@ -32,8 +32,7 @@ def get_account_transactions(account_id: int, db: Session = Depends(get_db), cur
   return account.transactions
 
 @router.post("/transactions", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
-def create_user_transactions(transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
-  
+def create_user_transaction(transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   new_transaction = Transaction(
     account_id = transaction_data.account_id,
     category_id = transaction_data.category_id, 
@@ -45,8 +44,6 @@ def create_user_transactions(transaction_data: TransactionCreate, db: Session = 
   category_lookup(new_transaction.category_id, db, current_user["id"])
   account = account_lookup(new_transaction.account_id, db, current_user["id"]) 
   adjust_balance(account, new_transaction)
-  new_transaction.append(new_transaction)
-
     
   db.add(new_transaction)
   db.commit() 
