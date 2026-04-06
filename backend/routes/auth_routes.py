@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session 
 from database import get_db
-from models import User 
+from models import User, Category 
 from schemas import UserCreate, UserLogin, UserResponse, RefreshRequest 
 import auth 
 
 router = APIRouter()
+categories = ["Automotive", "Bills & utilities", "Cash out", "Education", "Entertainment", "Food & drink", "Gas", "Groceries", "Misc.", "Personal", "Shopping", "Travel"]
 
 @router.post("/auth/register", response_model=UserResponse)
 def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -16,6 +17,14 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
   db.add(user)
   db.commit()
   db.refresh(user)
+
+  set_categories = []
+  for category in categories:
+    set_category = Category(user_id = user.id, name = category)
+    set_categories.append(set_category)
+  db.add_all(set_categories)
+  db.commit()
+
   return user 
 
 @router.post("/auth/login")
