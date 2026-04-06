@@ -21,16 +21,6 @@ class SummaryResponse(BaseModel):
   net_balance: Decimal = Field(alias="net balance")
 
 #category 
-class CategoryCreate(BaseModel): 
-  name: str 
-
-  @field_validator("name")
-  @classmethod
-  def check_name(cls, value: str) -> str:
-    if len(value) < 1:
-      raise ValueError("Category name can't be left empty.")
-    return value
-
 class CategoryResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
 

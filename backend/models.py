@@ -24,7 +24,7 @@ class Category(Base):
   name = Column(String, nullable=False)
 
   user = relationship("User", back_populates="categories")
-  transactions = relationship("Transaction", back_populates="category", cascade="all, delete")
+  transactions = relationship("Transaction", back_populates="category")
   budget = relationship("Budget", back_populates="category", uselist=False)
   
 class Account(Base): 
