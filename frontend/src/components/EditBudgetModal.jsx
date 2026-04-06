@@ -3,27 +3,31 @@ import {updateBudget} from "../api/api"
 
 function EditBudgetModal({budget, categories, onUpdated, onClose}) {
   const [newBudgetLimit, setNewBudgetLimit] = useState(budget.budget_limit)
+  const [error, setError] = useState("")
 
   function handleUpdate() {
-    updateBudget(budget.id, {budget_limit: Number(newBudgetLimit)}).then(() => {
-      onUpdated()
-    }).catch(err => console.error(err))
-  }
-
-  function guardBudget() {
-    return (
-      <div>
-        {(Number(newBudgetLimit) === 0 && String(newBudgetLimit).trim().length !== 0) ? (
-          <div className = "text-red-400">Budget can not be zero.</div>
-        ): null}
-        {(Number(newBudgetLimit) < 0 && String(newBudgetLimit).trim().length !== 0) ? (
-          <div className = "text-red-400">Budget can not be negative.</div>
-        ): null}
-        {(String(newBudgetLimit).trim().length === 0) ? (
-          <div className = "text-red-400">Budget can not be left empty.</div>
-        ): null}
-      </div>
-    )
+    setError("")
+    if (isNaN(Number(newBudgetLimit))) {
+      setError("Please enter a numerical value.")
+    }
+    else {
+      updateBudget(budget.id, {budget_limit: Number(newBudgetLimit)}).then(() => {
+        onUpdated()
+      }).catch(err => {
+        if (err.response) {
+          if (err.response.status === 422) {
+            const getError = err.response.data.detail[0].msg
+            setError(getError.split(",")[1].trim())
+          }
+          else {
+            setError(err.response.data.detail)
+          }
+        }
+        else {
+          setError("Something went wrong.")
+        }
+      })
+    }
   }
 
   return (
@@ -39,8 +43,8 @@ function EditBudgetModal({budget, categories, onUpdated, onClose}) {
           </div>
         </div>
 
-        <button className = "text-white font-semibold" disabled = {newBudgetLimit <= 0 || String(newBudgetLimit).trim().length === 0} onClick = {handleUpdate}>Save</button>
-        <div className = "justify-center">{guardBudget()}</div>
+        <button className = "text-white font-semibold" onClick = {handleUpdate}>Save</button>
+        <div className = "text-red-400">{error}</div>
       </div>
     </div>
   )

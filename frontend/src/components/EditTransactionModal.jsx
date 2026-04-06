@@ -8,11 +8,34 @@ function EditTransactionModal({transaction, accounts, categories, onUpdated, onC
   const [newTransactionType, setNewTransactionType] = useState(transaction.transaction_type)
   const [newDescription, setNewDescription] = useState(transaction.description)
   const [newDate, setNewDate] = useState(transaction.date)
+  const [error, setError] = useState("")
 
   function handleUpdate() {
-    updateTransaction(transaction.id, {account_id: Number(newAccountID), category_id: Number(newCategoryID), amount: Number(newAmount), transaction_type: newTransactionType, description: newDescription, date: newDate}).then(() => {
-      onUpdated()
-    }).catch(err => console.error(err))
+    setError("")
+    if (isNaN(Number(newAmount))) {
+      setError("Please enter a numerical value.")
+    }
+    else if (newDate === ""){
+      setError("Please select a date.")
+    }
+    else {
+      updateTransaction(transaction.id, {account_id: Number(newAccountID), category_id: Number(newCategoryID), amount: Number(newAmount), transaction_type: newTransactionType, description: newDescription, date: newDate}).then(() => {
+        onUpdated()
+      }).catch(err => {
+        if (err.response) {
+          if (err.response.status === 422) {
+            const getError = err.response.data.detail[0].msg
+            setError(getError.split(",")[1].trim())
+          }
+          else {
+            setError(err.response.data.detail)
+          }
+        }
+        else {
+          setError("Something went wrong.")
+        }
+      })
+    }
   }
 
   return (
@@ -66,6 +89,7 @@ function EditTransactionModal({transaction, accounts, categories, onUpdated, onC
         </div>
 
         <button className = "text-white font-semibold" onClick = {handleUpdate}>Save</button>
+        <div className = "text-red-400">{error}</div>
       </div>
     </div>
   )

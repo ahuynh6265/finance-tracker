@@ -5,11 +5,26 @@ function EditAccountModal({account, onUpdated, onClose}) {
   const [newBank, setNewBank] = useState(account.bank_name)
   const [newAccountType, setNewAccountType] = useState(account.account_type)
   const [newBalance, setNewBalance] = useState(account.balance)
+  const [error, setError] = useState("")
 
   function handleUpdate() {
+    setError("")
     updateAccount(account.id, {bank_name: newBank, account_type: newAccountType, balance: Number(newBalance)}).then(() => {
       onUpdated()
-    }).catch(err => console.error(err))
+    }).catch(err => {
+      if (err.response){
+        if (err.response.status === 422) {
+          const getError = err.response.data.detail[0].msg
+          setError(getError.split(",")[1].trim())
+        }
+        else {
+          setError(err.response.data.detail)
+        }
+      }
+      else {
+        setError("Something went wrong.")
+      }
+    })
   }
   return (
   <div className = "modal-overlay">
@@ -39,6 +54,7 @@ function EditAccountModal({account, onUpdated, onClose}) {
       </div>
 
       <button className = "text-white font-semibold" onClick = {handleUpdate}>Save Changes</button>
+      <div className = "text-red-400">{error}</div>
     </div>
   </div>
   )

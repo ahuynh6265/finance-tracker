@@ -5,11 +5,26 @@ function CreateAccountModal({onCreated, onClose}) {
   const [bank_name, setBank] = useState("")
   const [account_type, setType] = useState("checking")
   const [balance, setBalance] = useState(0)
+  const [error, setError] = useState("")
 
   function handleCreate() {
+    setError("")
     createAccount({bank_name: bank_name, account_type: account_type, balance: Number(balance)}).then(() => {
       onCreated()
-    }).catch(err => console.error(err))
+    }).catch(err => {
+      if (err.response){
+        if (err.response.status === 422) {
+          const getError = err.response.data.detail[0].msg 
+          setError(getError.split(",")[1].trim())
+        }
+        else {
+          (setError(err.response.data.detail))
+        }
+      }
+      else {
+        setError ("Something went wrong.")
+      }
+    })
   }
 
   return (
@@ -40,6 +55,7 @@ function CreateAccountModal({onCreated, onClose}) {
       </div>
 
       <button className = "text-white font-semibold" onClick = {handleCreate}>Create Account</button>
+      <div className = "text-red-400">{error}</div>
     </div>
   </div>
   )

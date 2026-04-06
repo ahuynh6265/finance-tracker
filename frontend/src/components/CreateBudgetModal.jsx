@@ -6,28 +6,32 @@ function CreateBudgetModal({budgets, categories, onCreated, onClose}) {
   const availableCategories = categories.filter(c => !budgets.some(b => b.category_id === c.id))
   // set the use state to the first available category return empty string if none available 
   const [category_id, setCategoryID] = useState(availableCategories[0]?.id || "")
-  const [budget_limit, setBudgetLimit] = useState(100)
+  const [budget_limit, setBudgetLimit] = useState(0)
+  const [error, setError] = useState("")
 
   function handleCreate() {
-    createBudget({category_id: Number(category_id), budget_limit: Number(budget_limit)}).then(() => {
-      onCreated()
-    }).catch(err => console.error(err))
-  }
-
-  function guardBudget() {
-    return (
-      <div>
-        {(Number(budget_limit) === 0 && String(budget_limit).trim().length !== 0) ? (
-          <div className = "text-red-400">Budget can not be zero.</div>
-        ): null}
-        {(Number(budget_limit) < 0 && String(budget_limit).trim().length !== 0) ? (
-          <div className = "text-red-400">Budget can not be negative.</div>
-        ): null}
-        {(String(budget_limit).trim().length === 0) ? (
-          <div className = "text-red-400">Budget can not be left empty.</div>
-        ): null}
-      </div>
-    )
+    setError("")
+    if (isNaN(Number(budget_limit))) {
+      setError("Please enter a numerical value.")
+    }
+    else {
+      createBudget({category_id: Number(category_id), budget_limit: Number(budget_limit)}).then(() => {
+        onCreated()
+      }).catch(err => {
+        if (err.response) {
+          if (err.response.status === 422) {
+            const getError = err.response.data.detail[0].msg 
+            setError(getError.split(",")[1].trim())
+          }
+          else {
+            setError(err.response.data.detail)
+          }
+        }
+        else {
+          setError("Something went wrong.")
+        }
+      })
+    }
   }
 
   return (
@@ -49,8 +53,8 @@ function CreateBudgetModal({budgets, categories, onCreated, onClose}) {
           </div>
         </div>
 
-        <button className = "text-white font-semibold" disabled = {budget_limit <= 0 || String(budget_limit).trim().length === 0 || availableCategories.length === 0} onClick = {handleCreate}>Create Budget</button>
-        {guardBudget()}
+        <button className = "text-white font-semibold" disabled = {availableCategories.length === 0} onClick = {handleCreate}>Create Budget</button>
+        <div className = "text-red-400">{error}</div>
       </div>
     </div>
   )

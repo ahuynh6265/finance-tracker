@@ -8,11 +8,35 @@ function CreateTransactionModal({accounts, categories, onCreated, onClose}) {
   const [transaction_type, setTransactionType] = useState("income")
   const [description, setDescription] = useState("")
   const [date, setDate] = useState("")
+  const [error, setError] = useState("")
 
   function handleCreate() {
-    createTransaction({account_id: Number(account_id), category_id: Number(category_id), amount: Number(amount), transaction_type: transaction_type, description: description, date: date}).then(() => {
-      onCreated()
-    }).catch(err => console.error(err))
+    setError("")
+    //need to check if amount is anything but numerical or else pydantic will reject with own message
+    if (isNaN(Number(amount))){ 
+      setError("Please enter a numerical value.")
+    } 
+    else if (date === ""){
+      setError("Please select a date.")
+    }
+    else {
+      createTransaction({account_id: Number(account_id), category_id: Number(category_id), amount: Number(amount), transaction_type: transaction_type, description: description, date: date}).then(() => {
+        onCreated()
+      }).catch(err => {
+        if (err.response) {
+          if (err.response.status === 422) {
+            const getError = err.response.data.detail[0].msg
+            setError(getError.split(",")[1].trim())
+          }
+          else {
+            setError(err.response.data.detail)
+          }
+        }
+        else {
+          setError("Something went wrong.")
+        }
+      })
+    }
   }
 
   return (
@@ -66,6 +90,7 @@ function CreateTransactionModal({accounts, categories, onCreated, onClose}) {
         </div>
 
         <button className = "text-white font-semibold" onClick = {handleCreate}>Create</button>
+        <div className = "text-red-400">{error}</div>
         
       </div>
     </div> 
