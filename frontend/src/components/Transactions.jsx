@@ -16,6 +16,10 @@ function Transactions(){
   const [showCreate, setShowCreate] = useState(false)
   const [error, setError] = useState("")
 
+  //sorting 
+  const [sort, setSort] = useState("date")
+  const [dir, setDir] = useState("desc")
+
   useEffect (() => {
     refreshData(getTransactions, setTransactions)
     refreshData(getAccounts, setAccounts)
@@ -32,6 +36,17 @@ function Transactions(){
         setError("Something went wrong.")
       }
     })
+  }
+
+  function handleSort(column) {
+    if (sort === column) {
+      setDir((prevState) => (prevState === "desc" ? "asc" : "desc"))
+    }
+    else {
+      setSort(column)
+      if (column === "date") {setDir("desc")}
+      else {setDir("asc")}
+    }
   }
 
   //clear transaction from select category
@@ -60,7 +75,48 @@ function Transactions(){
   }
 
   if (!transactions || !accounts || !categories) return <div>Loading...</div>
-  else return (
+  else {
+  const copyTransactions = [...transactions]
+  if (sort === "date") {
+    if (dir === "desc") {copyTransactions.sort((a, b) => b.date.localeCompare(a.date))}
+    else {copyTransactions.sort((a, b) => a.date.localeCompare(b.date))}
+  }
+  else if (sort === "category_id"){
+    copyTransactions.sort((a, b) => {
+      const nameA = categories.find(c => c.id === a.category_id)?.name || ""
+      const nameB = categories.find(c => c.id === b.category_id)?.name || ""
+      if (dir === "desc") {return nameB.localeCompare(nameA)}
+      else {return nameA.localeCompare(nameB)}
+    })
+  }
+  else if (sort === "account_id"){
+    copyTransactions.sort((a, b) => {
+      const nameA = accounts.find(acc => acc.id === a.account_id)?.bank_name || ""
+      const nameB = accounts.find(acc => acc.id === b.account_id)?.bank_name || ""
+      if (dir === "desc") {return nameB.localeCompare(nameA)}
+      else {return nameA.localeCompare(nameB)}
+    })
+  }
+  else if (sort === "amount"){
+    copyTransactions.sort((a, b) => {
+      if (dir === "desc") {return Number(b.amount) - Number(a.amount)}
+      else {return Number(a.amount) - Number(b.amount)}
+    })
+  }
+  else if (sort === "description"){
+    copyTransactions.sort((a, b) => {
+      if (dir === "desc") {return b.description.localeCompare(a.description)}
+      else {return a.description.localeCompare(b.description)}
+    })
+  }
+  else {
+    copyTransactions.sort((a, b) => {
+      if (dir === "desc") {return b.transaction_type.localeCompare(a.transaction_type)}
+      else {return a.transaction_type.localeCompare(b.transaction_type)}
+    })
+  }
+
+  return (
     <div>
     {guardTransactions()}
     <button className = "text-white font-semibold" disabled = {accounts.length === 0 || categories.length === 0} onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
@@ -94,17 +150,17 @@ function Transactions(){
       <table className = "transactions-table"> 
         <thead>
           <tr>
-            <th>Account</th>
-            <th>Category</th>
-            <th>Amount</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Date</th>
+            <th onClick = {() => handleSort("account_id")}>Account</th>
+            <th onClick = {() => handleSort("category_id")}>Category</th>
+            <th onClick = {() => handleSort("amount")}>Amount</th>
+            <th onClick = {() => handleSort("transaction_type")}>Type</th>
+            <th onClick = {() => handleSort("description")}>Description</th>
+            <th onClick = {() => handleSort("date")}>Date</th>
             <th>Actions</th>
           </tr>
         </thead>
       <tbody> 
-      {transactions.map(transaction =>
+      {copyTransactions.map(transaction =>
         <tr key = {transaction.id}>
             <td>{accounts.find(a => a.id === transaction.account_id)?.bank_name || "Unknown"}</td>
             <td>{categories.find(c => c.id === transaction.category_id)?.name || "Unknown"}</td>
@@ -123,6 +179,6 @@ function Transactions(){
     <div className = "text-red-400">{error}</div>
     </div>
   )
+  }
 }
-
 export default Transactions

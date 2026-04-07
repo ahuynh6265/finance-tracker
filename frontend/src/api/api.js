@@ -11,9 +11,7 @@ export const deleteAccount = (account_id) => api.delete(`/accounts/${account_id}
 export const updateAccount = (account_id, account_data) => api.put(`/accounts/${account_id}`, account_data)
 
 export const getCategories = () => api.get(`/categories`)
-export const createCategory = (category_data) => api.post(`/categories`, category_data)
-export const deleteCategory = (category_id) => api.delete(`/categories/${category_id}`)
-export const updateCategory = (category_id, category_data) => api.put(`/categories/${category_id}`, category_data)
+export const deleteCategoryTransactions = (category_id) => api.delete(`/categories/${category_id}/transactions`)
 
 export const getTransactions = () => api.get(`/transactions`)
 export const createTransaction = (transaction_data) => api.post(`/transactions`, transaction_data)
