@@ -43,3 +43,4 @@ def create_account(register_login_user):
   account_id, category_id = response.json()["id"], 1
 
   return client, token, account_id, category_id 
+
