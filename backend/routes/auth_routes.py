@@ -8,7 +8,7 @@ import auth
 router = APIRouter()
 categories = ["Automotive", "Bills & utilities", "Cash out", "Education", "Entertainment", "Food & drink", "Gas", "Groceries", "Misc.", "Personal", "Shopping", "Travel"]
 
-@router.post("/auth/register", response_model=UserResponse)
+@router.post("/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
   user = db.query(User).filter(User.email == user_data.email).first()
   if user:
@@ -31,7 +31,7 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
   user = db.query(User).filter(User.email == user_data.email).first()
   if not user:
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect")
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect.")
   
   if not auth.verify_password(user_data.password, user.hashed_password):
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect.")
