@@ -11,6 +11,16 @@ def test_duplicate_register(test_app):
   assert response.status_code == 409 
   assert response.json()["detail"] == "Email has already been registered."
 
+def test_empty_namme(test_app):
+  response = test_app.post("/auth/register", json = {"name": "", "email": "test@test.com", "password": "password123"})
+  assert response.status_code == 422
+  assert response.json()["detail"][0]["msg"] == "Value error, Name can't be left empty."
+
+def test_nonalphabetical_name(test_app):
+  response = test_app.post("/auth/register", json = {"name": "12@", "email": "test@test.com", "password": "password123"})
+  assert response.status_code == 422
+  assert response.json()["detail"][0]["msg"] == "Value error, Name can only contain alphabetical characters."
+
 def test_login(test_app):
   response = test_app.post("/auth/register", json = {"name": "Test", "email": "test@test.com", "password": "password123"})
   response = test_app.post("/auth/login", json = {"email": "test@test.com", "password": "password123"})
