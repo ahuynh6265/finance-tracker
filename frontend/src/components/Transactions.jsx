@@ -24,6 +24,10 @@ function Transactions(){
   const [filterMonth, setFilterMonth] = useState("")
   const [filterCategory, setFilterCategory] = useState("")
 
+  //pages 
+  const [currentPage, setCurrentPage] = useState(1)
+  const [entriesPerPage, setEntriesPerPage] = useState(10)
+ 
   useEffect (() => {
     refreshData(getTransactions, setTransactions)
     refreshData(getAccounts, setAccounts)
@@ -54,13 +58,19 @@ function Transactions(){
   }
 
   //clear transaction from select category
-  /*
   function handleClearCategoryTransactions(category_id) {
     setError("")
     deleteCategoryTransactions(category_id).then(() => {
-      refreshData(getTransactions, setTransactions).then(() => refreshData(getCategories, setCategories))
+      refreshData(getTransactions, setTransactions).then(() => refreshData(getAccounts, setAccounts)).then(() => refreshData(getCategories, setCategories))
+    }).catch(err => {
+      if (err.response) {
+        setError(err.response.data.detail)
+      }
+      else {
+        setError("Something went wrong.")
+      }
     })
-  }*/
+  }
 
   function guardTransactions() {
     return(
@@ -81,6 +91,7 @@ function Transactions(){
   if (!transactions || !accounts || !categories) return <div>Loading...</div>
   else {
   let copyTransactions = [...transactions]
+
   if (filterMonth !== ""){
     copyTransactions = copyTransactions.filter(t => t.date.split("-")[1] === filterMonth)
   }
@@ -126,88 +137,140 @@ function Transactions(){
     })
   }
 
+  function getPageNumbers() {
+    if (entriesPerPage === "") {return []}
+    else {
+      const totalPages = Math.ceil(copyTransactions.length / entriesPerPage)
+      let pages = []
+      if (totalPages > 5) {
+        if (currentPage <= 3) {
+          pages = [1, 2, 3, 4, 5, "...", totalPages]
+        }
+        else if (currentPage >= totalPages - 2) {
+          pages = [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages]
+        }
+        else {
+          pages = [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages]
+        }
+        return pages
+      }
+      else {
+        pages = Array.from({length: totalPages}, (_, i) => i + 1)
+        return pages
+      }
+    }
+  }
+
+  const start = (currentPage - 1) * entriesPerPage 
+  const end = currentPage * entriesPerPage
+  const paginatedTransaction = copyTransactions.slice(start, end)
+  const displayTransactions = entriesPerPage === "" ? copyTransactions : paginatedTransaction
+
+  
   return (
     <div>
-    {guardTransactions()}
-    <button className = "text-white font-semibold" disabled = {accounts.length === 0 || categories.length === 0} onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
-    <select value = {filterMonth} onChange = {(e) => setFilterMonth(e.target.value)}>
-      <option value = "">Show All Months</option>
-      <option value = "01">January</option>
-      <option value = "02">February</option>
-      <option value = "03">March</option>
-      <option value = "04">April</option>
-      <option value = "05">May</option>
-      <option value = "06">June</option>
-      <option value = "07">July</option>
-      <option value = "08">August</option>
-      <option value = "09">September</option>
-      <option value = "10">October</option>
-      <option value = "11">November</option>
-      <option value = "12">December</option>
-    </select>
-    <select value = {filterCategory} onChange = {(e) => setFilterCategory(e.target.value)}>
-      <option value = "">Show All Categories</option>
-      {categories.map(category => 
-        <option key = {category.id} value = {category.id}>{category.name}</option>
-      )}
-    </select>
+      {guardTransactions()}
+      <button className = "text-white font-semibold" disabled = {accounts.length === 0 || categories.length === 0} onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
+      <select value = {filterMonth} onChange = {(e) => setFilterMonth(e.target.value)}>
+        <option value = "">Show All Months</option>
+        <option value = "01">January</option>
+        <option value = "02">February</option>
+        <option value = "03">March</option>
+        <option value = "04">April</option>
+        <option value = "05">May</option>
+        <option value = "06">June</option>
+        <option value = "07">July</option>
+        <option value = "08">August</option>
+        <option value = "09">September</option>
+        <option value = "10">October</option>
+        <option value = "11">November</option>
+        <option value = "12">December</option>
+      </select>
+      <select value = {filterCategory} onChange = {(e) => setFilterCategory(e.target.value)}>
+        <option value = "">Show All Categories</option>
+        {categories.map(category => 
+          <option key = {category.id} value = {category.id}>{category.name}</option>
+        )}
+      </select>
 
-    {showCreate ? (
-    <TransactionModal
-      transaction = {null}
-      accounts = {accounts}
-      categories = {categories}
-      onSuccess = {() => {
-        refreshData(getTransactions, setTransactions)
-        setShowCreate(false)
-      }}
-      onClose = {() => setShowCreate(false)}
-    />
-    ) : null}
-
-    {current_id ? (
+      {showCreate ? (
       <TransactionModal
-      transaction = {transactions.find (t => t.id  === current_id)}
-      accounts = {accounts}
-      categories = {categories}
-      onSuccess = {() => {
-        refreshData(getTransactions, setTransactions)
-        setID(null)
-      }}
-      onClose = {() => setID(null)}
+        transaction = {null}
+        accounts = {accounts}
+        categories = {categories}
+        onSuccess = {() => {
+          refreshData(getTransactions, setTransactions)
+          setShowCreate(false)
+        }}
+        onClose = {() => setShowCreate(false)}
       />
-    ): null}
+      ) : null}
 
-      <table className = "transactions-table"> 
-        <thead>
-          <tr>
-            <th onClick = {() => handleSort("account_id")}>Account</th>
-            <th onClick = {() => handleSort("category_id")}>Category</th>
-            <th onClick = {() => handleSort("amount")}>Amount</th>
-            <th onClick = {() => handleSort("transaction_type")}>Type</th>
-            <th onClick = {() => handleSort("description")}>Description</th>
-            <th onClick = {() => handleSort("date")}>Date</th>
-            <th>Actions</th>
+      {current_id ? (
+        <TransactionModal
+        transaction = {transactions.find (t => t.id  === current_id)}
+        accounts = {accounts}
+        categories = {categories}
+        onSuccess = {() => {
+          refreshData(getTransactions, setTransactions)
+          setID(null)
+        }}
+        onClose = {() => setID(null)}
+        />
+      ): null}
+        <div className = "transactions-table border border-gray-600 rounded-xl">
+        <table className = "w-full table-fixed"> 
+          <thead>
+            <tr>
+              <th className = " p-3" onClick = {() => handleSort("account_id")}>Account</th>
+              <th className = " p-3" onClick = {() => handleSort("category_id")}>Category</th>
+              <th className = " p-3" onClick = {() => handleSort("amount")}>Amount</th>
+              <th className = " p-3" onClick = {() => handleSort("transaction_type")}>Type</th>
+              <th className = "p-3" onClick = {() => handleSort("description")}>Description</th>
+              <th className = " p-3" onClick = {() => handleSort("date")}>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+        <tbody> 
+        {displayTransactions.map(transaction =>
+          <tr key = {transaction.id}>
+              <td>{accounts.find(a => a.id === transaction.account_id)?.bank_name || "Unknown"}</td>
+              <td>{categories.find(c => c.id === transaction.category_id)?.name || "Unknown"}</td>
+              <td>{transaction.amount}</td>
+              <td>{transaction.transaction_type}</td>
+              <td className = "break-words">{transaction.description}</td>
+              <td>{transaction.date}</td>
+              <td>
+                <button className ="mr-2" onClick = {() => handleDelete(transaction.id)}>Delete</button>
+                <button onClick = {() => {setID(transaction.id)}}>Edit</button>
+              </td>
           </tr>
-        </thead>
-      <tbody> 
-      {copyTransactions.map(transaction =>
-        <tr key = {transaction.id}>
-            <td>{accounts.find(a => a.id === transaction.account_id)?.bank_name || "Unknown"}</td>
-            <td>{categories.find(c => c.id === transaction.category_id)?.name || "Unknown"}</td>
-            <td>{transaction.amount}</td>
-            <td>{transaction.transaction_type}</td>
-            <td>{transaction.description}</td>
-            <td>{transaction.date}</td>
-            <td>
-              <button className ="mr-2" onClick = {() => handleDelete(transaction.id)}>Delete</button>
-              <button onClick = {() => {setID(transaction.id)}}>Edit</button>
-            </td>
-         </tr>
+        )}
+        </tbody>
+      </table>
+      </div>
+      <select value = {entriesPerPage} onChange = {(e) => {setEntriesPerPage(e.target.value); setCurrentPage(1)}}>
+        <option value = "1">1</option>
+        <option value = "10">10</option>
+        <option value = "25">25</option>
+        <option value = "">All</option>
+      </select>
+      {getPageNumbers().map((page, index) => 
+        page === "..." 
+        ? <span key = {index}>{page}</span> 
+        : <button className = "text-white" key = {index} onClick={() => setCurrentPage(page)}>{page}</button>
       )}
-      </tbody>
-    </table>
-    <div className = "text-red-400">{error}</div>
+      <div className = "flex justify-end">
+        <select value = {category_id} onChange = {(e) => setCategoryID(e.target.value)}>
+          <option value = "">Select Clear</option>
+          {categories.map(category => 
+          <option key = {category.id} value = {category.id}>{category.name}</option>
+          )}
+        </select>
+        <button disabled = {category_id === ""} onClick = {() => handleClearCategoryTransactions(category_id)}>Clear</button>
+      </div>
+      <div className = "text-red-400">{error}</div>
+
     </div>
   )
   }
