@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from models import Category, Account, Transaction, Budget
+from models import Category, Account, Transaction, Budget, Goal
 from datetime import datetime, date
 
 def category_lookup(category_id, db, user_id):
@@ -45,6 +45,17 @@ def budget_lookup(budget_id, db, user_id):
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Budget ID {budget_id} does not belong to user")
   
   return budget
+
+def goal_lookup(goal_id, db, user_id):
+  goal = db.query(Goal).filter(Goal.id == goal_id).first()
+
+  if not goal:
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Goal ID not found")
+  
+  if goal.user_id != user_id:
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Goal ID {goal_id} does not belong to user")
+  
+  return goal
 
 def adjust_balance(account, transaction, reverse=False):
   #if transaction is being created/updated into current/new account

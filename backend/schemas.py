@@ -99,9 +99,18 @@ class TransactionResponse(BaseModel):
 
 #users 
 class UserCreate(BaseModel): 
-  name: str = Field(min_length=1)
+  name: str 
   email: str 
   password: str 
+
+  @field_validator("name")
+  @classmethod
+  def check_name(cls, value: str) -> str:
+    if len(value) < 1: 
+      raise ValueError("Name can't be left empty.")
+    elif not value.isalpha():
+      raise ValueError("Name can only contain alphabetical characters.")
+    return value
 
   @field_validator("email")
   @classmethod
@@ -163,3 +172,49 @@ class BudgetResponse(BaseModel):
 
 class RefreshRequest(BaseModel):
   refresh_token: str 
+
+class GoalCreate(BaseModel): 
+  name: str
+  target_amount: Decimal 
+  deadline: date 
+
+  @field_validator("name")
+  @classmethod
+  def check_name(cls, value: str) -> str:
+    if len(value) < 1: 
+      raise ValueError("Goal name can't be left empty.")
+    return value
+
+  @field_validator("target_amount")
+  @classmethod
+  def check_target_amount(cls, value: Decimal) -> Decimal:
+    if value == 0:
+      raise ValueError("Target amount can't be zero.")
+    elif value < 0: 
+      raise ValueError("Target amount can't be negative.")
+    return value
+  
+class GoalResponse(BaseModel):
+  model_config = ConfigDict(from_attributes=True)
+
+  id: int
+  user_id: int 
+  name: str
+  target_amount: Decimal 
+  current_amount: Decimal 
+  deadline: date 
+  created_at: datetime
+  updated_at: datetime
+
+class GoalUpdate(BaseModel):
+  account_id: int
+  amount: Decimal 
+
+  @field_validator("amount")
+  @classmethod
+  def check_target_amount(cls, value: Decimal) -> Decimal:
+    if value == 0:
+      raise ValueError("Amount can't be zero.")
+    elif value < 0: 
+      raise ValueError("Amount can't be negative.")
+    return value

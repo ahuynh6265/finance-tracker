@@ -16,6 +16,7 @@ class User(Base):
   accounts = relationship("Account", back_populates="user", cascade="all, delete")
   transactions = relationship("Transaction", back_populates="user", cascade="all, delete")
   budgets = relationship("Budget", back_populates="user", cascade="all, delete")
+  goals = relationship("Goal", back_populates="user", cascade="all, delete")
 
 class Category(Base): 
   __tablename__ ="category"
@@ -67,3 +68,17 @@ class Budget(Base):
 
   user = relationship("User", back_populates="budgets")
   category = relationship("Category", back_populates="budget")
+
+class Goal(Base):
+  __tablename__ = "goal"
+  id = Column(Integer, primary_key=True, autoincrement=True)
+  user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+  name = Column(String, nullable=False)
+  target_amount = Column(Numeric(10, 2), nullable=False)
+  current_amount = Column(Numeric(10,2), default=0, nullable=False)
+  deadline = Column(Date, nullable=False)
+  created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+  updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+  user = relationship("User", back_populates="goals")
+
