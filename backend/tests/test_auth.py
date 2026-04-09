@@ -51,7 +51,7 @@ def test_generate_categories(test_app):
   response = test_app.get("/categories", headers =  {"Authorization": f"Bearer {token}"})
 
   assert response.status_code == 200 
-  assert len(response.json()) == 12 
+  assert len(response.json()) == 13
 
 def test_refresh(test_app):
   response = test_app.post("/auth/register", json = {"name": "Test", "email": "test@test.com", "password": "password123"})

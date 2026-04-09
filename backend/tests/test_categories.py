@@ -13,7 +13,8 @@ def test_get_categories(create_account):
   assert response.json()[8]["name"] == "Misc."
   assert response.json()[9]["name"] == "Personal"
   assert response.json()[10]["name"] == "Shopping"
-  assert response.json()[11]["name"] == "Travel"
+  assert response.json()[11]["name"] == "Transfer"
+  assert response.json()[12]["name"] == "Travel"
 
 def test_clearall_transaction_by_category(create_account):
   client, token, account_id, _ = create_account

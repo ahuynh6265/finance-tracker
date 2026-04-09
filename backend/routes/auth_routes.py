@@ -6,7 +6,7 @@ from schemas import UserCreate, UserLogin, UserResponse, RefreshRequest
 import auth 
 
 router = APIRouter()
-categories = ["Automotive", "Bills & utilities", "Cash out", "Education", "Entertainment", "Food & drink", "Gas", "Groceries", "Misc.", "Personal", "Shopping", "Travel"]
+categories = ["Automotive", "Bills & utilities", "Cash out", "Education", "Entertainment", "Food & drink", "Gas", "Groceries", "Misc.", "Personal", "Shopping", "Transfer", "Travel"]
 
 @router.post("/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
