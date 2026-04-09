@@ -1,7 +1,7 @@
-from fastapi import APIRouter, status, Depends 
+from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session 
 from database import get_db 
-from models import Transaction
+from models import Transaction, Category
 from schemas import TransactionCreate, TransactionResponse 
 from dependencies import transaction_lookup, category_lookup, account_lookup, adjust_balance
 import auth
@@ -32,19 +32,33 @@ def get_account_transactions(account_id: int, db: Session = Depends(get_db), cur
   return account.transactions
 
 @router.post("/transactions", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
-def create_user_transaction(transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+def create_user_transaction(transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
   new_transaction = Transaction(
     user_id = current_user["id"], 
     account_id = transaction_data.account_id,
     category_id = transaction_data.category_id, 
+    destination_account_id = transaction_data.destination_account_id, 
     amount = transaction_data.amount, 
     transaction_type = transaction_data.transaction_type,
     description = transaction_data.description, 
     date = transaction_data.date
   )
+
   category_lookup(new_transaction.category_id, db, current_user["id"])
-  account = account_lookup(new_transaction.account_id, db, current_user["id"]) 
-  adjust_balance(account, new_transaction)
+  account = account_lookup(new_transaction.account_id, db, current_user["id"])
+
+  if new_transaction.transaction_type == "transfer": 
+    category = db.query(Category).filter(Category.user_id == current_user["id"], Category.name == "Transfer").first()
+
+    destination_account = account_lookup(new_transaction.destination_account_id, db, current_user["id"]) 
+    if new_transaction.amount > account.balance:
+      raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account does not have enough money for this transfer.")
+    new_transaction.description = f"Transfer to {destination_account.bank_name}"
+    new_transaction.category_id = category.id
+    account.balance -= new_transaction.amount
+    destination_account.balance += new_transaction.amount 
+  
+  else: adjust_balance(account, new_transaction)
     
   db.add(new_transaction)
   db.commit() 
@@ -54,8 +68,14 @@ def create_user_transaction(transaction_data: TransactionCreate, db: Session = D
 @router.delete("/transactions/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   transaction = transaction_lookup(transaction_id, db, current_user["id"])  
-  account = account_lookup(transaction.account_id, db, current_user["id"]) 
-  adjust_balance(account, transaction, True)
+  if transaction.transaction_type == "transfer":
+    source_account = account_lookup(transaction.account_id, db, current_user["id"])
+    destination_account = account_lookup(transaction.destination_account_id, db, current_user["id"])
+    source_account.balance += transaction.amount
+    destination_account.balance -= transaction.amount
+  else: 
+    account = account_lookup(transaction.account_id, db, current_user["id"]) 
+    adjust_balance(account, transaction, True)
     
   db.delete(transaction)
   db.commit()
