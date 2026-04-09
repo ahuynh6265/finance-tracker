@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends 
 from sqlalchemy.orm import Session 
 from database import get_db 
-from models import Transaction, Account
+from models import Transaction, Account, Goal
 from schemas import SummaryResponse
 import auth
 
@@ -10,7 +10,9 @@ router = APIRouter()
 @router.get("/summary", response_model=SummaryResponse)
 def get_user_summary(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):  
   user_accounts = db.query(Account).filter(Account.user_id == current_user["id"]).all()
-  net_balance = round(sum(a.balance for a in user_accounts), 2)
+  goals = db.query(Goal).filter(Goal.user_id == current_user["id"]).all()
+  goals_total = round(sum(g.current_amount for g in goals), 2)
+  net_balance = round(sum(a.balance for a in user_accounts), 2) + goals_total
   income = db.query(Transaction).filter(Transaction.transaction_type == "income").filter(Transaction.user_id == current_user["id"]).all()
 
   total_income = round(sum(t.amount for t in income), 2)
