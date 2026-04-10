@@ -39,7 +39,7 @@ class Account(Base):
   updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
   user = relationship("User", back_populates="accounts")
-  transactions = relationship("Transaction", back_populates="account", cascade="all, delete")
+  transactions = relationship("Transaction", back_populates="account", cascade="all, delete", foreign_keys="[Transaction.account_id]")
 
 class Transaction(Base): 
   __tablename__="transaction"
@@ -47,6 +47,8 @@ class Transaction(Base):
   user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
   account_id = Column(Integer, ForeignKey("account.id"), nullable=False)
   category_id = Column(Integer, ForeignKey("category.id"), nullable=False)
+  destination_account_id = Column(Integer, ForeignKey("account.id"), nullable=True)
+  destination_goal_id = Column(Integer, ForeignKey("account.id"), nullable=True)
   amount = Column(Numeric(10,2), nullable=False)
   transaction_type = Column(String, nullable=False)
   description = Column(String, nullable=False)
@@ -55,7 +57,7 @@ class Transaction(Base):
 
   user = relationship("User", back_populates="transactions")
   category = relationship("Category", back_populates="transactions")
-  account = relationship("Account", back_populates="transactions")
+  account = relationship("Account", back_populates="transactions", foreign_keys=[account_id]) #specify which id since both account and destination pull foreign key from same table
 
 class Budget(Base): 
   __tablename__="budget"

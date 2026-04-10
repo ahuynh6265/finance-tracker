@@ -1,8 +1,9 @@
-from pydantic import BaseModel, ConfigDict, field_validator, Field
+from pydantic import BaseModel, ConfigDict,Field, field_validator, model_validator, computed_field
 from datetime import datetime, date 
 from enum import Enum 
 from decimal import Decimal
 import validators
+from typing_extensions import Self
 
 class AccountType(str, Enum):
   checking = "checking"
@@ -12,6 +13,7 @@ class AccountType(str, Enum):
 class TransactionType(str, Enum):
   income = "income"
   expense = "expense"
+  transfer = "transfer"
 
 class SummaryResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -62,6 +64,7 @@ class AccountResponse(BaseModel):
 class TransactionCreate(BaseModel):
   account_id: int 
   category_id: int
+  destination_account_id: int | None = None
   amount: Decimal 
   transaction_type: TransactionType
   description: str 
@@ -83,7 +86,14 @@ class TransactionCreate(BaseModel):
       raise ValueError("Description can't be empty.")
     return value
   
-
+  @model_validator(mode="after")
+  def check_transfer_id(self) -> Self:
+    if self.transaction_type == "transfer" and not self.destination_account_id:
+      raise ValueError("Please provide a valid destination to transfer to.")
+    elif not self.transaction_type == "transfer" and self.destination_account_id: 
+      raise ValueError("Can not add a destination.")
+    return self
+  
 class TransactionResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
 
@@ -91,6 +101,8 @@ class TransactionResponse(BaseModel):
   user_id: int 
   account_id: int 
   category_id: int
+  destination_account_id: int | None
+  destination_goal_id: int | None 
   amount: Decimal 
   transaction_type: TransactionType
   description: str
@@ -218,3 +230,4 @@ class GoalUpdate(BaseModel):
     elif value < 0: 
       raise ValueError("Amount can't be negative.")
     return value
+
