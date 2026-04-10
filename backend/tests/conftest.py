@@ -44,3 +44,13 @@ def create_account(register_login_user):
 
   return client, token, account_id, category_id 
 
+@pytest.fixture
+def create_two_accounts(register_login_user): 
+  client, token = register_login_user
+  first_account = client.post("/accounts", headers = {"Authorization" : f"Bearer {token}"}, json = {"bank_name": "Chase", "account_type": "checking", "balance": "500"}) 
+  second_account = client.post("/accounts", headers = {"Authorization" : f"Bearer {token}"}, json = {"bank_name": "Wells Fargo", "account_type": "savings", "balance": "1500"})
+  first_account_id = first_account.json()["id"]
+  second_account_id = second_account.json()["id"]
+
+  return client, token, first_account_id, second_account_id
+
