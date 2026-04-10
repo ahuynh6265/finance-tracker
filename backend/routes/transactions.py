@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db 
 from models import Transaction, Category
 from schemas import TransactionCreate, TransactionResponse 
-from dependencies import transaction_lookup, category_lookup, account_lookup, adjust_balance
+from dependencies import transaction_lookup, category_lookup, account_lookup, adjust_balance, goal_lookup
 import auth
 
 router = APIRouter()
@@ -70,9 +70,16 @@ def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), 
   transaction = transaction_lookup(transaction_id, db, current_user["id"])  
   if transaction.transaction_type == "transfer":
     source_account = account_lookup(transaction.account_id, db, current_user["id"])
-    destination_account = account_lookup(transaction.destination_account_id, db, current_user["id"])
-    source_account.balance += transaction.amount
-    destination_account.balance -= transaction.amount
+
+    if transaction.destination_account_id: 
+      destination_account = account_lookup(transaction.destination_account_id, db, current_user["id"])
+      source_account.balance += transaction.amount
+      destination_account.balance -= transaction.amount
+    
+    else:
+      goal_account = goal_lookup(transaction.destination_goal_id, db, current_user["id"])
+      source_account.balance += transaction.amount
+      goal_account.current_amount -= transaction.amount
   else: 
     account = account_lookup(transaction.account_id, db, current_user["id"]) 
     adjust_balance(account, transaction, True)
