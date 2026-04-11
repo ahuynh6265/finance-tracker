@@ -36,6 +36,13 @@ export const createBudget = (budget_data) => api.post("/budgets", budget_data)
 export const deleteBudget = (budget_id) => api.delete(`/budgets/${budget_id}`)
 export const updateBudget = (budget_id, budget_data) => api.patch(`/budgets/${budget_id}`, budget_data)
 
+export const getGoals = () => api.get("/goals")
+export const createGoal = (goal_data) => api.post("/goals", goal_data)
+export const deleteGoal = (goal_id) => api.delete(`/goals/${goal_id}`)
+export const updateGoal = (goal_id, goal_data) => api.put(`/goals/${goal_id}`, goal_data)
+export const fundGoal = (goal_id, update_data) => api.put(`/goals/${goal_id}/current-amount`, update_data)
+export const withdrawGoal = (goal_id, update_data) => api.put(`/goals/${goal_id}/withdraw`, update_data)
+
 export const refreshToken = (refresh_token) => api.post("/auth/refresh", {"refresh_token": refresh_token})
 
 api.interceptors.response.use(
