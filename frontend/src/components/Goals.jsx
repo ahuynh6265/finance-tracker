@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react"
 import {getGoals, deleteGoal, getAccounts, getCategories, refreshData} from "../api/api"
 import GoalCreateUpdateModal from "./GoalCreateUpdateModal"
+import GoalFundWithdrawModal from "./GoalFundWithdrawModal"
 
 function Goals() {
   const [goals, setGoals] = useState(null)
@@ -9,6 +10,7 @@ function Goals() {
   const [showCreate, setShowCreate] = useState(false)
   const [current_id, setID] = useState(null)
   const [error, setError] = useState("")
+  const [mode, setMode] = useState(null)
   
   useEffect (() => {
     refreshData(getGoals, setGoals)
@@ -44,7 +46,7 @@ function Goals() {
           />
         ): null}
 
-        {current_id ? (
+        {(current_id && !mode) ? (
           <GoalCreateUpdateModal 
           goal = {goals.find (g => g.id === current_id)}
           onSuccess = {() => {
@@ -55,6 +57,20 @@ function Goals() {
           />
         ): null} 
 
+        {mode ? (
+          <GoalFundWithdrawModal 
+          goal = {goals.find (g => g.id === current_id)}
+          mode = {mode}
+          accounts = {accounts}
+          onSuccess = {() => {
+            refreshData(getGoals, setGoals)
+            setID(null)
+            setMode(null)
+          }}
+          onClose = {() => {setID(null); setMode(null)}}
+          />
+        ) : null}
+
         <div>
           {goals.map(goal =>
             <div key = {goal.id}>
@@ -62,8 +78,10 @@ function Goals() {
               <div className = "text-white">Current Amount: ${goal.current_amount}</div>
               <div className = "text-white" >Target: ${goal.target_amount}</div>
               <div className = "text-white">Deadline: {goal.deadline}</div>
-              <button onClick = {() => handleDelete(goal.id)}>Delete</button>
+              {(goal.current_amount > 0) ? (null) : (<button onClick = {() => handleDelete(goal.id)}>Delete</button>)}
               <button onClick = {() => {setID(goal.id)}}>Edit</button> 
+              <button onClick = {() => {setID(goal.id); setMode("fund")}}>Fund</button>
+              {(goal.current_amount > 0) ? (<button onClick = {() => {setID(goal.id); setMode("withdraw")}}>Withdraw</button>) : null}
             </div>
           )}
         </div>

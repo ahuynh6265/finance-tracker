@@ -9,7 +9,7 @@ function GoalCreateUpdateModal({goal, onSuccess, onClose}) {
 
   function handleSubmit() {
     setError("")
-    if (isNaN(target_amount)) {
+    if (isNaN(Number(target_amount))) {
       setError("Please enter a numerical value.")
     }
     else if (deadline === ""){

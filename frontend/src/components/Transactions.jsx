@@ -241,8 +241,14 @@ function Transactions(){
               <td className = "break-words">{transaction.description}</td>
               <td>{transaction.date}</td>
               <td>
-                <button className ="mr-2" onClick = {() => handleDelete(transaction.id)}>Delete</button>
-                <button onClick = {() => {setID(transaction.id)}}>Edit</button>
+                {(transaction.destination_goal_id) ? ("No Actions") : (
+                  transaction.destination_account_id ? (
+                 <button className ="mr-2" onClick = {() => handleDelete(transaction.id)}>Delete</button>
+                  ) : (<> 
+                    <button className ="mr-2" onClick = {() => handleDelete(transaction.id)}>Delete</button>
+                     <button onClick = {() => {setID(transaction.id)}}>Edit</button>
+                     </>)
+                )}
               </td>
           </tr>
         )}
