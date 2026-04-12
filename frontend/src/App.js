@@ -4,6 +4,7 @@ import Transactions from "./components/Transactions"
 import Login from "./components/Login"
 import Register from "./components/Register"
 import Budgets from "./components/Budgets"
+import Goals from "./components/Goals"
 import {setAuthToken} from "./api/api"
 import {BrowserRouter, Routes, Route, Link} from "react-router-dom"
 import {useState, useEffect} from "react"
@@ -41,6 +42,7 @@ function App (){
       <Link className = "nav-link" to = "/accounts">Accounts</Link>
       <Link className = "nav-link" to = "/transactions">Transactions</Link>
       <Link className = "nav-link" to = "/budgets">Budgets</Link> 
+      <Link className = "nav-link" to = "/goals">Goals</Link>
 
       <hr className = "mt-auto line"></hr>
       <div className = "text-white capitalize">{name}</div>
@@ -53,6 +55,7 @@ function App (){
         <Route path = "/accounts" element = {<Accounts />}></Route>
         <Route path = "/transactions" element = {<Transactions />}></Route>
         <Route path = "/budgets" element = {<Budgets />}></Route>
+        <Route path = "/goals" element = {<Goals />}></Route>
       </Routes>
     </div> 
   </>
