@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from models import Category, Account, Transaction, Budget, Goal
 from datetime import datetime, date
+from sqlalchemy import func
 
 def category_lookup(category_id, db, user_id):
   category = db.query(Category).filter(Category.id == category_id).first()
@@ -73,16 +74,13 @@ def adjust_balance(account, transaction, reverse=False):
       account.balance += transaction.amount
 
 #track spending by month
-def calculate_category_spending(category):
-  current_total = 0
+def calculate_category_spending(category, db, user_id):
   this_month = date(datetime.now().year, datetime.now().month, 1)
   if datetime.now().month == 12: 
     next_month = date(datetime.now().year + 1, 1, 1)
   else:
     next_month = date(datetime.now().year, datetime.now().month + 1, 1)
 
-  for transaction in category.transactions: 
-    if transaction.transaction_type == "expense" and transaction.date >= this_month and transaction.date < next_month:
-      current_total += transaction.amount
+  current_total = db.query(func.sum(Transaction.amount)).filter(Transaction.user_id == user_id, Transaction.category_id == category.id, Transaction.date >= this_month, Transaction.date < next_month, Transaction.transaction_type == "expense").scalar()
   
-  return current_total
+  return current_total or 0

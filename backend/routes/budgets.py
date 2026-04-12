@@ -15,7 +15,7 @@ def get_budgets(db: Session = Depends(get_db), current_user: dict = Depends(auth
 
   for budget in budgets: 
     category = category_lookup(budget.category_id, db, current_user["id"])
-    current_total = calculate_category_spending(category)
+    current_total = calculate_category_spending(category, db, current_user["id"])
     budget_list.append({
       "id": budget.id,
       "user_id": budget.user_id,
@@ -32,7 +32,7 @@ def get_budgets(db: Session = Depends(get_db), current_user: dict = Depends(auth
 def get_budget(budget_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
   budget = budget_lookup(budget_id, db, current_user["id"])
   category = category_lookup(budget.category_id, db, current_user["id"])
-  current_total = calculate_category_spending(category)
+  current_total = calculate_category_spending(category, db, current_user["id"])
   return {
     "id": budget.id,
     "user_id": budget.user_id,
@@ -55,7 +55,7 @@ def create_budget(budget_data: BudgetCreate, db: Session = Depends(get_db), curr
   new_budget = Budget(user_id = current_user["id"], category_id = budget_data.category_id, budget_limit = budget_data.budget_limit)
 
   category = category_lookup(new_budget.category_id, db, current_user["id"])
-  current_total = calculate_category_spending(category)
+  current_total = calculate_category_spending(category, db, current_user["id"])
 
   db.add(new_budget)
   db.commit()
@@ -85,7 +85,7 @@ def update_budget(budget_id: int, budget_data: BudgetUpdate, db: Session = Depen
   budget.budget_limit = budget_data.budget_limit
 
   category = category_lookup(budget.category_id, db, current_user["id"])
-  current_total = calculate_category_spending(category)
+  current_total = calculate_category_spending(category, db, current_user["id"])
 
   db.commit()
   db.refresh(budget)
