@@ -1,7 +1,7 @@
 def test_register(test_app):
-  response = test_app.post("/auth/register", json = {"name": "Test", "email": "test@test.com", "password": "password123"})
+  response = test_app.post("/auth/register", json = {"name": "T'Challa Raymone-James", "email": "test@test.com", "password": "password123"})
   assert response.status_code == 201 
-  assert response.json()["name"] == "Test"
+  assert response.json()["name"] == "T'Challa Raymone-James"
   assert response.json()["email"] == "test@test.com"
  
 def test_duplicate_register(test_app): 
@@ -19,7 +19,7 @@ def test_empty_namme(test_app):
 def test_nonalphabetical_name(test_app):
   response = test_app.post("/auth/register", json = {"name": "12@", "email": "test@test.com", "password": "password123"})
   assert response.status_code == 422
-  assert response.json()["detail"][0]["msg"] == "Value error, Name can only contain alphabetical characters."
+  assert response.json()["detail"][0]["msg"] == "Value error, Name can only contain letters, spaces, hyphens, and apostrophes."
 
 def test_login(test_app):
   response = test_app.post("/auth/register", json = {"name": "Test", "email": "test@test.com", "password": "password123"})

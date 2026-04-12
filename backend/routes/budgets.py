@@ -11,37 +11,21 @@ router = APIRouter()
 @router.get("/budgets", response_model=list[BudgetResponse])
 def get_budgets(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
   budgets = db.query(Budget).filter(Budget.user_id == current_user["id"]).all()
-  budget_list = []
 
   for budget in budgets: 
     category = category_lookup(budget.category_id, db, current_user["id"])
     current_total = calculate_category_spending(category, db, current_user["id"])
-    budget_list.append({
-      "id": budget.id,
-      "user_id": budget.user_id,
-      "category_id": budget.category_id,
-      "current_total": current_total,
-      "budget_limit": budget.budget_limit,
-      "created_at": budget.created_at,
-      "updated_at": budget.updated_at 
-    })
+    budget.current_total = current_total
 
-  return budget_list
+  return budgets
 
 @router.get("/budgets/{budget_id}", response_model=BudgetResponse)
 def get_budget(budget_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
   budget = budget_lookup(budget_id, db, current_user["id"])
   category = category_lookup(budget.category_id, db, current_user["id"])
   current_total = calculate_category_spending(category, db, current_user["id"])
-  return {
-    "id": budget.id,
-    "user_id": budget.user_id,
-    "category_id": budget.category_id,
-    "current_total": current_total,
-    "budget_limit": budget.budget_limit,
-    "created_at": budget.created_at,
-    "updated_at": budget.updated_at 
-  }
+  budget.current_total = current_total 
+  return budget
 
 @router.post("/budgets", response_model=BudgetResponse, status_code=status.HTTP_201_CREATED)
 def create_budget(budget_data: BudgetCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
@@ -60,15 +44,8 @@ def create_budget(budget_data: BudgetCreate, db: Session = Depends(get_db), curr
   db.add(new_budget)
   db.commit()
   db.refresh(new_budget)
-  return {
-    "id": new_budget.id, 
-    "user_id": new_budget.user_id, 
-    "category_id": new_budget.category_id,
-    "current_total": current_total,
-    "budget_limit": new_budget.budget_limit,
-    "created_at": new_budget.created_at,
-    "updated_at": new_budget.updated_at
-  } 
+  new_budget.current_total = current_total #move after refresh - prevents the current total from being wiped since the current total is not apart of the budget model 
+  return new_budget
 
 @router.delete("/budgets/{budget_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_budget(budget_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
@@ -89,13 +66,5 @@ def update_budget(budget_id: int, budget_data: BudgetUpdate, db: Session = Depen
 
   db.commit()
   db.refresh(budget)
-  return {
-    "id": budget.id,
-    "user_id": budget.user_id,
-    "category_id": budget.category_id,
-    "current_total": current_total,
-    "budget_limit": budget.budget_limit,
-    "created_at": budget.created_at,
-    "updated_at": budget.updated_at 
-  }
-
+  budget.current_total = current_total
+  return budget

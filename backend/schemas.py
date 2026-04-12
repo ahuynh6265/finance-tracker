@@ -118,10 +118,11 @@ class UserCreate(BaseModel):
   @field_validator("name")
   @classmethod
   def check_name(cls, value: str) -> str:
+    name = value.replace("-", "").replace(" ", "").replace("'", "")
     if len(value) < 1: 
       raise ValueError("Name can't be left empty.")
-    elif not value.isalpha():
-      raise ValueError("Name can only contain alphabetical characters.")
+    elif not name.isalpha():
+      raise ValueError("Name can only contain letters, spaces, hyphens, and apostrophes.")
     return value
 
   @field_validator("email")
