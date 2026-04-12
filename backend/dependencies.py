@@ -81,6 +81,6 @@ def calculate_category_spending(category, db, user_id):
   else:
     next_month = date(datetime.now().year, datetime.now().month + 1, 1)
 
-  current_total = db.query(func.sum(Transaction.amount)).filter(Transaction.user_id == user_id, Transaction.category_id == category.id, Transaction.date >= this_month, Transaction.date < next_month, Transaction.transaction_type == "expense").scalar()
+  current_total = db.query(func.sum(Transaction.amount)).filter(Transaction.user_id == user_id, Transaction.category_id == category.id, Transaction.date >= this_month, Transaction.date < next_month, Transaction.transaction_type == "expense").scalar() or 0
   
-  return current_total or 0
+  return current_total 
