@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session 
 from database import get_db 
-from models import User, Goal, Transaction, Category
+from models import Goal, Transaction, Category
 from schemas import GoalCreate, GoalResponse, GoalUpdate
 from dependencies import goal_lookup, account_lookup
 import auth 

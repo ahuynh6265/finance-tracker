@@ -48,7 +48,7 @@ class Transaction(Base):
   account_id = Column(Integer, ForeignKey("account.id"), nullable=False)
   category_id = Column(Integer, ForeignKey("category.id"), nullable=False)
   destination_account_id = Column(Integer, ForeignKey("account.id"), nullable=True)
-  destination_goal_id = Column(Integer, ForeignKey("account.id"), nullable=True)
+  destination_goal_id = Column(Integer, ForeignKey("goal.id"), nullable=True)
   amount = Column(Numeric(10,2), nullable=False)
   transaction_type = Column(String, nullable=False)
   description = Column(String, nullable=False)
