@@ -44,7 +44,6 @@ def create_user_transaction(transaction_data: TransactionCreate, db: Session = D
     date = transaction_data.date
   )
 
-  category_lookup(new_transaction.category_id, db, current_user["id"])
   account = account_lookup(new_transaction.account_id, db, current_user["id"])
 
   if new_transaction.transaction_type == "transfer": 
@@ -58,7 +57,9 @@ def create_user_transaction(transaction_data: TransactionCreate, db: Session = D
     account.balance -= new_transaction.amount
     destination_account.balance += new_transaction.amount 
   
-  else: adjust_balance(account, new_transaction)
+  else: 
+    category_lookup(new_transaction.category_id, db, current_user["id"])
+    adjust_balance(account, new_transaction)
     
   db.add(new_transaction)
   db.commit() 
