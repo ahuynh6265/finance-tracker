@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {userLogin, setAuthToken} from "../api/api"
+import {userLogin, setAuthToken, handleAPIError} from "../api/api"
 import {useNavigate} from "react-router-dom"
 
 function Login({onLogin}) {
@@ -17,20 +17,7 @@ function Login({onLogin}) {
       setAuthToken(response.data.access_token)
       onLogin(response.data.name)
       navigate("/")
-    }).catch(err => {
-      if (err.response) {
-        if (err.response.status === 422) {
-          const getError = err.response.data.detail[0].msg 
-          setError(getError.split(",")[1].trim())
-        }
-        else {
-          setError(err.response.data.detail)
-        }
-      }
-      else {
-        setError("Something went wrong.")
-      }
-    })
+    }).catch(err => {setError(handleAPIError(err))})
   }
 
   return (

@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {createBudget, updateBudget} from "../api/api"
+import {createBudget, updateBudget, handleAPIError} from "../api/api"
 
 function BudgetModal({budget, budgets, categories, onSuccess, onClose}) {
   const [error, setError] = useState("")
@@ -17,38 +17,12 @@ function BudgetModal({budget, budgets, categories, onSuccess, onClose}) {
     else if (budget === null){
       createBudget({category_id: Number(category_id), budget_limit: Number(budget_limit)}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg 
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
     else {
       updateBudget(budget.id, {budget_limit: Number(budget_limit)}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg 
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
   }
 

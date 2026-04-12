@@ -66,3 +66,18 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+export function handleAPIError(err) {
+  if (err.response) {
+    if (err.response.status === 422) {
+      const getError = err.response.data.detail[0].msg
+      return getError.split(",")[1].trim()
+    }
+    else {
+      return err.response.data.detail
+    }
+  }
+  else {
+    return "Something went wrong."
+  }
+}

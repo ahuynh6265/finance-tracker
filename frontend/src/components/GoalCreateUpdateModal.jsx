@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {createGoal, updateGoal} from "../api/api"
+import {createGoal, updateGoal, handleAPIError} from "../api/api"
 
 function GoalCreateUpdateModal({goal, onSuccess, onClose}) {
   const [error, setError] = useState("")
@@ -18,38 +18,12 @@ function GoalCreateUpdateModal({goal, onSuccess, onClose}) {
     else if (goal === null) {
       createGoal({name: name, target_amount: Number(target_amount), deadline: deadline}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => setError(handleAPIError(err)))
     }
     else {
       updateGoal(goal.id, {name: name, target_amount: Number(target_amount), deadline: deadline}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => setError(handleAPIError(err)))
     }
   }
   return (

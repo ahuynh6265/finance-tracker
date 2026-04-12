@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react"
-import {getGoals, deleteGoal, getAccounts, getCategories, refreshData} from "../api/api"
+import {getGoals, deleteGoal, getAccounts, getCategories, refreshData, handleAPIError} from "../api/api"
 import GoalCreateUpdateModal from "./GoalCreateUpdateModal"
 import GoalFundWithdrawModal from "./GoalFundWithdrawModal"
 
@@ -20,14 +20,7 @@ function Goals() {
 
   function handleDelete(goal_id) {
     setError("")
-    deleteGoal(goal_id).then(() => refreshData(getGoals, setGoals)).catch(err => {
-      if (err.response) {
-        setError(err.response.data.detail)
-      }
-      else {
-        setError("Something went wrong.")
-      }
-    })
+    deleteGoal(goal_id).then(() => refreshData(getGoals, setGoals)).catch(err => {setError(handleAPIError(err))})
   }
 
   if (!goals || !accounts || !categories) return <div>Loading...</div>

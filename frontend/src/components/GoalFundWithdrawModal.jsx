@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {fundGoal, withdrawGoal} from "../api/api"
+import {fundGoal, withdrawGoal, handleAPIError} from "../api/api"
 
 function GoalFundWithdrawModal({goal, mode, accounts, onSuccess, onClose}) {
   const [error, setError] = useState("")
@@ -14,38 +14,12 @@ function GoalFundWithdrawModal({goal, mode, accounts, onSuccess, onClose}) {
     else if (mode === "fund"){
       fundGoal(goal.id, {account_id: Number(account_id), amount: Number(amount)}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
     else {
       withdrawGoal(goal.id, {account_id: Number(account_id), amount: Number(amount)}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
   }
   return (

@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {createAccount, updateAccount} from "../api/api"
+import {createAccount, updateAccount, handleAPIError} from "../api/api"
 
 function AccountModal({account, onSuccess, onClose}) {
   const [error, setError] = useState("")
@@ -13,38 +13,12 @@ function AccountModal({account, onSuccess, onClose}) {
     if (account === null) {
       createAccount({bank_name: bank_name, account_type: account_type, balance: Number(balance)}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response){
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg 
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            (setError(err.response.data.detail))
-          }
-        }
-        else {
-          setError ("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
     else {
       updateAccount(account.id, {bank_name: bank_name, account_type: account_type, balance: Number(balance)}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response){
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg 
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            (setError(err.response.data.detail))
-          }
-        }
-        else {
-          setError ("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
   }
 

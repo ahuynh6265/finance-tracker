@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {createTransaction} from "../api/api"
+import {createTransaction, handleAPIError} from "../api/api"
 
 function AccountTransferModal({accounts, onSuccess, onClose}) {
   const [error, setError] = useState("")
@@ -20,20 +20,7 @@ function AccountTransferModal({accounts, onSuccess, onClose}) {
       //category id, description are hardcoded because they will be overwritten - transaction type is hardcoded because this is the only transaction type an account-account transfer can be 
       createTransaction({account_id: Number(source), category_id: 1, destination_account_id: Number(destination), amount: Number(amount), transaction_type: "transfer", description: "Transfer", date:date}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
   }
   return (

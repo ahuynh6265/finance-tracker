@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {createTransaction, updateTransaction} from "../api/api"
+import {createTransaction, updateTransaction, handleAPIError} from "../api/api"
 
 function TransactionModal({transaction, accounts, categories, onSuccess, onClose}) {
   const [error, setError] = useState("")
@@ -22,38 +22,12 @@ function TransactionModal({transaction, accounts, categories, onSuccess, onClose
     else if (transaction === null) {
       createTransaction({account_id: Number(account_id), category_id: Number(category_id), amount: Number(amount), transaction_type: transaction_type, description: description, date: date}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
     else {
       updateTransaction(transaction.id, {account_id: Number(account_id), category_id: Number(category_id), amount: Number(amount), transaction_type: transaction_type, description: description, date: date}).then(() => {
         onSuccess()
-      }).catch(err => {
-        if (err.response) {
-          if (err.response.status === 422) {
-            const getError = err.response.data.detail[0].msg
-            setError(getError.split(",")[1].trim())
-          }
-          else {
-            setError(err.response.data.detail)
-          }
-        }
-        else {
-          setError("Something went wrong.")
-        }
-      })
+      }).catch(err => {setError(handleAPIError(err))})
     }
   }
   return (

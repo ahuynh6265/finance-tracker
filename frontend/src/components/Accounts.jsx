@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react"
-import {getAccounts, deleteAccount, refreshData} from "../api/api"
+import {getAccounts, deleteAccount, refreshData, handleAPIError} from "../api/api"
 import AccountModal from "./AccountModal"
 import AccountTransferModal from "./AccountTransferModal"
 
@@ -16,14 +16,7 @@ function Accounts() {
 
   function handleDelete(account_id) {
     setError("")
-    deleteAccount(account_id).then(() => refreshData(getAccounts, setAccounts)).catch(err => {
-      if (err.response) {
-        setError(err.response.data.detail)
-      }
-      else {
-        setError("Something went wrong.")
-      }
-    })
+    deleteAccount(account_id).then(() => refreshData(getAccounts, setAccounts)).catch(err => {setError(handleAPIError(err))})
   }
 
   if (!accounts) return <div>Loading...</div>

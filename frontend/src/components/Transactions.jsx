@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react"
-import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategoryTransactions, refreshData} from "../api/api"
+import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategoryTransactions, refreshData, handleAPIError} from "../api/api"
 import TransactionModal from "./TransactionModal"
 
 function Transactions(){
@@ -36,14 +36,7 @@ function Transactions(){
 
   function handleDelete(transaction_id) {
     setError("")
-    deleteTransaction(transaction_id).then(() => refreshData(getTransactions, setTransactions)).catch(err => {
-      if (err.response) {
-        setError(err.response.data.detail)
-      }
-      else {
-        setError("Something went wrong.")
-      }
-    })
+    deleteTransaction(transaction_id).then(() => refreshData(getTransactions, setTransactions)).catch(err => {setError(handleAPIError(err))})
   }
 
   function handleSort(column) {
@@ -62,14 +55,7 @@ function Transactions(){
     setError("")
     deleteCategoryTransactions(category_id).then(() => {
       refreshData(getTransactions, setTransactions).then(() => refreshData(getAccounts, setAccounts)).then(() => refreshData(getCategories, setCategories))
-    }).catch(err => {
-      if (err.response) {
-        setError(err.response.data.detail)
-      }
-      else {
-        setError("Something went wrong.")
-      }
-    })
+    }).catch(err => {setError(handleAPIError(err))})
   }
 
   function guardTransactions() {

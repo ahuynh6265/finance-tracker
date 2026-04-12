@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react"
-import {getBudgets, deleteBudget, getCategories, refreshData} from "../api/api"
+import {getBudgets, deleteBudget, getCategories, refreshData, handleAPIError} from "../api/api"
 import BudgetModal from "./BudgetModal"
 
 function Budgets() {
@@ -15,14 +15,7 @@ function Budgets() {
 
   function handleDelete(budget_id){
     setError("")
-    deleteBudget(budget_id).then(() => refreshData(getBudgets, setBudgets)).catch(err => {
-      if (err.response) {
-        setError(err.response.data.detail)
-      }
-      else {
-        setError("Something went wrong.")
-      }
-    })
+    deleteBudget(budget_id).then(() => refreshData(getBudgets, setBudgets)).catch(err => {setError(handleAPIError(err))})
   }
 
   if (!budgets || !categories) return <div>Loading...</div>
