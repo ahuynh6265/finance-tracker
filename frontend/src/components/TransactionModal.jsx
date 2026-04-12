@@ -75,7 +75,9 @@ function TransactionModal({transaction, accounts, categories, onSuccess, onClose
             <h2 className = "text-white font-semibold">Select Category</h2>
             <select className = "modal-input" value = {category_id} onChange = {(e) => setCategoryID(e.target.value)}>
               {categories.map(category =>
-                <option key = {category.id} value = {category.id}>{category.name}</option>
+                (category.name !== "Transfer") ? (
+                  <option key = {category.id} value = {category.id}>{category.name}</option>
+                ) : (null)
               )}
             </select>
           </div>

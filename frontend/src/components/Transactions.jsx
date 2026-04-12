@@ -270,7 +270,9 @@ function Transactions(){
         <select value = {category_id} onChange = {(e) => setCategoryID(e.target.value)}>
           <option value = "">Select Clear</option>
           {categories.map(category => 
-          <option key = {category.id} value = {category.id}>{category.name}</option>
+          (category.name !== "Transfer") ? (
+            <option key = {category.id} value = {category.id}>{category.name}</option>
+          ) : (null)
           )}
         </select>
         <button disabled = {category_id === ""} onClick = {() => handleClearCategoryTransactions(category_id)}>Clear</button>

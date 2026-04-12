@@ -1,11 +1,13 @@
 import {useState, useEffect} from "react"
 import {getAccounts, deleteAccount, refreshData} from "../api/api"
 import AccountModal from "./AccountModal"
+import AccountTransferModal from "./AccountTransferModal"
 
 function Accounts() {
   const [accounts, setAccounts] = useState(null)
   const [current_id, setID] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
+  const [showTransfer, setShowTransfer] = useState(false)
   const [error, setError] = useState("")
 
   useEffect (() => {
@@ -28,6 +30,7 @@ function Accounts() {
   else return (
     <div>
       <button className = "text-white" onClick = {(e) => setShowCreate(true)}>Add Account</button>
+      <button className = "text-white" onClick = {(e) => setShowTransfer(true)}>Transfer Money</button>
       <div className = "text-red-400">{error}</div>
       {showCreate ? (
         <AccountModal
@@ -48,6 +51,17 @@ function Accounts() {
           setID(null)
         }}
         onClose = {() => setID(null)}
+        />
+      ): null}
+
+      {showTransfer ? (
+        <AccountTransferModal 
+        accounts = {accounts}
+        onSuccess = {() => {
+          refreshData(getAccounts, setAccounts)
+          setShowTransfer(null)
+        }}
+        onClose = {() => setShowTransfer(null)}
         />
       ): null}
 
