@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends 
+from sqlalchemy import func
 from sqlalchemy.orm import Session 
 from database import get_db 
 from models import Transaction, Account, Goal
@@ -9,20 +10,13 @@ router = APIRouter()
 
 @router.get("/summary", response_model=SummaryResponse)
 def get_user_summary(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):  
-  user_accounts = db.query(Account).filter(Account.user_id == current_user["id"]).all()
-  goals = db.query(Goal).filter(Goal.user_id == current_user["id"]).all()
-  goals_total = round(sum(g.current_amount for g in goals), 2)
-  net_balance = round(sum(a.balance for a in user_accounts), 2) + goals_total
-  income = db.query(Transaction).filter(Transaction.transaction_type == "income").filter(Transaction.user_id == current_user["id"]).all()
+  accounts_balance = db.query(func.sum(Account.balance)).filter(Account.user_id == current_user["id"]).scalar()
+  goals_balance = db.query(func.sum(Goal.current_amount)).filter(Goal.user_id == current_user["id"]).scalar()
+  total_income = db.query(func.sum(Transaction.amount)).filter(Transaction.user_id == current_user["id"], Transaction.transaction_type == "income").scalar()
+  total_expense = db.query(func.sum(Transaction.amount)).filter(Transaction.user_id == current_user["id"], Transaction.transaction_type == "expense").scalar()
 
-  total_income = round(sum(t.amount for t in income), 2)
-
-  expense = db.query(Transaction).filter(Transaction.transaction_type == "expense").filter(Transaction.user_id == current_user["id"]).all()
-  total_expense = sum(t.amount for t in expense)
-  total_expense = round(total_expense, 2)
-  
   return {
-    "income": total_income,
-    "expenses": total_expense,
-    "net balance": net_balance
+    "income": round(total_income, 2),
+    "expenses": round(total_expense, 2), 
+    "net balance": round(accounts_balance + goals_balance, 2)
   }

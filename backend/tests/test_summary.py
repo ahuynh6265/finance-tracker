@@ -4,7 +4,7 @@ def test_check_net_balance_after_update_goal(create_account):
   client.post("/transactions", headers ={"Authorization" : f"Bearer {token}"}, json = {
     "account_id": account_id, 
     "category_id": category_id, 
-    "amount": "12.57",
+    "amount": "12.568924",
     "transaction_type": "expense", 
     "description": "Chipotle", 
     "date": "2026-04-06"
@@ -20,7 +20,7 @@ def test_check_net_balance_after_update_goal(create_account):
   client.post("/transactions", headers ={"Authorization" : f"Bearer {token}"}, json = {
     "account_id": account_id, 
     "category_id": category_id, 
-    "amount": "555.87",
+    "amount": "555.86723232",
     "transaction_type": "income", 
     "description": "Wage", 
     "date": "2026-03-12"
@@ -31,6 +31,9 @@ def test_check_net_balance_after_update_goal(create_account):
   client.put(f"/goals/{goal_id}/current-amount", headers ={"Authorization" : f"Bearer {token}"}, json = {"account_id": 1, "amount": "15.00"})
 
   summary_response = client.get("/summary", headers ={"Authorization" : f"Bearer {token}"})
+  assert summary_response.status_code == 200
+  assert summary_response.json()["income"] == "555.87"
+  assert summary_response.json()["expenses"] == "32.57"
   assert summary_response.json()["net balance"] == "1023.30"
   
 
