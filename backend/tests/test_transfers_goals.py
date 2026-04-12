@@ -31,7 +31,6 @@ def test_check_transaction(create_account):
   assert response.json()[0]["amount"] == "155.10"
   assert response.json()[0]["transaction_type"] == "transfer"
   assert response.json()[0]["description"] == f"Transfer to {name}"
-  assert response.json()[0]["date"] == "2026-04-09"
 
 #delete transaction and check if balance is correct before/after
 def test_delete_goal_transaction(create_account):

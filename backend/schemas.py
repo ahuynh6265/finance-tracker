@@ -133,6 +133,13 @@ class UserCreate(BaseModel):
     elif not validators.email(value):
       raise ValueError("Not a valid email.")
     return value
+  
+  @field_validator("password")
+  @classmethod
+  def check_name(cls, value: str) -> str:
+    if len(value) < 1: 
+      raise ValueError("Password can't be left empty.")
+    return value
 
 class UserResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
