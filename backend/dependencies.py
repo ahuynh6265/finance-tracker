@@ -84,3 +84,15 @@ def calculate_category_spending(category, db, user_id):
   current_total = db.query(func.sum(Transaction.amount)).filter(Transaction.user_id == user_id, Transaction.category_id == category.id, Transaction.date >= this_month, Transaction.date < next_month, Transaction.transaction_type == "expense").scalar() or 0
   
   return current_total 
+
+def calculate_account_monthly_flows(account, db, user_id):
+  this_month = date(datetime.now().year, datetime.now().month, 1)
+  if datetime.now().month == 12: 
+    next_month = date(datetime.now().year + 1, 1, 1)
+  else:
+    next_month = date(datetime.now().year, datetime.now().month + 1, 1)
+  
+  income = db.query(func.sum(Transaction.amount)).filter(Transaction.user_id == user_id, Transaction.account_id == account.id, Transaction.transaction_type == "income", Transaction.date >= this_month, Transaction.date < next_month).scalar() or 0 
+  expense = db.query(func.sum(Transaction.amount)).filter(Transaction.user_id == user_id, Transaction.account_id == account.id, Transaction.transaction_type == "expense", Transaction.date >= this_month, Transaction.date < next_month).scalar() or 0 
+
+  return income, expense 

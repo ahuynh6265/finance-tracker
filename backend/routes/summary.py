@@ -3,7 +3,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session 
 from database import get_db 
 from models import Transaction, Account, Goal
-from schemas import SummaryResponse
+from schemas import SummaryResponse, AccountSummaryResponse
+from dependencies import calculate_account_monthly_flows, account_lookup
 import auth
 
 router = APIRouter()
@@ -18,5 +19,17 @@ def get_user_summary(db: Session = Depends(get_db), current_user: dict = Depends
   return {
     "income": total_income,
     "expenses": total_expense,
-    "net balance": accounts_balance + goals_balance
+    "net balance": accounts_balance + goals_balance, 
+    "accounts_only": accounts_balance,
+    "goals_only": goals_balance
+  }
+
+@router.get("/accounts/{account_id}/summary", response_model=AccountSummaryResponse)
+def get_account_summary(account_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
+  account = account_lookup(account_id, db, current_user["id"])
+  income, expense = calculate_account_monthly_flows(account, db, current_user["id"])
+
+  return {
+    "income": income,
+    "expenses": expense
   }

@@ -21,6 +21,8 @@ class SummaryResponse(BaseModel):
   income: Decimal 
   expenses: Decimal 
   net_balance: Decimal = Field(alias="net balance")
+  accounts_only: Decimal
+  goals_only: Decimal
 
 #category 
 class CategoryResponse(BaseModel):
@@ -59,6 +61,18 @@ class AccountResponse(BaseModel):
   balance: Decimal
   created_at: datetime 
   updated_at: datetime
+
+#summary per account
+class AccountSummaryResponse(BaseModel):
+  model_config = ConfigDict(from_attributes=True)
+
+  income: Decimal
+  expenses: Decimal
+
+  @computed_field
+  @property
+  def net_balance(self) -> Decimal: 
+    return self.income - self.expenses
 
 #transaction
 class TransactionCreate(BaseModel):
@@ -136,7 +150,7 @@ class UserCreate(BaseModel):
   
   @field_validator("password")
   @classmethod
-  def check_name(cls, value: str) -> str:
+  def check_password(cls, value: str) -> str:
     if len(value) < 1: 
       raise ValueError("Password can't be left empty.")
     return value

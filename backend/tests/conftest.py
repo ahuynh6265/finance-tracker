@@ -54,3 +54,11 @@ def create_two_accounts(register_login_user):
 
   return client, token, first_account_id, second_account_id
 
+@pytest.fixture 
+def create_two_users(test_app):
+  test_app.post("/auth/register", json = {"name": "Test", "email": "test@test.com", "password": "password123"})
+  first = test_app.post("/auth/login", json = {"email": "test@test.com", "password": "password123"})
+  test_app.post("/auth/register", json = {"name": "Alex", "email": "alex@test.com", "password": "alex"})
+  second = test_app.post("/auth/login", json = {"email": "alex@test.com", "password": "alex"})
+
+  return test_app, first.json()["access_token"], second.json()["access_token"]
