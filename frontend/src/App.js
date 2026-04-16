@@ -6,8 +6,12 @@ import Register from "./components/Register"
 import Budgets from "./components/Budgets"
 import Goals from "./components/Goals"
 import {setAuthToken} from "./api/api"
-import {BrowserRouter, Routes, Route, Link} from "react-router-dom"
+import {BrowserRouter, Routes, Route, NavLink} from "react-router-dom"
 import {useState, useEffect} from "react"
+import { MdOutlineAccountBalanceWallet, MdOutlinePayments, MdOutlineHome } from "react-icons/md"
+import { GoGoal } from "react-icons/go"
+import { IoPieChartOutline } from "react-icons/io5";
+import { CiLogout } from "react-icons/ci";
 
 function App (){
   const [loggedIn, setLoggedIn] = useState(false)
@@ -36,17 +40,17 @@ function App (){
   {loggedIn ? (
   <>
     <div className = "navbar">
-      <div className = "text-white">Finance Tracker</div>
+      <div className = "text-gray-800 font-bold">Finance Tracker</div>
       <hr className = "line"></hr>
-      <Link className = "nav-link" to = "/">Dashboard</Link>
-      <Link className = "nav-link" to = "/accounts">Accounts</Link>
-      <Link className = "nav-link" to = "/transactions">Transactions</Link>
-      <Link className = "nav-link" to = "/budgets">Budgets</Link> 
-      <Link className = "nav-link" to = "/goals">Goals</Link>
+      <NavLink className = "nav-link" to = "/"><MdOutlineHome/>Dashboard</NavLink>
+      <NavLink  className = "nav-link" to = "/accounts"><MdOutlineAccountBalanceWallet/>Accounts</NavLink>
+      <NavLink className = "nav-link" to = "/transactions"><MdOutlinePayments/>Transactions</NavLink>
+      <NavLink className = "nav-link" to = "/budgets"><IoPieChartOutline/>Budgets</NavLink> 
+      <NavLink className = "nav-link" to = "/goals"><GoGoal/>Goals</NavLink>
 
       <hr className = "mt-auto line"></hr>
-      <div className = "text-white capitalize">{name}</div>
-      <button className = "text-left text-white" onClick = {logOut}>Sign Out</button>
+      <div className = "capitalize">{name}</div>
+      <button className = "text-left flex items-center gap-2" onClick = {logOut}><CiLogout/>Sign Out</button>
   
     </div>
     <div className = "main-content">
