@@ -70,3 +70,7 @@ body {
 .modal-input {
   @apply w-full p-2 rounded bg-gray-100 text-gray-700
 }
+
+.select {
+  @apply px-2 py-2 rounded-lg text-sm text-gray-900 border border-gray-200 bg-white outline-none
+}
