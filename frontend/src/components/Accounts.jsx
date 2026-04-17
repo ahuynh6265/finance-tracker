@@ -8,6 +8,12 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import {Tooltip as MuiTooltip} from '@mui/material';
 
 function Accounts() {
   const [summary, setSummary] = useState(null)
@@ -236,8 +242,9 @@ function Accounts() {
             </>
           ) : (
             <div>
-              <button className = "text-gray-800" onClick = {(e) => setShowCreate(true)}>Add Account</button>
-              <button className = "text-gray-800" onClick = {(e) => setShowTransfer(true)}>Transfer Money</button>
+              <div className = "absolute right-8 top-10">
+                <Button startIcon = {<SwapHorizIcon/>} variant ="contained" sx={{color: '#D1B0F5', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} onClick = {(e) => setShowTransfer(true)}>Transfer Money</Button>
+              </div>
               <div className = "text-red-600">{error}</div>
               {showCreate ? (
                 <AccountModal
@@ -274,7 +281,12 @@ function Accounts() {
 
               <div className = "flex gap-4 mt-6">
                 <div className = "card w-[55%]">
-                  <h2 className = "text-gray-900 font-semibold m-6">Connected Cards</h2>
+                  <div className = "flex flex-row relative">  
+                    <h2 className = "text-2xl text-gray-900 font-semibold p-4">Connected Cards</h2>
+                    <div className = "absolute top-4 right-4">
+                      <Button variant ="contained" sx={{color: '#D1B0F5', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} startIcon ={<AddIcon/>} onClick = {(e) => setShowCreate(true)}>Add Account</Button>    
+                    </div>        
+                  </div>
                   <div className = "h-[300px] overflow-y-auto pb-2">
                     {accounts.map(account =>
                       <div className= "card mx-6 mb-6 p-2" key = {account.id}>
@@ -283,12 +295,17 @@ function Accounts() {
                           <div>
                             <div className = "text-gray-800 font-semibold">{account.bank_name}</div>
                             <div className = "text-gray-500 text-sm">{account.account_type}</div>
-                            <div className = "text-gray-800 text-xl">{account.balance}</div>
+                            <div className = "text-gray-800 text-xl">${account.balance}</div>
                           </div>
 
                           <div className = "flex justify-center">
-                            <button className = "mr-2" onClick = {() => handleDelete(account.id)}>Delete</button>
-                            <button onClick = {() => {setID(account.id)}}>Edit</button>
+                            <MuiTooltip title = "Delete">
+                              <IconButton onClick = {() => handleDelete(account.id)}><DeleteIcon/></IconButton>
+                            </MuiTooltip>
+
+                            <MuiTooltip title = "Edit">
+                              <IconButton onClick = {() => {setID(account.id)}}><EditIcon/></IconButton>
+                            </MuiTooltip>
                           </div>
                         </div>
                       </div>
@@ -299,28 +316,34 @@ function Accounts() {
                 <div className = "flex flex-col w-[45%] gap-4">
                   <div className = "flex gap-4 h-[50%]">
                     <div className = "card p-4">
-                      <div className = "text-gray-900 text-sm">Total Balance</div>
-                      <div className = "text-gray-800 text-2xl">${summary["net balance"]}</div>
+                      <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Total Balance</div>
+                      <div className = "text-gray-800 text-2xl font-semibold">${summary["net balance"]}</div>
                     </div>
                     <div className = "card p-4">
-                      <div className = "text-gray-900 text-sm">Available Balance</div>
-                      <div className = "text-gray-800 text-2xl">${summary.accounts_only}</div>
+                      <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Available Balance</div>
+                      <div className = "text-gray-800 text-2xl font-semibold">${summary.accounts_only}</div>
                     </div>
                   </div>
                   <div className = "flex gap-4 h-[50%]">
                     <div className = "card p-4">
-                      <div className = "text-gray-900 text-sm">Allocated to Goals</div>
-                      <div className = "text-gray-800 text-2xl">${summary.goals_only}</div>
+                      <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Allocated to Goals</div>
+                      <div className = "text-gray-800 text-2xl font-semibold">${summary.goals_only}</div>
                     </div>
                     <div className = "card p-4">
-                      <div className = "text-gray-900 text-sm">Active Accounts</div>
-                      <div className = "text-gray-800 text-2xl">{accounts.length}</div>
+                      <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Active Accounts</div>
+                      <div className = "text-gray-800 text-2xl font-semibold">{accounts.length}</div>
                     </div>
                   </div>
                 </div>
               </div> 
 
               <div className = "flex gap-4 mt-4 justify-end">
+              <div className = "flex flex-col w-[45%] h-96 rounded-xl">
+                    <div className = "card">
+                      <h2 className = "text-gray-900 font-semibold m-6">Scheduled Payments</h2>
+                      <div></div>
+                    </div>
+                </div>
                 <div className = "flex flex-col w-[55%] h-96 rounded-xl">
                     <div className = "card">
                       <h2 className = "text-gray-900 font-semibold m-6">Balance Overview</h2>
