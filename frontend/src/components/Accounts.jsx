@@ -2,7 +2,6 @@ import {useState, useEffect} from "react"
 import {getAccounts, getCategories, deleteAccount, refreshData, handleAPIError, getSummary, getAccountSummary, getAccountTransactions} from "../api/api"
 import AccountModal from "./AccountModal"
 import AccountTransferModal from "./AccountTransferModal"
-import {RechartsDevtools} from '@recharts/devtools'
 import { ResponsiveContainer, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Line } from 'recharts'
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -46,21 +45,27 @@ function Accounts() {
 
   function handleDelete(account_id) {
     setError("")
-    deleteAccount(account_id).then(() => refreshData(getAccounts, setAccounts)).catch(err => {setError(handleAPIError(err))})
+    const userConfirm = window.confirm("This action is permanent. Continue?")
+    if (userConfirm) {
+      deleteAccount(account_id).then(() => refreshData(getAccounts, setAccounts)).then(() => refreshData(getSummary, setSummary)).catch(err => {setError(handleAPIError(err))})
+    }
   }
 
   if (!accounts || !summary) return <div>Loading...</div>
 
   else {
     if (accounts.length === 0) {
-      return (<div>
-        <div className ="text-gray-800">No Accounts yet</div>
-        <button className = "text-gray-800" onClick = {(e) => setShowCreate(true)}>Add Account</button>
+      return (
+      <div>
+        <div className ="flex flex-col justify-center items-center h-screen">
+          <div className ="text-gray-800 text-2xl font-bold mb-4">No Accounts Yet</div>
+          <Button variant ="contained" sx={{color: '#D1B0F5', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} startIcon ={<AddIcon/>} onClick = {(e) => setShowCreate(true)}>Add Account</Button> 
+        </div>
         {showCreate ? (
           <AccountModal
           account = {null}
           onSuccess = {() => {
-            refreshData(getAccounts, setAccounts)
+            refreshData(getAccounts, setAccounts).then(() => refreshData(getSummary, setSummary))
             setShowCreate(false)
           }}
           onClose = {() => setShowCreate(false)}
@@ -85,6 +90,7 @@ function Accounts() {
 
       let accountChart = []
       let allDates = []
+      //chart for per account
       if (accountTransactions !== null) {
         let chartTransactions = accountTransactions
         if (toggleTimeRange === "month"){
@@ -135,14 +141,15 @@ function Accounts() {
 
       return (
         <div>
-          <div className = "flex flex-row">
-            <h1 className = "text-2xl font-semibold text-gray-800 mt-3">{selectedAccountID === "" ? null : "Account: "}</h1>
+          <div className = "flex flex-row justify-between">
+          {selectedAccountID === "" ? null : <h1 className = "text-2xl font-semibold text-gray-800 mt-3">Account: </h1>}
             <select className = "select" value = {selectedAccountID} onChange = {(e) => setSelectedAccountID(e.target.value)}>
               <option value = "">All Accounts</option>
               {accounts.map(account => 
                 <option key = {account.id} value = {account.id}>{account.bank_name} - <span className ="capitalize">{account.account_type}</span></option>
               )}
             </select>
+              <Button startIcon = {<SwapHorizIcon/>} variant ="contained" sx={{color: '#D1B0F5', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} onClick = {(e) => setShowTransfer(true)}>Transfer Money</Button>
           </div>
           {(selectedAccountID && accountSummary != null) ? (
             <>
@@ -194,9 +201,7 @@ function Accounts() {
                         <XAxis dataKey="date" />
                         <YAxis width={60} />
                         <Tooltip />
-                        <Line type="monotone" dataKey="net" dot = {false} stroke="#14b8a6"/>
-                        <RechartsDevtools />
-                        
+                        <Line type="monotone" name="Net Balance" dataKey="net" dot = {false} stroke="#14b8a6"/>
                       </LineChart>
                       </ResponsiveContainer>
                     ) : null}    
@@ -206,7 +211,7 @@ function Accounts() {
 
               <div className = "flex gap-4 mt-6 h-64">
                 <div className = "card relative flex flex-col">
-                  <Stack spacing = {113} direction = "row">
+                  <Stack className = "justify-between" direction = "row">
                     <div className = "font-semibold text-gray-700 p-4">Account Transactions This Month</div>
                     <Button variant = "text" href = "/transactions">See All Transactions</Button>
                   </Stack>
@@ -242,15 +247,12 @@ function Accounts() {
             </>
           ) : (
             <div>
-              <div className = "absolute right-8 top-10">
-                <Button startIcon = {<SwapHorizIcon/>} variant ="contained" sx={{color: '#D1B0F5', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} onClick = {(e) => setShowTransfer(true)}>Transfer Money</Button>
-              </div>
               <div className = "text-red-600">{error}</div>
               {showCreate ? (
                 <AccountModal
                 account = {null}
                 onSuccess = {() => {
-                  refreshData(getAccounts, setAccounts)
+                  refreshData(getAccounts, setAccounts).then(() => refreshData(getSummary, setSummary))
                   setShowCreate(false)
                 }}
                 onClose = {() => setShowCreate(false)}
@@ -261,7 +263,7 @@ function Accounts() {
                 <AccountModal
                 account = {accounts.find (a => a.id === current_id)}
                 onSuccess = {() => {
-                  refreshData(getAccounts, setAccounts)
+                  refreshData(getAccounts, setAccounts).then(() => refreshData(getSummary, setSummary))
                   setID(null)
                 }}
                 onClose = {() => setID(null)}
@@ -272,7 +274,7 @@ function Accounts() {
                 <AccountTransferModal 
                 accounts = {accounts}
                 onSuccess = {() => {
-                  refreshData(getAccounts, setAccounts)
+                  refreshData(getAccounts, setAccounts).then(() => refreshData(getSummary, setSummary))
                   setShowTransfer(null)
                 }}
                 onClose = {() => setShowTransfer(null)}
@@ -295,7 +297,7 @@ function Accounts() {
                           <div>
                             <div className = "text-gray-800 font-semibold">{account.bank_name}</div>
                             <div className = "text-gray-500 text-sm">{account.account_type}</div>
-                            <div className = "text-gray-800 text-xl">${account.balance}</div>
+                            <div className = "text-gray-800 text-xl">${Number(account.balance).toFixed(2)}</div>
                           </div>
 
                           <div className = "flex justify-center">
@@ -338,15 +340,9 @@ function Accounts() {
               </div> 
 
               <div className = "flex gap-4 mt-4 justify-end">
-              <div className = "flex flex-col w-[45%] h-96 rounded-xl">
+              <div className = "flex flex-col w-full h-96 rounded-xl">
                     <div className = "card">
                       <h2 className = "text-gray-900 font-semibold m-6">Scheduled Payments</h2>
-                      <div></div>
-                    </div>
-                </div>
-                <div className = "flex flex-col w-[55%] h-96 rounded-xl">
-                    <div className = "card">
-                      <h2 className = "text-gray-900 font-semibold m-6">Balance Overview</h2>
                       <div></div>
                     </div>
                 </div>

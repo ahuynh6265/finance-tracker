@@ -61,7 +61,7 @@ body {
 }
 .modal-content {
   @apply rounded-xl pt-14 px-6 pb-6 w-[600px] flex flex-col gap-6 relative;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(172, 138, 199, 0.834);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px); 
   border: 1px solid rgba(207, 206, 206, 0.6);
