@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get("/accounts", response_model=list[AccountResponse])
 def get_user_accounts(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
-  accounts = db.query(Account).filter(Account.user_id == current_user["id"]).all()
+  accounts = db.query(Account).filter(Account.user_id == current_user["id"]).order_by(Account.id).all()
   return accounts 
 
 @router.get("/accounts/{account_id}", response_model=AccountResponse)
