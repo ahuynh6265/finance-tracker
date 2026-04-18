@@ -7,26 +7,19 @@ import Budgets from "./components/Budgets"
 import Goals from "./components/Goals"
 import {setAuthToken} from "./api/api"
 import {BrowserRouter, Routes, Route, NavLink, Navigate} from "react-router-dom"
-import {useState, useEffect} from "react"
+import {useState} from "react"
 import { MdOutlineAccountBalanceWallet, MdOutlinePayments, MdOutlineHome } from "react-icons/md"
 import { GoGoal } from "react-icons/go"
 import { IoPieChartOutline } from "react-icons/io5";
 import { CiLogout } from "react-icons/ci";
 
+const token = localStorage.getItem("access")
+if (token) setAuthToken(token)
+
 function App (){
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [name, setName] = useState("")
-
-  useEffect (() => {
-    const access_token = localStorage.getItem("access")
-    const refresh_token = localStorage.getItem("refresh")
-
-    if (access_token && refresh_token) {
-      setLoggedIn(true)
-      setName(localStorage.getItem("name"))
-      setAuthToken(access_token)
-    } 
-  }, [])
+  //initial set 
+  const [loggedIn, setLoggedIn] = useState(() => Boolean(localStorage.getItem("access")))
+  const [name, setName] = useState(() => localStorage.getItem("name") || "")
 
   function logOut() {
     localStorage.removeItem("access")
