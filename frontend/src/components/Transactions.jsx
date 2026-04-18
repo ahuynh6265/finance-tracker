@@ -1,6 +1,12 @@
 import {useState, useEffect} from "react"
 import {getTransactions, deleteTransaction, getAccounts, getCategories, deleteCategoryTransactions, refreshData, handleAPIError} from "../api/api"
 import TransactionModal from "./TransactionModal"
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import {Tooltip as MuiTooltip} from '@mui/material';
 
 function Transactions(){
   //transaction variables
@@ -156,28 +162,108 @@ function Transactions(){
   return (
     <div>
       {guardTransactions()}
-      <button className = "text-white font-semibold" disabled = {accounts.length === 0 || categories.length === 0} onClick = {(e) => setShowCreate(true)}>Create Transaction</button>
-      <select value = {filterMonth} onChange = {(e) => setFilterMonth(e.target.value)}>
-        <option value = "">Show All Months</option>
-        <option value = "01">January</option>
-        <option value = "02">February</option>
-        <option value = "03">March</option>
-        <option value = "04">April</option>
-        <option value = "05">May</option>
-        <option value = "06">June</option>
-        <option value = "07">July</option>
-        <option value = "08">August</option>
-        <option value = "09">September</option>
-        <option value = "10">October</option>
-        <option value = "11">November</option>
-        <option value = "12">December</option>
-      </select>
-      <select value = {filterCategory} onChange = {(e) => setFilterCategory(e.target.value)}>
-        <option value = "">Show All Categories</option>
-        {categories.map(category => 
-          <option key = {category.id} value = {category.id}>{category.name}</option>
-        )}
-      </select>
+      <Button variant ="contained" sx={{color: '#D1B0F5', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} startIcon ={<AddIcon/>} disabled = {accounts.length === 0 || categories.length === 0} onClick = {(e) => setShowCreate(true)}>Create Transaction</Button>
+
+      <div className = "card mt-6">
+        <div className = "flex flex-row justify-between">
+          <h2 className ="p-4 page-title">All Transactions</h2>
+          <div className = "flex flex-row p-4">
+            <select className="filter-select gap-3 mr-2" value = {filterMonth} onChange = {(e) => setFilterMonth(e.target.value)}>
+              <option value = "">Show All Months</option>
+              <option value = "01">January</option>
+              <option value = "02">February</option>
+              <option value = "03">March</option>
+              <option value = "04">April</option>
+              <option value = "05">May</option>
+              <option value = "06">June</option>
+              <option value = "07">July</option>
+              <option value = "08">August</option>
+              <option value = "09">September</option>
+              <option value = "10">October</option>
+              <option value = "11">November</option>
+              <option value = "12">December</option>
+            </select>
+            <select className="filter-select gap-3 mr-2" value = {filterCategory} onChange = {(e) => setFilterCategory(e.target.value)}>
+              <option value = "">Show All Categories</option>
+              {categories.map(category => 
+                <option key = {category.id} value = {category.id}>{category.name}</option>
+              )}
+            </select>
+            <div className = "flex flex-row items-center">
+              <div className = "text-sm text-gray-500 mr-1">Show: </div>
+              <select className = "filter-select gap-3 mr-1" value = {entriesPerPage} onChange = {(e) => {setEntriesPerPage(e.target.value); setCurrentPage(1)}}>
+                <option value = "10">10</option>
+                <option value = "25">25</option>
+                <option value = "">All</option>
+              </select>
+              <div className = "text-sm text-gray-500">Entries</div>
+            </div>
+          </div>
+        </div>
+        <div className = "">
+          <table className = "transactions-table"> 
+            <thead>
+              <tr>
+                <th className = " p-3" onClick = {() => handleSort("account_id")}>Account</th>
+                <th className = " p-3" onClick = {() => handleSort("category_id")}>Category</th>
+                <th className = " p-3" onClick = {() => handleSort("amount")}>Amount</th>
+                <th className = " p-3" onClick = {() => handleSort("transaction_type")}>Type</th>
+                <th className = "p-3" onClick = {() => handleSort("description")}>Description</th>
+                <th className = " p-3" onClick = {() => handleSort("date")}>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+          <tbody> 
+          {displayTransactions.map(transaction =>
+            <tr key = {transaction.id}>
+                <td>{accounts.find(a => a.id === transaction.account_id)?.bank_name || "Unknown"}</td>
+                <td>{categories.find(c => c.id === transaction.category_id)?.name || "Unknown"}</td>
+                <td>{Number(transaction.amount).toFixed(2)}</td>
+                <td>{transaction.transaction_type}</td>
+                <td className = "break-words">{transaction.description}</td>
+                <td>{transaction.date}</td>
+                <td>
+                  {(transaction.destination_goal_id) ? ("No Actions") : (
+                    transaction.destination_account_id ? (
+                    <MuiTooltip title = "Delete">
+                      <IconButton className ="mr-2" onClick = {() => handleDelete(transaction.id)}><DeleteIcon/></IconButton>
+                    </MuiTooltip>
+                    ) : (<> 
+                    <MuiTooltip title = "Delete">
+                      <IconButton className ="mr-2" onClick = {() => handleDelete(transaction.id)}><DeleteIcon/></IconButton>
+                    </MuiTooltip>
+                    <MuiTooltip title = "Edit">
+                      <IconButton onClick = {() => {setID(transaction.id)}}><EditIcon/></IconButton>
+                    </MuiTooltip>
+                      </>)
+                  )}
+                </td>
+            </tr>
+          )}
+          </tbody>
+        </table>
+        </div>
+        <div className = "flex justify-between mx-2 my-4">
+          <div className = "flex items-center gap-1 mt-4">
+            {getPageNumbers().map((page, index) => 
+              page === "..." 
+              ? <span className = "page-ellipsis" key = {index}>{page}</span> 
+              : <button className = {`page-btn ${currentPage === page ? "active" : ""}`} key = {index} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+          </div>
+          <div className = "flex justify-end">
+            <select className = "filter-select mr-2" value = {category_id} onChange = {(e) => setCategoryID(e.target.value)}>
+              <option value = "">Select Clear</option>
+              {categories.map(category => 
+              (category.name !== "Transfer") ? (
+                <option key = {category.id} value = {category.id}>{category.name}</option>
+              ) : (null)
+              )}
+            </select>
+            <Button variant="contained" disabled = {category_id === ""} onClick = {() => handleClearCategoryTransactions(category_id)}>Clear</Button>
+          </div>
+        </div>
+      </div>
 
       {showCreate ? (
       <TransactionModal
@@ -204,65 +290,7 @@ function Transactions(){
         onClose = {() => setID(null)}
         />
       ): null}
-        <div className = "transactions-table border border-gray-600 rounded-xl">
-        <table className = "w-full table-fixed"> 
-          <thead>
-            <tr>
-              <th className = " p-3" onClick = {() => handleSort("account_id")}>Account</th>
-              <th className = " p-3" onClick = {() => handleSort("category_id")}>Category</th>
-              <th className = " p-3" onClick = {() => handleSort("amount")}>Amount</th>
-              <th className = " p-3" onClick = {() => handleSort("transaction_type")}>Type</th>
-              <th className = "p-3" onClick = {() => handleSort("description")}>Description</th>
-              <th className = " p-3" onClick = {() => handleSort("date")}>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-        <tbody> 
-        {displayTransactions.map(transaction =>
-          <tr key = {transaction.id}>
-              <td>{accounts.find(a => a.id === transaction.account_id)?.bank_name || "Unknown"}</td>
-              <td>{categories.find(c => c.id === transaction.category_id)?.name || "Unknown"}</td>
-              <td>{transaction.amount}</td>
-              <td>{transaction.transaction_type}</td>
-              <td className = "break-words">{transaction.description}</td>
-              <td>{transaction.date}</td>
-              <td>
-                {(transaction.destination_goal_id) ? ("No Actions") : (
-                  transaction.destination_account_id ? (
-                 <button className ="mr-2" onClick = {() => handleDelete(transaction.id)}>Delete</button>
-                  ) : (<> 
-                    <button className ="mr-2" onClick = {() => handleDelete(transaction.id)}>Delete</button>
-                     <button onClick = {() => {setID(transaction.id)}}>Edit</button>
-                     </>)
-                )}
-              </td>
-          </tr>
-        )}
-        </tbody>
-      </table>
-      </div>
-      <select value = {entriesPerPage} onChange = {(e) => {setEntriesPerPage(e.target.value); setCurrentPage(1)}}>
-        <option value = "1">1</option>
-        <option value = "10">10</option>
-        <option value = "25">25</option>
-        <option value = "">All</option>
-      </select>
-      {getPageNumbers().map((page, index) => 
-        page === "..." 
-        ? <span key = {index}>{page}</span> 
-        : <button className = "text-white" key = {index} onClick={() => setCurrentPage(page)}>{page}</button>
-      )}
-      <div className = "flex justify-end">
-        <select value = {category_id} onChange = {(e) => setCategoryID(e.target.value)}>
-          <option value = "">Select Clear</option>
-          {categories.map(category => 
-          (category.name !== "Transfer") ? (
-            <option key = {category.id} value = {category.id}>{category.name}</option>
-          ) : (null)
-          )}
-        </select>
-        <button disabled = {category_id === ""} onClick = {() => handleClearCategoryTransactions(category_id)}>Clear</button>
-      </div>
+  
       <div className = "text-red-400">{error}</div>
 
     </div>
