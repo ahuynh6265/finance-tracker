@@ -16,6 +16,10 @@
   @apply ml-64 p-8 min-h-screen; 
   background: linear-gradient(135deg, #faf5ff, #fce7f3, #ede9fe, #f0f9ff);
 }
+.login{
+  @apply min-h-screen flex items-center justify-center; 
+  background: linear-gradient(135deg, #faf5ff, #fce7f3, #ede9fe, #f0f9ff);
+}
 .page-title {
   @apply text-xl font-semibold text-gray-900; 
 }
@@ -73,4 +77,34 @@ body {
 
 .select {
   @apply px-2 py-2 rounded-lg text-sm text-gray-900 border border-gray-200 bg-white outline-none
+}
+.pill {
+  @apply flex-1 text-center px-4 py-2 rounded-full text-gray-600
+}
+.pill.active {
+  @apply bg-white text-gray-900 shadow-sm
+}
+.auth-input {
+  @apply w-full p-3 rounded-full bg-gray-100 text-gray-700 outline-none border border-solid border-gray-300
+}
+.auth-card {
+  @apply w-[1000px] h-[600px] rounded-2xl flex flex-row overflow-hidden;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(207, 206, 206, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+.pill-toggle {
+  @apply flex bg-gray-200/70 rounded-full p-1;
+}
+.auth-gradient {
+  background: linear-gradient(135deg, #a78bfa, #f472b6, #c084fc, #fb7185, #a78bfa);
+  background-size: 400% 400%;
+  animation: gradient-flow 14s ease infinite;
+}
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

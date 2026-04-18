@@ -6,7 +6,7 @@ import Register from "./components/Register"
 import Budgets from "./components/Budgets"
 import Goals from "./components/Goals"
 import {setAuthToken} from "./api/api"
-import {BrowserRouter, Routes, Route, NavLink} from "react-router-dom"
+import {BrowserRouter, Routes, Route, NavLink, Navigate} from "react-router-dom"
 import {useState, useEffect} from "react"
 import { MdOutlineAccountBalanceWallet, MdOutlinePayments, MdOutlineHome } from "react-icons/md"
 import { GoGoal } from "react-icons/go"
@@ -66,9 +66,10 @@ function App (){
   ): (
     <div>
       <Routes>
-        <Route path = "/*" element = {<Login onLogin = {(data) => {setLoggedIn(true); setName(localStorage.getItem("name"))}
+        <Route path = "/login" element = {<Login onLogin = {(data) => {setLoggedIn(true); setName(localStorage.getItem("name"))}
         } />}></Route> 
         <Route path = "/register" element = {<Register />}></Route>
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
   </div> 
   )}
