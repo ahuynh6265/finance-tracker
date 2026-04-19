@@ -204,6 +204,13 @@ class BudgetResponse(BaseModel):
   created_at: datetime
   updated_at: datetime
 
+class BudgetChartResponse(BaseModel):
+  model_config = ConfigDict(from_attributes=True)
+
+  category_id: int 
+  category_name: str 
+  monthly_totals: list[Decimal]
+
 class RefreshRequest(BaseModel):
   refresh_token: str 
 

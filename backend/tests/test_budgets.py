@@ -175,3 +175,6 @@ def test_calculate_category_spending(create_account):
   assert response.status_code == 200 
   #should only total this month's(april) spend on this catergory
   assert response.json()["current_total"] == "32.57"
+
+
+

@@ -62,3 +62,20 @@ def create_two_users(test_app):
   second = test_app.post("/auth/login", json = {"email": "alex@test.com", "password": "alex"})
 
   return test_app, first.json()["access_token"], second.json()["access_token"]
+
+@pytest.fixture 
+def create_transactions(create_account):
+  client, token, account_id, _ = create_account
+  def _transaction(category_id, amount, date, account_id=account_id, transaction_type="expense"):
+    response = client.post("/transactions", headers ={"Authorization" : f"Bearer {token}"}, json = {
+    "account_id": account_id, 
+    "category_id": category_id, 
+    "amount": amount,
+    "transaction_type": transaction_type, 
+    "description": "Description", 
+    "date": date
+    })
+    return response
+  return _transaction
+
+

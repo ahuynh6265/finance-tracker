@@ -1,10 +1,13 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session 
 from database import get_db
-from models import Budget
-from schemas import BudgetCreate, BudgetResponse, BudgetUpdate
+from models import Budget, Transaction, Category
+from schemas import BudgetCreate, BudgetResponse, BudgetUpdate, BudgetChartResponse
 from dependencies import budget_lookup, category_lookup, calculate_category_spending
 import auth 
+from sqlalchemy import func, extract
+from datetime import datetime
+from decimal import Decimal
 
 router = APIRouter()
 
@@ -18,6 +21,32 @@ def get_budgets(db: Session = Depends(get_db), current_user: dict = Depends(auth
     budget.current_total = current_total
 
   return budgets
+
+@router.get("/budgets/chart-data", response_model=list[BudgetChartResponse])
+def get_budgets_charts(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  categories = db.query(Category).filter(Category.user_id == current_user["id"], Category.name != "Transfer").all()
+  current_year = datetime.now().year
+
+  totals_per_category = []
+  for category in categories:
+    monthly_total = db.query(
+      extract("month", Transaction.date).label("month"), 
+      func.sum(Transaction.amount)
+      ).filter(
+        Transaction.user_id == current_user["id"], 
+        Transaction.category_id == category.id, 
+        Transaction.transaction_type == "expense", 
+        extract("year", Transaction.date) == current_year
+        ).group_by(Transaction.category_id, "month").all()
+    
+    monthly_total_dict = dict(monthly_total)
+    totals_per_category.append({
+      "category_id": category.id,
+      "category_name": category.name, 
+      "monthly_totals": [monthly_total_dict.get(m, Decimal("0.00")) for m in range (1, 13)]
+    })
+
+  return totals_per_category
 
 @router.get("/budgets/{budget_id}", response_model=BudgetResponse)
 def get_budget(budget_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
@@ -68,3 +97,4 @@ def update_budget(budget_id: int, budget_data: BudgetUpdate, db: Session = Depen
   db.refresh(budget)
   budget.current_total = current_total
   return budget
+  
