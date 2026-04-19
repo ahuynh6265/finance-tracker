@@ -203,6 +203,10 @@ class BudgetResponse(BaseModel):
   budget_limit: Decimal 
   created_at: datetime
   updated_at: datetime
+  @computed_field
+  @property
+  def remaining_balance(self) -> Decimal: 
+    return self.budget_limit - self.current_total
 
 class BudgetChartResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)
