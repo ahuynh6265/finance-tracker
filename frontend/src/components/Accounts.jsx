@@ -142,13 +142,15 @@ function Accounts() {
       return (
         <div>
           <div className = "flex flex-row justify-between">
-          {selectedAccountID === "" ? null : <h1 className = "text-2xl font-semibold text-gray-800 mt-3">Account: </h1>}
-            <select className = "select" value = {selectedAccountID} onChange = {(e) => setSelectedAccountID(e.target.value)}>
-              <option value = "">All Accounts</option>
-              {accounts.map(account => 
-                <option key = {account.id} value = {account.id}>{account.bank_name} - <span className ="capitalize">{account.account_type}</span></option>
-              )}
-            </select>
+          <div className = "flex flex-row items-center">
+            {selectedAccountID === "" ? null : <h1 className = "text-2xl font-semibold text-gray-800 mr-2">Account: </h1>}
+              <select className = "select" value = {selectedAccountID} onChange = {(e) => setSelectedAccountID(e.target.value)}>
+                <option value = "">All Accounts</option>
+                {accounts.map(account => 
+                  <option key = {account.id} value = {account.id}>{account.bank_name} - <span className ="capitalize">{account.account_type}</span></option>
+                )}
+              </select>
+            </div>
               <Button startIcon = {<SwapHorizIcon/>} variant ="contained" sx={{color: '#D1B0F5', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} onClick = {(e) => setShowTransfer(true)}>Transfer Money</Button>
           </div>
           {(selectedAccountID && accountSummary != null) ? (
