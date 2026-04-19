@@ -51,15 +51,6 @@ body {
 .line {
   @apply border-gray-200 border -mx-5
 }
-.transactions-table {
-  @apply w-full text-left text-gray-700
-}
-.transactions-table th {
-  @apply text-gray-700 text-sm p-3 border-b border-gray-200;
-}
-.transactions-table td {
-  @apply p-3 border-b border-gray-300;
-}
 .modal-overlay {
   @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center;
 }
@@ -107,4 +98,35 @@ body {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+.transactions-table {
+  @apply w-full text-left text-gray-700 border-separate border-spacing-0
+}
+.transactions-table thead th {
+  @apply text-xs font-semibold text-gray-500 uppercase tracking-wide p-3 bg-purple-50 cursor-pointer select-none sticky top-0 z-10;
+}
+.transactions-table thead th:first-child {
+  @apply rounded-l-lg
+}
+.transactions-table thead th:last-child {
+  @apply rounded-r-lg
+}
+.transactions-table tbody td {
+  @apply p-3 border-b border-gray-200 text-sm;
+}
+.transactions-table tbody tr:hover td {
+  @apply bg-white/40;
+}
+.page-btn {
+  @apply w-8 h-8 flex items-center justify-center rounded-full text-sm text-gray-700 hover:bg-gray-100 transition-colors
+}
+.page-btn.active {
+  @apply bg-purple-600 text-white hover:bg-purple-700
+}
+.page-ellipsis {
+  @apply w-8 h-8 flex items-center justify-center text-sm text-gray-400
+}
+.filter-select {
+  @apply px-3 py-2 rounded-lg text-sm text-gray-700 bg-white/60 border border-gray-200 outline-none cursor-pointer hover:bg-white/80 transition-colors
 }
