@@ -250,6 +250,10 @@ class GoalResponse(BaseModel):
   deadline: date 
   created_at: datetime
   updated_at: datetime
+  @computed_field
+  @property
+  def remaining_needed(self) -> Decimal: 
+    return self.target_amount - self.current_amount
 
 class GoalUpdate(BaseModel):
   account_id: int
