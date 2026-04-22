@@ -6,6 +6,7 @@ from sqlalchemy.pool import StaticPool
 from database import Base, get_db
 from main import app 
 import models
+from models import Category
 
 engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
 TestingSessionLocal =  sessionmaker(
@@ -44,6 +45,15 @@ def create_account(register_login_user):
 
   return client, token, account_id, category_id 
 
+#different account balance
+@pytest.fixture
+def create_account_goal_chart(register_login_user):
+  client, token = register_login_user
+  response = client.post("/accounts", headers = {"Authorization" : f"Bearer {token}"}, json = {"bank_name": "Chase", "account_type": "checking", "balance": "500000"}) 
+  account_id, category_id = response.json()["id"], 1
+
+  return client, token, account_id, category_id 
+
 @pytest.fixture
 def create_two_accounts(register_login_user): 
   client, token = register_login_user
@@ -78,4 +88,42 @@ def create_transactions(create_account):
     return response
   return _transaction
 
+@pytest.fixture
+def fund_or_withdraw(create_account):
+  client, token, account_id, _ = create_account
+  response = client.post("/goals", headers ={"Authorization" : f"Bearer {token}"}, json = {"name": "Vacation Fund", "target_amount": "3000.00", "deadline": "2026-04-30"}) 
+  goal_id = response.json()["id"]
+  def _goal(action, amount, date, account_id=account_id):
+    db = TestingSessionLocal()
+    user = db.query(models.User).first()
+    category = db.query(Category).filter(Category.user_id == user.id, Category.name == "Transfer").first()
+    if action == "fund":
+      fund_goal = models.Transaction(
+        user_id = user.id,
+        account_id = account_id, 
+        category_id = category.id, 
+        destination_goal_id = goal_id,
+        amount = amount, 
+        transaction_type = "transfer",
+        description = "description", 
+        date = date
+      )
+      db.add(fund_goal)
+      db.commit()
+      
+    else: 
+      withdraw_goal = models.Transaction(
+        user_id = user.id, 
+        account_id = account_id, 
+        category_id = category.id, 
+        source_goal_id = goal_id,
+        amount = amount, 
+        transaction_type = "transfer",
+        description = "description", 
+        date = date
+      )
+      db.add(withdraw_goal)
+      db.commit()
+    db.close()
+  return _goal
 

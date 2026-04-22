@@ -116,6 +116,7 @@ class TransactionResponse(BaseModel):
   account_id: int 
   category_id: int
   destination_account_id: int | None
+  source_goal_id: int | None
   destination_goal_id: int | None 
   amount: Decimal 
   transaction_type: TransactionType
@@ -267,4 +268,8 @@ class GoalUpdate(BaseModel):
     elif value < 0: 
       raise ValueError("Amount can't be negative.")
     return value
+
+class GoalChartResponse(BaseModel):
+  date: date 
+  cumulative: Decimal 
 

@@ -1,11 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends, status
+from sqlalchemy import or_ 
 from sqlalchemy.orm import Session 
 from database import get_db 
 from models import Goal, Transaction, Category
-from schemas import GoalCreate, GoalResponse, GoalUpdate
+from schemas import GoalCreate, GoalResponse, GoalUpdate, GoalChartResponse
 from dependencies import goal_lookup, account_lookup
 import auth 
-from datetime import date
+from datetime import date, timedelta
+from collections import defaultdict
+from decimal import Decimal
 
 router =  APIRouter()
 
@@ -18,6 +21,32 @@ def get_user_goals(db: Session = Depends(get_db), current_user: dict = Depends(a
 def get_user_goal(goal_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
   goal = goal_lookup(goal_id, db, current_user["id"])
   return goal 
+
+@router.get("/goals/{goal_id}/chart-data", response_model=list[GoalChartResponse])
+def get_goals_charts(goal_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  goal = goal_lookup(goal_id, db, current_user["id"])
+  transactions = db.query(Transaction).filter(Transaction.user_id == current_user["id"], or_(Transaction.destination_goal_id == goal.id, Transaction.source_goal_id == goal.id)).order_by(Transaction.date).all()
+
+  net_per_date = defaultdict(Decimal)
+  for transaction in transactions:
+    if transaction.destination_goal_id == goal.id: 
+      net_per_date[transaction.date] += transaction.amount
+    elif transaction.source_goal_id == goal.id:
+      net_per_date[transaction.date] -= transaction.amount
+  
+  cumulative_total = []
+  running = Decimal("0.00")
+  current_date = goal.created_at.date()
+  while current_date <= goal.deadline:
+    delta = net_per_date.get(current_date, Decimal("0.00"))
+    running += delta 
+    cumulative_total.append({
+      "date": current_date, 
+      "cumulative": running
+    })
+    current_date += timedelta(days=1)
+    
+  return cumulative_total
 
 @router.post("/goals", response_model=GoalResponse, status_code=status.HTTP_201_CREATED)
 def create_goal(goal_data: GoalCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
@@ -90,13 +119,12 @@ def withdraw_from_goal(goal_id: int, update_data: GoalUpdate, db: Session = Depe
   if update_data.amount > goal.current_amount:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Can not withdraw more than you currently have in the fund.")
   
-  #SOURCE AND DESTINATION SWITCHED BECAUSE USER IS WITHDRAWING FROM GOAL FUND MEANING GOAL ID IS NOW THE SOURCE AND THE ACCOUNT THE MONEY IS BEING RETURNED TO IS THE SOURCE
   #note that for withdrawals account id does not have to be the same account id used to fund goal, can be withdrawn into another of the user's account
   create_transaction = Transaction(
     user_id = current_user["id"], 
-    account_id = update_data.account_id, #DESTINATION
+    account_id = update_data.account_id, 
     category_id = category.id, 
-    destination_goal_id = goal.id, #SOURCE
+    source_goal_id = goal.id, 
     amount = update_data.amount, 
     transaction_type = "transfer", 
     description  = f"Withdrawal from {goal.name}",
