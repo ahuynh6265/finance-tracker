@@ -14,7 +14,7 @@ router =  APIRouter()
 
 @router.get("/goals", response_model=list[GoalResponse]) 
 def get_user_goals(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
-  goals = db.query(Goal).filter(Goal.user_id == current_user["id"]).all()
+  goals = db.query(Goal).filter(Goal.user_id == current_user["id"]).order_by(Goal.deadline).all()
   return goals 
 
 @router.get("/goals/{goal_id}", response_model=GoalResponse)
@@ -45,7 +45,7 @@ def get_goals_charts(goal_id: int, db: Session = Depends(get_db), current_user: 
       "cumulative": running
     })
     current_date += timedelta(days=1)
-    
+
   return cumulative_total
 
 @router.post("/goals", response_model=GoalResponse, status_code=status.HTTP_201_CREATED)
