@@ -24,6 +24,19 @@ class SummaryResponse(BaseModel):
   accounts_only: Decimal
   goals_only: Decimal
 
+class SummaryMonthlyResponse(BaseModel):
+  model_config = ConfigDict(from_attributes=True)
+
+  year: int
+  month: int
+  income: Decimal
+  expenses: Decimal 
+
+  @computed_field
+  @property 
+  def net_balance(self) -> Decimal:
+    return self.income - self.expenses
+
 #category 
 class CategoryResponse(BaseModel):
   model_config = ConfigDict(from_attributes=True)

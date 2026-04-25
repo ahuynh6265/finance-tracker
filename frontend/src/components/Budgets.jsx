@@ -91,7 +91,7 @@ function Budgets() {
               <table className = "transactions-table">
                 <thead>
                   <tr>
-                    <th >Category</th>
+                    <th>Category</th>
                     <th>Monthly Limit</th>
                     <th>Current Spent</th>
                     <th>Remaining This Month</th>

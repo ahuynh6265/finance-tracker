@@ -25,8 +25,8 @@ function AccountModal({account, onSuccess, onClose}) {
   return (
     <div className = "modal-overlay">
       <div className = "modal-content">
-        {account ? (<h1 className = "absolute top-4 left-4 text-gray-800 text-xl font-semibold">Edit Bank Account</h1>) : ( <h1 className = "absolute top-4 left-4 text-gray-800 text-xl font-semibold">Create New Account</h1>)}
-        <button className = "absolute top-4 right-4 text-gray-800 font-semibold" onClick = {onClose}>Close</button>
+        {account ? (<h1 className = "absolute top-4 left-4 text-white text-xl font-semibold">Edit Bank Account</h1>) : ( <h1 className = "absolute top-4 left-4 text-white text-xl font-semibold">Create New Account</h1>)}
+        <button className = "absolute top-4 right-4 text-white font-semibold" onClick = {onClose}>Close</button>
 
         <div className = "flex gap-4">
           <div className = "w-full">
@@ -36,7 +36,7 @@ function AccountModal({account, onSuccess, onClose}) {
 
         <div className = "flex gap-4">
           <div className = "w-full">
-            <h2 className = "text-gray-800 font-semibold">Select Account Type</h2>
+            <h2 className = "text-white font-semibold">Select Account Type</h2>
             <select className = "modal-input" value = {account_type} onChange = {(e) => setType(e.target.value)}>
             <option value = "checking">Checking</option> 
             <option value = "savings">Saving</option> 
@@ -44,12 +44,12 @@ function AccountModal({account, onSuccess, onClose}) {
             </select>
           </div>
           <div className = "w-full">
-            <h2 className = "text-gray-800 font-semibold">Enter Balance</h2>
+            <h2 className = "text-white font-semibold">Enter Balance</h2>
             <input className = "modal-input" value = {balance} onChange = {(e) => setBalance(e.target.value)}></input> 
           </div>
         </div>
 
-        {account ? (<button className = "text-gray-800 font-semibold" onClick = {handleSubmit}>Save Changes</button>) : (<button className = "text-gray-800 font-semibold" onClick = {handleSubmit}>Create Account</button>)}
+        {account ? (<button className = "bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 py-2 rounded-lg shadow-sm transition-colors" onClick = {handleSubmit}>Save Changes</button>) : (<button className = "bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 py-2 rounded-lg shadow-sm transition-colors" onClick = {handleSubmit}>Create Account</button>)}
         <div className = "text-red-600">{error}</div>
       </div>
     </div>

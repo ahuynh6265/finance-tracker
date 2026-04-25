@@ -76,10 +76,11 @@ def create_two_users(test_app):
 @pytest.fixture 
 def create_transactions(create_account):
   client, token, account_id, _ = create_account
-  def _transaction(category_id, amount, date, account_id=account_id, transaction_type="expense"):
+  def _transaction(category_id, amount, date, account_id=account_id, transaction_type="expense", destination_account_id=None, token=token):
     response = client.post("/transactions", headers ={"Authorization" : f"Bearer {token}"}, json = {
     "account_id": account_id, 
     "category_id": category_id, 
+    "destination_account_id": destination_account_id,
     "amount": amount,
     "transaction_type": transaction_type, 
     "description": "Description", 

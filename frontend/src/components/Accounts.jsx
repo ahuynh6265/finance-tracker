@@ -158,12 +158,12 @@ function Accounts() {
               <div className = "flex gap-4 mt-6 ">
                 <div className = "card p-2">
                   <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Expenses This Month</div>
-                  <div className = "text-2xl font-semibold text-gray-800 mt-1">${accountSummary.expenses}</div>
+                  <div className = "text-2xl font-semibold text-gray-800 mt-1">${Number(accountSummary.expenses).toFixed(2)}</div>
                 </div>
 
                 <div className = "card p-2">
                   <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Net Balance This Month</div>
-                  <div className = "text-2xl font-semibold text-gray-800 mt-1">${accountSummary.net_balance}</div>
+                  <div className = "text-2xl font-semibold text-gray-800 mt-1">${Number(accountSummary.net_balance).toFixed(2)}</div>
                 </div>
               </div>
 
@@ -233,7 +233,7 @@ function Accounts() {
                           {copyAccountTransactions.map(transaction =>
                               <tr key = {transaction.id}>
                                 <td>{categories.find(c => c.id === transaction.category_id)?.name || "Unknown"}</td>
-                                <td className = {transaction.transaction_type === "transfer" ? "text-gray-800" : (transaction.transaction_type === "income" ? "text-green-600" : "text-red-600")}>${transaction.amount}</td>
+                                <td className = {transaction.transaction_type === "transfer" ? "text-gray-800" : (transaction.transaction_type === "income" ? "text-green-600" : "text-red-600")}>${Number(transaction.amount).toFixed(2)}</td>
                                 <td>{transaction.transaction_type}</td>
                                 <td>{transaction.description}</td>
                                 <td>{transaction.date}</td>
@@ -321,17 +321,17 @@ function Accounts() {
                   <div className = "flex gap-4 h-[50%]">
                     <div className = "card p-4">
                       <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Total Balance</div>
-                      <div className = "text-gray-800 text-2xl font-semibold">${summary["net balance"]}</div>
+                      <div className = "text-gray-800 text-2xl font-semibold">${Number(summary["net balance"]).toFixed(2)}</div>
                     </div>
                     <div className = "card p-4">
                       <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Available Balance</div>
-                      <div className = "text-gray-800 text-2xl font-semibold">${summary.accounts_only}</div>
+                      <div className = "text-gray-800 text-2xl font-semibold">${Number(summary.accounts_only).toFixed(2)}</div>
                     </div>
                   </div>
                   <div className = "flex gap-4 h-[50%]">
                     <div className = "card p-4">
                       <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Allocated to Goals</div>
-                      <div className = "text-gray-800 text-2xl font-semibold">${summary.goals_only}</div>
+                      <div className = "text-gray-800 text-2xl font-semibold">${Number(summary.goals_only).toFixed(2)}</div>
                     </div>
                     <div className = "card p-4">
                       <div className = "text-xs font-medium text-gray-500 uppercase tracking-wide">Active Accounts</div>

@@ -29,18 +29,27 @@ function GoalCreateUpdateModal({goal, onSuccess, onClose}) {
   return (
     <div className = "modal-overlay">
       <div className = "modal-content">
-        {goal ? (<h1 className = "absolute top-4 left-4 text-gray-300 text-xl font-semibold">Edit Goal</h1>) : (<h1 className = "absolute top-4 left-4 text-gray-300 text-xl font-semibold">Create New Goal</h1>)}
+        {goal ? (<h1 className = "absolute top-4 left-4 text-white text-xl font-semibold">Edit Goal</h1>) : (<h1 className = "absolute top-4 left-4 text-white text-xl font-semibold">Create New Goal</h1>)}
         <button className = "absolute top-4 right-4 text-white font-semibold" onClick = {onClose}>Close</button>
 
         <div className = "flex gap-4">
-          <div className = "w-full">
-            <input className = "modal-input" placeholder = "name" value = {name} onChange = {(e) => setName(e.target.value)}></input>
-            <input className = "modal-input" placeholder = "target amount" value = {target_amount} onChange = {(e) => setTargetAmount(e.target.value)}></input>
-            <input className = "modal-input" type = "date" placeholder = "deadline" value = {deadline} onChange = {(e) => setDeadline(e.target.value)}></input>
+          <div className = "w-full flex flex-col gap-3">
+            <div>
+              <h2 className = "text-white font-semibold">Goal Name</h2>
+              <input className = "modal-input" placeholder = "Enter Goal Name" value = {name} onChange = {(e) => setName(e.target.value)}></input>
+            </div>
+            <div>
+              <h2 className = "text-white font-semibold">Target Amount</h2>
+              <input className = "modal-input" placeholder = "Enter Target Amount" value = {target_amount} onChange = {(e) => setTargetAmount(e.target.value)}></input>
+            </div>
+            <div>
+              <h2 className = "text-white font-semibold">Deadline</h2>
+              <input className = "modal-input" type = "date" value = {deadline} onChange = {(e) => setDeadline(e.target.value)}></input>
+            </div>
           </div>
         </div>
 
-        {goal ? (<button className = "text-white font-semibold" onClick = {handleSubmit}>Save</button>) : (<button className = "text-white font-semibold" onClick = {handleSubmit}>Create</button>)}
+        {goal ? (<button className = "bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 py-2 rounded-lg shadow-sm transition-colors" onClick = {handleSubmit}>Save</button>) : (<button className = "bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 py-2 rounded-lg shadow-sm transition-colors" onClick = {handleSubmit}>Create</button>)}
         <div className = "text-red-400">{error}</div>
       </div>
     </div>

@@ -4,8 +4,9 @@ const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000"
 const api = axios.create({baseURL: BASE_URL})
 
 export const getSummary = () => api.get(`/summary`)
+export const getMonthlySummary = () => api.get("/summary/monthly") 
 export const getAccountSummary = (account_id) => api.get(`/accounts/${account_id}/summary`)
-export const getAccountTransactions = (account_id) => api.get(`/accounts/${account_id}/transactions`)
+export const getAccountTransactions = (account_id) => api.get(`/accounts/${account_id}/transactions`) 
 
 export const getAccounts = () => api.get(`/accounts`)
 export const createAccount = (account_data) => api.post(`/accounts`, account_data)
