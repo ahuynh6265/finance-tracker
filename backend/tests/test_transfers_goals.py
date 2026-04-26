@@ -222,4 +222,14 @@ def test_different_account_withdraw(create_two_accounts):
   assert first_account.json()["balance"] == "632.44"
   assert second_account.status_code == 200
   assert second_account.json()["balance"] == "969.77"
+
+#check goal can be deleted after being funded then withdraw of all money
+def test_check_fund_withdraw_delete(create_account):
+  client, token, account_id, _ = create_account 
+  response = client.post("/goals", headers ={"Authorization" : f"Bearer {token}"}, json = {"name": "Vacation Fund", "target_amount": "3000.00", "deadline": "2026-08-12"}) 
+  goal_id = response.json()["id"]
   
+  client.put(f"/goals/{goal_id}/current-amount", headers ={"Authorization" : f"Bearer {token}"}, json = {"account_id": account_id, "amount": "123.23"})
+  client.put(f"/goals/{goal_id}/withdraw", headers ={"Authorization" : f"Bearer {token}"}, json = {"account_id": account_id, "amount": "123.23"})
+  response = client.delete(f"/goals/{goal_id}", headers ={"Authorization" : f"Bearer {token}"})
+  assert response.status_code == 204 
