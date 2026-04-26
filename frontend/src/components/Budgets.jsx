@@ -25,7 +25,7 @@ function Budgets() {
   useEffect (() => {
     refreshData(getBudgets, setBudgets)
     refreshData(getCategories, setCategories)
-    refreshData(getBudgetsChart, setBudgetsChart).then((data) => setSelectedCategoryID(data[0].category_id))
+    refreshData(getBudgetsChart, setBudgetsChart).then((data) => setSelectedCategoryID(data[0]?.category_id || null))
   }, [])
 
   function handleDelete(budget_id){
@@ -37,10 +37,13 @@ function Budgets() {
   else {
     let chartTotals = []
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    chartTotals = budgetsChart.find(c => c.category_id === Number(selectedCategoryID)).monthly_totals.map((totals, i) => ({
-      month: months[i], 
-      totals: Number(totals)
-    }))
+    const findCategory = budgetsChart.find(c => c.category_id === Number(selectedCategoryID))
+    chartTotals = (findCategory ? (
+      budgetsChart.find(c => c.category_id === Number(selectedCategoryID)).monthly_totals.map((totals, i) => ({
+        month: months[i], 
+        totals: Number(totals)
+      }))
+    ) : [])
 
     const copyBudgets = budgets.toSorted((a, b) => Number(a.remaining_balance) - Number(b.remaining_balance))
 
