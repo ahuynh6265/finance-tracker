@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from models import Category, Account, Transaction, Budget, Goal
+from models import Category, Account, Transaction, Budget, Goal, Subscription
 from datetime import datetime, date
 from sqlalchemy import func
 
@@ -57,6 +57,17 @@ def goal_lookup(goal_id, db, user_id):
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Goal ID {goal_id} does not belong to user")
   
   return goal
+
+def subscription_lookup(subscription_id, db, user_id):
+  subscription = db.query(Subscription).filter(Subscription.id == subscription_id).first()
+
+  if not subscription: 
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subscription ID not found")
+  
+  if subscription.user_id != user_id:
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Subscription ID {subscription_id} does not belong to user")
+  
+  return subscription
 
 def adjust_balance(account, transaction, reverse=False):
   #if transaction is being created/updated into current/new account

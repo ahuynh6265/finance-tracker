@@ -17,6 +17,7 @@ class User(Base):
   transactions = relationship("Transaction", back_populates="user", cascade="all, delete")
   budgets = relationship("Budget", back_populates="user", cascade="all, delete")
   goals = relationship("Goal", back_populates="user", cascade="all, delete")
+  subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete")
 
 class Category(Base): 
   __tablename__ ="category"
@@ -27,6 +28,7 @@ class Category(Base):
   user = relationship("User", back_populates="categories")
   transactions = relationship("Transaction", back_populates="category")
   budget = relationship("Budget", back_populates="category", uselist=False)
+  subscriptions = relationship("Subscription", back_populates="category")
   
 class Account(Base): 
   __tablename__="account"
@@ -40,6 +42,7 @@ class Account(Base):
 
   user = relationship("User", back_populates="accounts")
   transactions = relationship("Transaction", back_populates="account", cascade="all, delete", foreign_keys="[Transaction.account_id]")
+  subscriptions = relationship("Subscription", back_populates="account",cascade="all, delete")
 
 class Transaction(Base): 
   __tablename__="transaction"
@@ -85,3 +88,18 @@ class Goal(Base):
 
   user = relationship("User", back_populates="goals")
 
+class Subscription(Base):
+  __tablename__ = "subscription"
+  id = Column(Integer, primary_key=True, autoincrement=True)
+  user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+  account_id = Column(Integer, ForeignKey("account.id", ondelete="CASCADE"), nullable=False)
+  category_id = Column(Integer, ForeignKey("category.id"), nullable=False)
+  name = Column(String, nullable=False)
+  amount = Column(Numeric(10, 2), nullable=False)
+  next_due_date = Column(Date, nullable=False)
+  created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+  updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+  user = relationship("User", back_populates="subscriptions")
+  account = relationship("Account", back_populates="subscriptions")
+  category = relationship("Category", back_populates="subscriptions")

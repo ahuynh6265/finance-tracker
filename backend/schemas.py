@@ -286,3 +286,45 @@ class GoalChartResponse(BaseModel):
   date: date 
   cumulative: Decimal 
 
+class SubscriptionCreate(BaseModel):
+  account_id: int 
+  category_id: int
+  name: str
+  amount: Decimal 
+  next_due_date: date
+
+  @field_validator("name")
+  @classmethod
+  def check_name(cls, value: str) -> str:
+    if len(value) < 1: 
+      raise ValueError("Subscription name can't be left empty.")
+    return value
+
+  @field_validator("amount")
+  @classmethod
+  def check_amount(cls, value: Decimal) -> Decimal:
+    if value == 0:
+      raise ValueError("Amount can't be zero.")
+    elif value < 0: 
+      raise ValueError("Amount can't be negative.")
+    return value
+  
+  @field_validator("next_due_date")
+  @classmethod 
+  def check_due_date(cls, value: date) -> date:
+    if value < date.today():
+      raise ValueError("This date has already passed.")
+    return value
+  
+class SubscriptionResponse(BaseModel):
+  model_config = ConfigDict(from_attributes=True)
+
+  id: int
+  user_id: int
+  account_id: int 
+  category_id: int
+  name: str
+  amount: Decimal 
+  next_due_date: date
+  created_at: datetime
+  updated_at: datetime 

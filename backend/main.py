@@ -8,6 +8,7 @@ from routes.summary import router as summary_router
 from routes.auth_routes import router as auth_router
 from routes.budgets import router as budgets_router
 from routes.goals import router as goals_router
+from routes.subscriptions import router as subscriptions_router
 
 app = FastAPI() 
 app.include_router(users_router)
@@ -18,6 +19,7 @@ app.include_router(summary_router)
 app.include_router(auth_router)
 app.include_router(budgets_router)
 app.include_router(goals_router)
+app.include_router(subscriptions_router)
 
 app.add_middleware(
     CORSMiddleware,

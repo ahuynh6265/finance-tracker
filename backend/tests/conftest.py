@@ -128,3 +128,16 @@ def fund_or_withdraw(create_account):
     db.close()
   return _goal
 
+@pytest.fixture 
+def create_subscription(create_account):
+  client, token, account_id, _ = create_account
+  def _subscription(category_id, name, amount, next_due_date, account_id=account_id, token=token):
+    response = client.post("/subscriptions", headers ={"Authorization" : f"Bearer {token}"}, json = {
+    "account_id": account_id, 
+    "category_id": category_id, 
+    "name": name,
+    "amount": amount,
+    "next_due_date": next_due_date
+    })
+    return response
+  return _subscription
