@@ -141,3 +141,9 @@ def create_subscription(create_account):
     })
     return response
   return _subscription
+
+@pytest.fixture
+def db_session():
+  db = TestingSessionLocal()
+  try: yield db
+  finally: db.close()

@@ -9,5 +9,6 @@ celery_app = Celery(__name__)
 celery_app.conf.update(
   broker_url = REDIS_URL, 
   timezone = "UTC",
-  broker_connection_retry_on_startup = True
+  broker_connection_retry_on_startup = True,
+  imports = ("tasks",)
 )
