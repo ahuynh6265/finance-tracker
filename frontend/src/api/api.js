@@ -49,6 +49,11 @@ export const updateGoal = (goal_id, goal_data) => api.put(`/goals/${goal_id}`, g
 export const fundGoal = (goal_id, update_data) => api.put(`/goals/${goal_id}/current-amount`, update_data)
 export const withdrawGoal = (goal_id, update_data) => api.put(`/goals/${goal_id}/withdraw`, update_data)
 
+export const getSubscriptions = () => api.get("/subscriptions")
+export const createSubscription = (subscription_data) => api.post("/subscriptions", subscription_data)
+export const deleteSubscription = (subscription_id) => api.delete(`/subscriptions/${subscription_id}`)
+export const updateSubscription = (subscription_id, subscription_data) => api.put(`/subscriptions/${subscription_id}`, subscription_data)
+
 export const refreshToken = (refresh_token) => api.post("/auth/refresh", {"refresh_token": refresh_token})
 
 api.interceptors.response.use(

@@ -5,6 +5,7 @@ import Login from "./components/Login"
 import Register from "./components/Register"
 import Budgets from "./components/Budgets"
 import Goals from "./components/Goals"
+import Subscriptions from "./components/Subscriptions"
 import {setAuthToken} from "./api/api"
 import {BrowserRouter, Routes, Route, NavLink, Navigate} from "react-router-dom"
 import {useState} from "react"
@@ -12,6 +13,7 @@ import { MdOutlineAccountBalanceWallet, MdOutlinePayments, MdOutlineHome } from 
 import { GoGoal } from "react-icons/go"
 import { IoPieChartOutline } from "react-icons/io5";
 import { CiLogout } from "react-icons/ci";
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 
 const token = localStorage.getItem("access")
 if (token) setAuthToken(token)
@@ -40,6 +42,7 @@ function App (){
       <NavLink className = "nav-link" to = "/transactions"><MdOutlinePayments/>Transactions</NavLink>
       <NavLink className = "nav-link" to = "/budgets"><IoPieChartOutline/>Budgets</NavLink> 
       <NavLink className = "nav-link" to = "/goals"><GoGoal/>Goals</NavLink>
+      <NavLink className = "nav-link" to = "/subscriptions"><SubscriptionsIcon/>Subscriptions</NavLink>
 
       <hr className = "mt-auto line"></hr>
       <div className = "capitalize">{name}</div>
@@ -53,6 +56,7 @@ function App (){
         <Route path = "/transactions" element = {<Transactions />}></Route>
         <Route path = "/budgets" element = {<Budgets />}></Route>
         <Route path = "/goals" element = {<Goals />}></Route>
+        <Route path = "/subscriptions" element = {<Subscriptions />}></Route>
       </Routes>
     </div> 
   </>
