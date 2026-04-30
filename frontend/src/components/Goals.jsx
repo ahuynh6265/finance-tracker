@@ -75,7 +75,8 @@ function Goals() {
             </div>
             <div className="text-gray-800 font-semibold">No goals yet</div>
             <div className="text-gray-500 text-sm text-center max-w-xs">Create a goal to start tracking your progress toward something you're saving for.</div>
-            <Button variant ="contained" sx={{color: '#a855f7', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} startIcon ={<AddIcon/>} onClick = {(e) => setShowCreate(true)}>Create Goal</Button> 
+            <Button variant ="contained" sx={{color: '#a855f7', bgcolor: "#E9E8ED", '&:hover': { bgcolor: '#AFAEB0' }}} startIcon ={<AddIcon/>} disabled = {accounts.length === 0} onClick = {(e) => setShowCreate(true)}>Create Budget</Button>
+            {accounts.length === 0 ? <div className ="text-gray-800 font-semibold">Create an account before creating a goal.</div> : null}
           </div>
           {showCreate ? (
             <GoalCreateUpdateModal 
@@ -337,7 +338,9 @@ function Goals() {
             <GoalCreateUpdateModal 
             goal = {null}
             onSuccess = {() => {
-              refreshData(getGoals, setGoals).then(() => handleChartUpdate(selectedGoalID))
+              refreshData(getGoals, setGoals).then((data) => {
+                setSelectedGoalID(data.toSorted((a, b) => a.deadline.localeCompare(b.deadline))[0].id)
+              })
               setShowCreate(false)
             }}
             onClose = {() => setShowCreate(false)}
@@ -348,7 +351,9 @@ function Goals() {
             <GoalCreateUpdateModal
             goal = {goals.find (g => g.id === current_id)}
             onSuccess = {() => {
-              refreshData(getGoals, setGoals).then(() => handleChartUpdate(selectedGoalID))
+              refreshData(getGoals, setGoals).then((data) => {
+                setSelectedGoalID(data.toSorted((a, b) => a.deadline.localeCompare(b.deadline))[0].id)
+              })
               setID(null)
             }}
             onClose = {() => setID(null)}
