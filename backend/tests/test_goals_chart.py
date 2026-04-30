@@ -21,6 +21,7 @@ def test_verify_empty_goal(create_account_goal_chart):
 
 def test_single_fund(create_account_goal_chart, fund_or_withdraw):
   client, token, account_id, _ = create_account_goal_chart
+  
   fund_or_withdraw("fund", "100.00", date(2026,4,23))
   goals = client.get("/goals", headers ={"Authorization" : f"Bearer {token}"})
   goal = goals.json()[0]

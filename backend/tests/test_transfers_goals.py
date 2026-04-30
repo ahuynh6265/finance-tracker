@@ -57,13 +57,13 @@ def test_delete_goal_transaction(create_account):
   assert before_delete.json()["balance"] == "344.90"
 
   response = client.delete(f"transactions/{transaction_id}", headers ={"Authorization" : f"Bearer {token}"})
-  assert response.status_code == 204
+  assert response.status_code == 403
 
   account = client.get(f"/accounts/{account_id}", headers ={"Authorization" : f"Bearer {token}"})
-  assert account.json()["balance"] == "500.00"
+  assert account.json()["balance"] == "344.90"
 
   goal = client.get(f"/goals/{goal_id}", headers ={"Authorization" : f"Bearer {token}"})
-  assert goal.json()["current_amount"] == "0.00"
+  assert goal.json()["current_amount"] == "155.10"
 
 #same account multiple transfers
 def test_multiple_transfers(create_account): 

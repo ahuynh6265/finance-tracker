@@ -7,6 +7,7 @@ from database import Base, get_db
 from main import app 
 import models
 from models import Category
+from freezegun import freeze_time
 
 engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
 TestingSessionLocal =  sessionmaker(
@@ -92,7 +93,8 @@ def create_transactions(create_account):
 @pytest.fixture
 def fund_or_withdraw(create_account):
   client, token, account_id, _ = create_account
-  response = client.post("/goals", headers ={"Authorization" : f"Bearer {token}"}, json = {"name": "Vacation Fund", "target_amount": "3000.00", "deadline": "2026-04-30"}) 
+  with freeze_time("2026-04-21"):
+    response = client.post("/goals", headers ={"Authorization" : f"Bearer {token}"}, json = {"name": "Vacation Fund", "target_amount": "3000.00", "deadline": "2026-04-30"}) 
   goal_id = response.json()["id"]
   def _goal(action, amount, date, account_id=account_id):
     db = TestingSessionLocal()
