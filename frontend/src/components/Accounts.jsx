@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react"
-import {getAccounts, getCategories, deleteAccount, refreshData, handleAPIError, getSummary, getAccountSummary, getAccountTransactions} from "../api/api"
+import {getAccounts, getCategories, getSubscriptions, deleteAccount, refreshData, handleAPIError, getSummary, getAccountSummary, getAccountTransactions} from "../api/api"
 import AccountModal from "./AccountModal"
 import AccountTransferModal from "./AccountTransferModal"
 import { ResponsiveContainer, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Line } from 'recharts'
@@ -18,6 +18,7 @@ function Accounts() {
   const [summary, setSummary] = useState(null)
   const [categories, setCategories] = useState(null)
   const [accounts, setAccounts] = useState(null)
+  const [subscriptions, setSubscriptions] = useState(null)
   const [accountSummary, setAccountSummary] = useState(null)
   const [accountTransactions, setAccountTransactions] = useState(null)
   const [selectedAccountID, setSelectedAccountID] = useState(null)
@@ -31,6 +32,7 @@ function Accounts() {
     refreshData(getAccounts, setAccounts).then((accounts) => setSelectedAccountID(""))
     refreshData(getCategories, setCategories)
     refreshData(getSummary, setSummary)
+    refreshData(getSubscriptions, setSubscriptions)
   }, [])
 
   useEffect(() => {
@@ -51,7 +53,7 @@ function Accounts() {
     }
   }
 
-  if (!accounts || !summary) return <div>Loading...</div>
+  if (!accounts || !summary || !categories || !subscriptions) return <div>Loading...</div>
 
   else {
     if (accounts.length === 0) {
@@ -137,6 +139,11 @@ function Accounts() {
         }, {})
         
         accountChart = allDates.map(date => ({ date: date, net: result[date] || 0 }))
+      }
+      
+      let copySubscriptions 
+      if (subscriptions !== null) {
+        copySubscriptions = subscriptions.toSorted((a, b) => a.next_due_date.localeCompare(b.next_due_date)).slice(0,5)
       }
 
       return (
@@ -344,8 +351,46 @@ function Accounts() {
               <div className = "flex gap-4 mt-4 justify-end">
               <div className = "flex flex-col w-full h-96 rounded-xl">
                     <div className = "card">
-                      <h2 className = "text-gray-900 font-semibold m-6">Scheduled Payments</h2>
-                      <div></div>
+                      <div className = "flex items-center justify-between p-4">
+                        <h2 className = "text-gray-900 font-semibold">Upcoming Bills</h2>
+                        <Button variant="text" href="/subscriptions" sx={{ color: '#a855f7', textTransform: 'none', fontSize: '0.875rem' }}>See all
+                        </Button>
+                      </div>
+                      {subscriptions.length !== 0 ? (
+                        <>
+                        <div className = "flex-1 min-h-0 overflow-y-auto px-4 pb-4">
+                          <table className = "transactions-table">
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>Account</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Next Due Date</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {copySubscriptions.map(subscription => 
+                                <tr key  = {subscription.id}>
+                                  <td>{subscription.name}</td>
+                                  <td>{accounts.find(a => a.id === subscription.account_id)?.bank_name || "Unknown"}</td>
+                                  <td>{categories.find(c => c.id === subscription.category_id)?.name || "Unknown"}</td>
+                                  <td>${Number(subscription.amount).toFixed(2)}</td>
+                                  <td>{subscription.next_due_date}</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                        </>
+                      ) : (
+                        <>
+                        <div className = "h-full flex flex-col items-center justify-center gap-3 p-8">
+                          <div>No subscriptions.</div>
+                        </div>
+                        </>
+                      )}
+                     
                     </div>
                 </div>
               </div>

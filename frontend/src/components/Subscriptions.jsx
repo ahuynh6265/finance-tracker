@@ -30,6 +30,7 @@ function Subscriptions() {
 
   if (!subscriptions || !accounts || !categories) return <div>Loading...</div>
   else {
+    const copySubscriptions = subscriptions.toSorted((a, b) => a.next_due_date.localeCompare(b.next_due_date))
     const copyCategories = categories.filter(c => c.name !== "Transfer")
     const totalMonthly = subscriptions.reduce((sum, subscription) => sum + Number(subscription.amount), 0)
     const annualProjection = totalMonthly * 12 
@@ -72,7 +73,7 @@ function Subscriptions() {
                     </tr>
                   </thead>
                   <tbody>
-                    {subscriptions.map(subscription => 
+                    {copySubscriptions.map(subscription => 
                       <tr key  = {subscription.id}>
                         <td>{subscription.name}</td>
                         <td>{accounts.find(a => a.id === subscription.account_id)?.bank_name || "Unknown"}</td>
