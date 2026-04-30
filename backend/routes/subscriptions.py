@@ -45,10 +45,10 @@ def delete_subscription(subscription_id: int,  db: Session = Depends(get_db), cu
 
 @router.put("/subscriptions/{subscription_id}", response_model=SubscriptionResponse)
 def update_subscription(subscription_id: int, new_subscription_data: SubscriptionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
-  account_lookup(new_subscription_data.account_id, db, current_user["id"])
-  category_lookup(new_subscription_data.category_id, db, current_user["id"])
-
   subscription = subscription_lookup(subscription_id, db, current_user["id"])
+  account_lookup(subscription.account_id, db, current_user["id"])
+  category_lookup(subscription.category_id, db, current_user["id"])
+
   subscription.account_id = new_subscription_data.account_id 
   subscription.category_id = new_subscription_data.category_id
   subscription.name = new_subscription_data.name
