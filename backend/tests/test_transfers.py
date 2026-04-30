@@ -193,8 +193,53 @@ def test_transfer_delete(register_login_user):
 
   assert first_before_delete.json()["balance"] == "148.77"
   assert second_before_delete.json()["balance"] == "1551.23" 
-  assert response.status_code == 204
-  assert first_response.json()["balance"] == "500.00"
-  assert second_response.json()["balance"] == "1200.00" 
+  assert response.status_code == 403
+  assert response.json()["detail"] == "Transfer transactions cannot be deleted."
+  assert first_response.json()["balance"] == "148.77"
+  assert second_response.json()["balance"] == "1551.23" 
+
+def test_transfer_update(register_login_user):
+  client, token =  register_login_user
+  first_account = client.post("/accounts", headers = {"Authorization" : f"Bearer {token}"}, json = {"bank_name": "Chase", "account_type": "checking", "balance": "500"})
+  first_account_id = first_account.json()["id"]
+
+  #second account 
+  second_account = client.post("/accounts", headers = {"Authorization" : f"Bearer {token}"}, json = {"bank_name": "Wells Fargo", "account_type": "checking", "balance": "1200"}) 
+  second_account_id = second_account.json()["id"]
+  second_account_name = second_account.json()["bank_name"]
+
+  transaction = client.post("/transactions", headers ={"Authorization" : f"Bearer {token}"}, json = {
+    "account_id": first_account_id, 
+    "category_id": 1,
+    "destination_account_id": second_account_id, 
+    "amount": "351.23",
+    "transaction_type": "transfer", 
+    "description": f"Transfer to {second_account_name}", 
+    "date": "2026-04-06"
+  })
+  transaction_id = transaction.json()["id"]
+
+  first_before_delete = client.get(f"/accounts/{first_account_id}", headers = {"Authorization" : f"Bearer {token}"}) 
+  second_before_delete = client.get(f"/accounts/{second_account_id}", headers = {"Authorization" : f"Bearer {token}"}) 
+
+  response = client.put(f"/transactions/{transaction_id}", headers = {"Authorization" : f"Bearer {token}"}, json = {
+    "account_id": first_account_id, 
+    "category_id": 1,
+    "destination_account_id": second_account_id, 
+    "amount": "50.00",
+    "transaction_type": "transfer", 
+    "description": f"Transfer to {second_account_name}", 
+    "date": "2026-04-22"
+  })
+
+  first_response = client.get(f"/accounts/{first_account_id}", headers = {"Authorization" : f"Bearer {token}"}) 
+  second_response = client.get(f"/accounts/{second_account_id}", headers = {"Authorization" : f"Bearer {token}"}) 
+
+  assert first_before_delete.json()["balance"] == "148.77"
+  assert second_before_delete.json()["balance"] == "1551.23" 
+  assert response.status_code == 403
+  assert response.json()["detail"] == "Transfer transactions cannot be edited."
+  assert first_response.json()["balance"] == "148.77"
+  assert second_response.json()["balance"] == "1551.23" 
 
 

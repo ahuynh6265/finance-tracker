@@ -68,13 +68,13 @@ function Transactions(){
     return(
     <div>
       {(accounts.length === 0 && categories.length === 0) ? (
-        <p className = "text-white font-semibold">Add an Account or Category before creating a transaction</p>
+        <p className = "text-gray-800 font-semibold">Add an Account or Category before creating a transaction</p>
       ): null}
       {(accounts.length === 0 && categories.length > 0) ? (
-        <p className = "text-white font-semibold">Add an Account before creating a transaction</p>
+        <p className = "text-gray-800 font-semibold">Add an Account before creating a transaction</p>
       ): null}
       {(categories.length === 0 && accounts.length > 0) ? (
-        <p className = "text-white font-semibold">Add a Category before creating a transaction</p>
+        <p className = "text-gray-800 font-semibold">Add a Category before creating a transaction</p>
       ): null}
     </div>
     )
@@ -223,19 +223,15 @@ function Transactions(){
                 <td className = "break-words">{transaction.description}</td>
                 <td>{transaction.date}</td>
                 <td>
-                  {(transaction.destination_goal_id) ? ("No Actions") : (
-                    transaction.destination_account_id ? (
-                    <MuiTooltip title = "Delete">
-                      <IconButton className ="mr-2" onClick = {() => handleDelete(transaction.id)}><DeleteIcon/></IconButton>
-                    </MuiTooltip>
-                    ) : (<> 
+                  {(transaction.transaction_type === "transfer") ? ("No Actions") : (
+                    <> 
                     <MuiTooltip title = "Delete">
                       <IconButton className ="mr-2" onClick = {() => handleDelete(transaction.id)}><DeleteIcon/></IconButton>
                     </MuiTooltip>
                     <MuiTooltip title = "Edit">
                       <IconButton onClick = {() => {setID(transaction.id)}}><EditIcon/></IconButton>
                     </MuiTooltip>
-                      </>)
+                    </>
                   )}
                 </td>
             </tr>

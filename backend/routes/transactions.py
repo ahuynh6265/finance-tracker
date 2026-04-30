@@ -70,20 +70,10 @@ def create_user_transaction(transaction_data: TransactionCreate, db: Session = D
 def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   transaction = transaction_lookup(transaction_id, db, current_user["id"])  
   if transaction.transaction_type == "transfer":
-    source_account = account_lookup(transaction.account_id, db, current_user["id"])
-
-    if transaction.destination_account_id: 
-      destination_account = account_lookup(transaction.destination_account_id, db, current_user["id"])
-      source_account.balance += transaction.amount
-      destination_account.balance -= transaction.amount
-    
-    else:
-      goal_account = goal_lookup(transaction.destination_goal_id, db, current_user["id"])
-      source_account.balance += transaction.amount
-      goal_account.current_amount -= transaction.amount
-  else: 
-    account = account_lookup(transaction.account_id, db, current_user["id"]) 
-    adjust_balance(account, transaction, True)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Transfer transactions cannot be deleted.")
+   
+  account = account_lookup(transaction.account_id, db, current_user["id"]) 
+  adjust_balance(account, transaction, True)
     
   db.delete(transaction)
   db.commit()
@@ -92,6 +82,9 @@ def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), 
 @router.put("/transactions/{transaction_id}", response_model=TransactionResponse)
 def update_user_transaction(transaction_id: int, transaction_data: TransactionCreate, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 
   transaction = transaction_lookup(transaction_id, db, current_user["id"]) 
+  if transaction.transaction_type == "transfer":
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Transfer transactions cannot be edited.")
+
   account = account_lookup(transaction.account_id, db, current_user["id"])
   #remove current balance before updating
   adjust_balance(account, transaction, True)
