@@ -78,3 +78,6 @@ def test_get_email(test_app):
 
   assert response.status_code == 200
   assert response.json() == "test@test.com"
+
+def test_intentionally_broken():
+  assert False
