@@ -3,7 +3,7 @@ from datetime import datetime, date
 from enum import Enum 
 from decimal import Decimal
 import validators
-from typing_extensions import Self
+from typing import Self
 
 class AccountType(str, Enum):
   checking = "checking"
