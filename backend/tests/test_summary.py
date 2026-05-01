@@ -85,7 +85,8 @@ def test_account_summary(create_account):
     "date": "2026-03-12"
   })
 
-  response = client.get(f"/accounts/{account_id}/summary", headers ={"Authorization" : f"Bearer {token}"})
+  with freeze_time("2026-04-25"):
+    response = client.get(f"/accounts/{account_id}/summary", headers ={"Authorization" : f"Bearer {token}"})
   #this month
   assert response.status_code == 200
   assert response.json()["income"] == "555.87"
@@ -143,7 +144,8 @@ def test_expense_transaction_every_month(create_account, create_transactions):
   create_transactions(5, "110.00", "2026-03-23")
   create_transactions(7, "120.00", "2026-04-23")
 
-  response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
+  with freeze_time("2026-04-25"):
+    response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
   
   assert response.status_code == 200 
   assert len(response.json()) == 12
@@ -186,7 +188,8 @@ def test_both_transaction_types(create_account, create_transactions):
   create_transactions(1, "250.00", "2026-04-23", transaction_type="income")
   create_transactions(1, "10.00", "2026-04-23")
 
-  response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
+  with freeze_time("2026-04-25"):
+    response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
   
   assert response.status_code == 200 
   assert len(response.json()) == 12
@@ -226,7 +229,8 @@ def test_multiple_same_month(create_account, create_transactions):
   create_transactions(1, "50.8751", "2026-04-23", transaction_type="income")
   create_transactions(1, "150.94241", "2026-04-23")
 
-  response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
+  with freeze_time("2026-04-25"):
+    response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
   
   assert response.status_code == 200 
   assert len(response.json()) == 2
@@ -241,7 +245,8 @@ def test_transfer(create_two_accounts, create_transactions):
   client, token, first_account_id, second_account_id = create_two_accounts
   create_transactions(1, "100.00", "2025-05-23", account_id=first_account_id, transaction_type="transfer", destination_account_id=second_account_id)
   create_transactions(1, "50.00", "2025-05-23")
-  response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
+  with freeze_time("2026-04-25"):
+    response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
   
   assert response.status_code == 200 
   assert len(response.json()) == 12
@@ -303,7 +308,8 @@ def test_summary_leak(create_two_users, create_transactions):
   create_transactions(1, "150.00", "2026-04-23", account_id=first_user_account.json()["id"], token=first_token)
   #second users category id 
   create_transactions(14, "10.00", "2026-03-23", account_id=second_user_account.json()["id"], token=second_token)
-  response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {second_token}"})
+  with freeze_time("2026-04-25"):
+    response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {second_token}"})
   assert response.status_code == 200 
   assert len(response.json()) == 2
   assert response.json()[0]["expenses"] == "10.00"
@@ -321,9 +327,9 @@ def test_summary_cross_check(create_account, create_transactions):
   create_transactions(1, "50.8751", "2026-04-23", transaction_type="income")
   create_transactions(1, "150.94241", "2026-04-23")
 
-  monthly_response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
-  summary_response = client.get("/summary", headers = {"Authorization" : f"Bearer {token}"})
-  
+  with freeze_time("2026-04-25"):
+    monthly_response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {token}"})
+    summary_response = client.get("/summary", headers = {"Authorization" : f"Bearer {token}"})
   
   assert monthly_response.status_code == 200 
   assert len(monthly_response.json()) == 2

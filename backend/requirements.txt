@@ -8,6 +8,8 @@ uvicorn==0.41.0
 passlib[bcrypt]
 python-jose[cryptography]
 python-multipart
-validators
-celery
-redis
+validators==0.35.0
+celery==5.6.3
+redis==7.4.0
+pytest==9.0.1
+freezegun==1.5.5

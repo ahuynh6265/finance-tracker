@@ -1,3 +1,5 @@
+from freezegun import freeze_time
+
 def test_get_budgets(create_account):
   client, token, _ , _ = create_account
   response = client.get("/budgets", headers ={"Authorization" : f"Bearer {token}"})
@@ -170,7 +172,8 @@ def test_calculate_category_spending(create_account):
   })
   budget_id = response.json()["id"]
 
-  response = client.get(f"/budgets/{budget_id}", headers ={"Authorization" : f"Bearer {token}"})
+  with freeze_time("2026-04-25"):
+    response = client.get(f"/budgets/{budget_id}", headers ={"Authorization" : f"Bearer {token}"})
 
   assert response.status_code == 200 
   #should only total this month's(april) spend on this catergory
