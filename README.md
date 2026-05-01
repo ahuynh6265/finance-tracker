@@ -1,5 +1,7 @@
 # Finance Tracker
 
+![CI](https://github.com/ahuynh6265/finance-tracker/actions/workflows/ci.yml/badge.svg)
+
 A full-stack personal finance application for tracking income, expenses, budgets, savings goals, and recurring subscriptions across multiple bank accounts. Built with FastAPI, React, and PostgreSQL, with an async task queue powered by Celery and Redis for scheduled background work.
 
 ## Live Demo
