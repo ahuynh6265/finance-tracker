@@ -2,9 +2,17 @@ from dotenv import load_dotenv
 import os 
 from celery import Celery 
 from celery.schedules import crontab
+import sentry_sdk
 
 load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL")
+
+sentry_sdk.init(
+  dsn = os.getenv("SENTRY_DSN"), 
+  send_default_pii=True,
+  traces_sample_rate=1.0,
+  environment=os.getenv("ENVIRONMENT", "development")
+)
 
 celery_app = Celery(__name__)
 

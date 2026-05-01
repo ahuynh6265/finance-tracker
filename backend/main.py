@@ -9,6 +9,18 @@ from routes.auth_routes import router as auth_router
 from routes.budgets import router as budgets_router
 from routes.goals import router as goals_router
 from routes.subscriptions import router as subscriptions_router
+import os 
+from dotenv import load_dotenv
+import sentry_sdk
+
+load_dotenv()
+
+sentry_sdk.init(
+  dsn = os.getenv("SENTRY_DSN"), 
+  send_default_pii=True,
+  traces_sample_rate=0.1,
+  environment=os.getenv("ENVIRONMENT", "development")
+)
 
 app = FastAPI() 
 app.include_router(users_router)
