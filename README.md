@@ -211,12 +211,6 @@ cd ../frontend
 npm install
 ```
 
-Create `frontend/.env`:
-
-```
-REACT_APP_API_URL=http://localhost:8000
-```
-
 Start the dev server:
 
 ```bash
