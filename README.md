@@ -134,10 +134,10 @@ Every foreign key on the schema declares explicit `ondelete` behavior:
 
 ### Prerequisites
 
-- Python 3.11+
-- Node.js 18+
-- Redis (locally on macOS via Homebrew: `brew install redis && brew services start redis`)
-- A PostgreSQL connection string (Neon, or local Postgres)
+- Node.js 18+ (for the frontend)
+- One of:
+  - **Docker Desktop** (recommended) — handles the entire backend stack (FastAPI, Celery worker, Celery beat, Redis, Postgres) in one command
+  - Python 3.11+, Redis (`brew install redis`), and a PostgreSQL connection string (Neon or local) for a manual setup
 
 ### 1. Clone the repo
 
@@ -146,11 +146,35 @@ git clone https://github.com/ahuynh6265/finance-tracker.git
 cd finance-tracker
 ```
 
-### 2. Backend setup
+### 2. Run the backend
+
+**Option A: Docker Compose (recommended — one command)**
+
+From the repo root, with Docker Desktop running:
+
+```bash
+docker-compose up
+```
+
+This spins up all five backend services — FastAPI web, Celery worker, Celery beat, Redis, and PostgreSQL — with networking pre-wired between them.
+
+On first run, apply migrations in a separate terminal:
+
+```bash
+docker-compose exec web alembic upgrade head
+```
+
+The API is now reachable at `http://localhost:8000`. Interactive docs at `http://localhost:8000/docs`.
+
+Stop with `Ctrl+C` (preserves the local database) or `docker-compose down -v` (wipes the local Postgres volume for a clean slate).
+
+**Option B: Manual (no Docker)**
+
+Install dependencies:
 
 ```bash
 cd backend
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dev.txt
 ```
 
 Create `backend/.env`:
@@ -167,9 +191,7 @@ Apply migrations:
 alembic upgrade head
 ```
 
-### 3. Run the backend services
-
-Each in its own terminal, all from `backend/`:
+Run each service in its own terminal, all from `backend/`:
 
 ```bash
 # FastAPI web
@@ -182,7 +204,7 @@ celery -A celery_app worker --loglevel=info --concurrency=1
 celery -A celery_app beat --loglevel=info
 ```
 
-### 4. Frontend setup
+### 3. Frontend setup
 
 ```bash
 cd ../frontend
@@ -203,7 +225,15 @@ npm start
 
 App will be available at `http://localhost:3000`.
 
-### 5. Run tests
+### 4. Run tests
+
+With Docker:
+
+```bash
+docker-compose exec web pytest
+```
+
+Manually:
 
 ```bash
 cd backend
