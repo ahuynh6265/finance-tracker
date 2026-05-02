@@ -60,7 +60,7 @@ services:
     depends_on:
       - db
       - redis
-    command: celery -A celery_app beat --loglevel=info --concurrency=1
+    command: celery -A celery_app beat --loglevel=info
   
 volumes:
   postgres_data: 
