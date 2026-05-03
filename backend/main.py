@@ -12,6 +12,10 @@ from routes.subscriptions import router as subscriptions_router
 import os 
 from dotenv import load_dotenv
 import sentry_sdk
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.errors import RateLimitExceeded 
+from limiter import limiter
 
 load_dotenv()
 
@@ -23,6 +27,11 @@ sentry_sdk.init(
 )
 
 app = FastAPI() 
+
+app.state.limiter = limiter 
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+
 app.include_router(users_router)
 app.include_router(categories_router)
 app.include_router(accounts_router)

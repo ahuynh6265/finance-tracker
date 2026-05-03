@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from database import Base, get_db
 from main import app 
+from limiter import limiter 
 import models
 from models import Category
 from freezegun import freeze_time
@@ -22,6 +23,11 @@ def override_get_db():
   finally: db.close()
 
 app.dependency_overrides[get_db] = override_get_db 
+
+@pytest.fixture(autouse=True)
+def reset_limiter():
+  limiter.reset()
+  yield
 
 @pytest.fixture
 def test_app():
