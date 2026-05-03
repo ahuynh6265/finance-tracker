@@ -1,3 +1,5 @@
+import pytest
+
 def test_register(test_app):
   response = test_app.post("/auth/register", json = {"name": "T'Challa Raymone-James", "email": "test@test.com", "password": "password123"})
   assert response.status_code == 201 
@@ -78,3 +80,14 @@ def test_get_email(test_app):
 
   assert response.status_code == 200
   assert response.json() == "test@test.com"
+
+@pytest.mark.no_autouse
+def test_rate_limit(test_app):
+  response = test_app.post("/auth/register", json = {"name": "Test", "email": "test@test.com", "password": "password123"})
+
+  for _ in range(5):
+    response = test_app.post("/auth/login", json = {"email": "test@test.com", "password": "password123"})
+    assert response.status_code == 200
+  
+  response = test_app.post("/auth/login", json = {"email": "test@test.com", "password": "password123"})
+  assert response.status_code == 429

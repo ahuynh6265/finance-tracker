@@ -4,12 +4,15 @@ from database import get_db
 from models import User, Category 
 from schemas import UserCreate, UserLogin, UserResponse, RefreshRequest 
 import auth 
+from limiter import limiter 
+from fastapi import Request
 
 router = APIRouter()
 categories = ["Automotive", "Bills & utilities", "Cash out", "Education", "Entertainment", "Food & drink", "Gas", "Groceries", "Misc.", "Personal", "Shopping", "Transfer", "Travel"]
 
 @router.post("/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register_user(request: Request, user_data: UserCreate, db: Session = Depends(get_db)):
   user = db.query(User).filter(User.email == user_data.email).first()
   if user:
     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email has already been registered.")
@@ -28,7 +31,8 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
   return user 
 
 @router.post("/auth/login")
-def login(user_data: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db)):
   user = db.query(User).filter(User.email == user_data.email).first()
   if not user:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect.")
