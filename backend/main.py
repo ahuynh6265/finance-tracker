@@ -16,14 +16,16 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.errors import RateLimitExceeded 
 from limiter import limiter
+from logging_config import configure_logging 
 
 load_dotenv()
+configure_logging()
 
 sentry_sdk.init(
   dsn = os.getenv("SENTRY_DSN"), 
   send_default_pii=True,
   traces_sample_rate=0.1,
-  environment=os.getenv("ENVIRONMENT", "development")
+  environment=os.getenv("APP_ENV", "development")
 )
 
 app = FastAPI() 
