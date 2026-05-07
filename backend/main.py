@@ -17,6 +17,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from slowapi.errors import RateLimitExceeded 
 from limiter import limiter
 from logging_config import configure_logging 
+from middleware import request_id_middleware
 
 load_dotenv()
 configure_logging()
@@ -33,6 +34,8 @@ app = FastAPI()
 app.state.limiter = limiter 
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
+
+app.middleware("http")(request_id_middleware)
 
 app.include_router(users_router)
 app.include_router(categories_router)
