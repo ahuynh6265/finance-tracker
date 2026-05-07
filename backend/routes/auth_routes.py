@@ -6,8 +6,10 @@ from schemas import UserCreate, UserLogin, UserResponse, RefreshRequest
 import auth 
 from limiter import limiter 
 from fastapi import Request
+import structlog
 
 router = APIRouter()
+log = structlog.get_logger()
 categories = ["Automotive", "Bills & utilities", "Cash out", "Education", "Entertainment", "Food & drink", "Gas", "Groceries", "Misc.", "Personal", "Shopping", "Transfer", "Travel"]
 
 @router.post("/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -19,6 +21,8 @@ def register_user(request: Request, user_data: UserCreate, db: Session = Depends
   user = User(name = user_data.name, email= user_data.email, hashed_password = auth.hash_password(user_data.password))
   db.add(user)
   db.commit()
+  
+  log.info("user_registered", user_id=user.id)
   db.refresh(user)
 
   set_categories = []
@@ -35,12 +39,15 @@ def register_user(request: Request, user_data: UserCreate, db: Session = Depends
 def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db)):
   user = db.query(User).filter(User.email == user_data.email).first()
   if not user:
+    log.warning("login_failed", email=user_data.email, reason="user_not_found")
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect.")
   
   if not auth.verify_password(user_data.password, user.hashed_password):
+    log.warning("login_failed", email=user_data.email, reason="invalid_password")
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password incorrect.")
   
   access_token, refresh_token = auth.create_token(user.name, user_data.email, user.id)
+  log.info("user_logged_in", user_id=user.id)
   return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer", "name": user.name} 
   
   
