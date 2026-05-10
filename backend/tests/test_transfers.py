@@ -19,7 +19,7 @@ def test_transfer_create(create_account):
   assert response.status_code == 201 
   assert response.json()["user_id"] == 1
   assert response.json()["account_id"] == 1
-  assert response.json()["category_id"] == 12
+  assert response.json()["category_id"] == 13
   assert response.json()["amount"] == "200.00"
   assert response.json()["transaction_type"] == "transfer"
   assert response.json()["description"] == f"Transfer to {second_account_name}"

@@ -198,7 +198,7 @@ def test_check_categories(create_account):
   client, token, _, _ = create_account
   response = client.get("/budgets/chart-data", headers ={"Authorization" : f"Bearer {token}"})
   assert response.status_code == 200
-  assert len(response.json()) == 12
+  assert len(response.json()) == 13
   assert response.json()[0]["category_name"] == "Automotive"
   assert response.json()[1]["category_name"] == "Bills & utilities"
   assert response.json()[2]["category_name"] == "Cash out"
@@ -207,10 +207,11 @@ def test_check_categories(create_account):
   assert response.json()[5]["category_name"] == "Food & drink"
   assert response.json()[6]["category_name"] == "Gas"
   assert response.json()[7]["category_name"] == "Groceries"
-  assert response.json()[8]["category_name"] == "Misc."
-  assert response.json()[9]["category_name"] == "Personal"
-  assert response.json()[10]["category_name"] == "Shopping"
-  assert response.json()[11]["category_name"] == "Travel"
+  assert response.json()[8]["category_name"] == "Income"
+  assert response.json()[9]["category_name"] == "Misc."
+  assert response.json()[10]["category_name"] == "Personal"
+  assert response.json()[11]["category_name"] == "Shopping"
+  assert response.json()[12]["category_name"] == "Travel"
 
 #check first user transactions arent leaking to second user
 def test_correct_user(create_two_users, create_transactions, create_two_accounts):
@@ -235,7 +236,7 @@ def test_correct_user(create_two_users, create_transactions, create_two_accounts
   #second user category id index
   category_id = automotive["category_id"]
   category_lookup = client.get(f"/categories/{category_id}", headers ={"Authorization" : f"Bearer {second_token}"})
-  assert category_lookup.json()["id"] == 14
+  assert category_lookup.json()["id"] == 15
   assert category_lookup.json()["name"] == "Automotive"
 
   #index represents month jan == 0 to dec == 11

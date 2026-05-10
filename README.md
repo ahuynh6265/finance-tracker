@@ -130,6 +130,14 @@ Every foreign key on the schema declares explicit `ondelete` behavior:
 - `SET NULL` on `Transaction.destination_account_id`, `Transaction.source_goal_id`, `Transaction.destination_goal_id` (transactions persist as historical records when the related entity is deleted)
 - Default `RESTRICT` on `category_id` references (deletion blocked if any transactions/budgets reference the category)
 
+## Currently Working On
+
+**LLM-powered transaction parser.** A natural-language input that parses free-form descriptions ("Spent $47.32 at Wawa for lunch") into a structured transaction — amount, category, type, date — using Anthropic's Claude API with tool use for reliable JSON output. The transaction modal opens pre-filled with the LLM's suggestions; the user reviews and edits before final submission. Manual entry stays as the fallback path.
+
+Server-side validation rejects any LLM output that doesn't resolve to a real category for the user, fails to parse as a valid `Decimal`, or returns an invalid `transaction_type` enum. The endpoint is JWT-authenticated and rate-limited via the existing slowapi setup.
+
+**Eval harness.** Standalone script that loads historical labeled transactions, runs the categorizer against them, computes overall and per-category accuracy, and identifies systematic misclassifications. Results are saved with timestamp, model version, and prompt version so accuracy can be tracked across iterations. Built alongside the feature so model and prompt choices are evidence-based rather than vibes-based.
+
 ## Getting Started
 
 ### Prerequisites

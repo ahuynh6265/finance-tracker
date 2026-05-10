@@ -10,11 +10,12 @@ def test_get_categories(create_account):
   assert response.json()[5]["name"] == "Food & drink"
   assert response.json()[6]["name"] == "Gas"
   assert response.json()[7]["name"] == "Groceries"
-  assert response.json()[8]["name"] == "Misc."
-  assert response.json()[9]["name"] == "Personal"
-  assert response.json()[10]["name"] == "Shopping"
-  assert response.json()[11]["name"] == "Transfer"
-  assert response.json()[12]["name"] == "Travel"
+  assert response.json()[8]["name"] == "Income"
+  assert response.json()[9]["name"] == "Misc."
+  assert response.json()[10]["name"] == "Personal"
+  assert response.json()[11]["name"] == "Shopping"
+  assert response.json()[12]["name"] == "Transfer"
+  assert response.json()[13]["name"] == "Travel"
 
 def test_clearall_transaction_by_category(create_account):
   client, token, account_id, _ = create_account

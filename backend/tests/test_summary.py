@@ -307,7 +307,7 @@ def test_summary_leak(create_two_users, create_transactions):
   create_transactions(1, "50.00", "2026-03-23", account_id=first_user_account.json()["id"], token=first_token)
   create_transactions(1, "150.00", "2026-04-23", account_id=first_user_account.json()["id"], token=first_token)
   #second users category id 
-  create_transactions(14, "10.00", "2026-03-23", account_id=second_user_account.json()["id"], token=second_token)
+  create_transactions(15, "10.00", "2026-03-23", account_id=second_user_account.json()["id"], token=second_token)
   with freeze_time("2026-04-25"):
     response = client.get("/summary/monthly", headers = {"Authorization" : f"Bearer {second_token}"})
   assert response.status_code == 200 
