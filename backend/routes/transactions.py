@@ -1,12 +1,16 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, status, Depends, HTTPException, Request
 from sqlalchemy.orm import Session 
 from database import get_db 
-from models import Transaction, Category
-from schemas import TransactionCreate, TransactionResponse 
-from dependencies import transaction_lookup, category_lookup, account_lookup, adjust_balance, goal_lookup
+from models import Transaction, Category, Account
+from schemas import TransactionCreate, TransactionResponse, TransactionParseRequest, TransactionParseResponse
+from dependencies import transaction_lookup, category_lookup, account_lookup, adjust_balance
 import auth
+from limiter import limiter
+from categorizer import transaction_categorizer
+import structlog
 
 router = APIRouter()
+log = structlog.get_logger()
 
 @router.get("/transactions", response_model=list[TransactionResponse])
 def get_user_transactions(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
@@ -65,6 +69,42 @@ def create_user_transaction(transaction_data: TransactionCreate, db: Session = D
   db.commit() 
   db.refresh(new_transaction)
   return new_transaction 
+
+@router.post("/transactions/categorize", response_model=TransactionParseResponse)
+@limiter.limit("30/minute")
+async def categorize_transaction(request: Request, body: TransactionParseRequest, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
+  accounts = db.query(Account).filter(Account.user_id == current_user["id"]).all()
+  accounts_info = [{"id": a.id, "name": a.bank_name, "type": a.account_type} for a in accounts]
+  try:
+    response = await transaction_categorizer(body.description, accounts_info)
+  except Exception as e:
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Categorization service unavailable.")
+
+  category = db.query(Category).filter(Category.name == response["category_name"], Category.user_id == current_user["id"]).first()
+  if not category:
+    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Category does not exist.")
+
+  account = db.query(Account).filter(Account.id == response["account_id"], Account.user_id == current_user["id"]).first()
+  if not account:
+    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Account does not exist.")
+  
+  destination_account_id = None
+  if response["transaction_type"] == "transfer":
+    destination_account = db.query(Account).filter(Account.id == response["destination_account_id"], Account.user_id == current_user["id"]).first()
+    if not destination_account:
+      raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Destination account name does not exist.")
+    destination_account_id = destination_account.id
+
+  return {
+    "account_id": account.id, 
+    "category_id": category.id, 
+    "destination_account_id": destination_account_id, 
+    "amount": response["amount"], 
+    "transaction_type": response["transaction_type"], 
+    "description": response["description"], 
+    "date": response["date"],
+    "confidence": response["confidence"]
+  }
 
 @router.delete("/transactions/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)): 

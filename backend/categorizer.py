@@ -4,7 +4,8 @@ from datetime import date
 
 client = AsyncAnthropic()
 
-async def transaction_categorizer(description: str, account_names: list[str]):
+async def transaction_categorizer(description: str, accounts_info: list[dict]):
+  account_ids = [a["id"] for a in accounts_info]
   response = await client.messages.create(
     model="claude-haiku-4-5-20251001",
     max_tokens=1024,
@@ -15,9 +16,9 @@ async def transaction_categorizer(description: str, account_names: list[str]):
         "input_schema": {
           "type": "object", 
           "properties": {
-            "account_name": {"type": "string", "enum": account_names, "description": "the account the transaction is from (expense/transfer source) or to (income)."},
+            "account_id": {"type": "integer", "enum": account_ids, "description": "the account the transaction is from (expense/transfer source) or to (income)."},
 
-            "destination_account_name": {"type": "string", "enum": account_names, "description": "the destination account when transaction_type is 'transfer'; omit otherwise."}, 
+            "destination_account_id": {"type": "integer", "enum": account_ids, "description": "the destination account when transaction_type is 'transfer'; omit otherwise."}, 
 
             "amount": {"type": "number", "description": "cost of the transaction"},
 
@@ -36,7 +37,7 @@ async def transaction_categorizer(description: str, account_names: list[str]):
       }
     ],
     messages=[{"role": "user", "content": f"{description}"}],
-    system=f"Today's date is {date.today()}. The user's accounts are: {account_names}. For transfers, set both account_name (source) and destination_account_name (target). For income or expense, set only account_name.",
+    system=f"Today's date is {date.today()}. The user's accounts are: {accounts_info}. For transfers, set both account_id (source) and destination_account_id (target). For income or expense, set only account_name.",
     tool_choice={"type": "tool", "name": "categorize_transaction"}
   )
 
