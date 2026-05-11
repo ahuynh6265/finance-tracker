@@ -337,7 +337,6 @@ class TransactionParseResponse(BaseModel):
 
   account_id: int 
   category_id: int
-  destination_account_id: int | None
   amount: Decimal 
   transaction_type: TransactionType
   description: str

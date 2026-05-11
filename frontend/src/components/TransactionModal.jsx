@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {createTransaction, updateTransaction, handleAPIError} from "../api/api"
+import {createTransaction, categorizeTransaction, updateTransaction, handleAPIError} from "../api/api"
 
 function TransactionModal({transaction, accounts, categories, onSuccess, onClose}) {
   const [error, setError] = useState("")
@@ -9,6 +9,22 @@ function TransactionModal({transaction, accounts, categories, onSuccess, onClose
   const [transaction_type, setTransactionType] = useState(transaction ? transaction.transaction_type : "income")
   const [description, setDescription] = useState(transaction ? transaction.description : "")
   const [date, setDate] = useState(transaction ? transaction.date : "")
+  const [naturalLanguageInput, setNaturalLanguageInput] = useState("")
+  const [isParsing, setIsParsing] = useState(false)
+  const [parseError, setParseError] = useState("")
+  
+  function handleParse() {
+    setIsParsing(true)
+    setParseError("")
+    categorizeTransaction({description: naturalLanguageInput}).then((response) => {
+      setAccountID(response.data.account_id)
+      setCategoryID(response.data.category_id)
+      setAmount(response.data.amount)
+      setTransactionType(response.data.transaction_type)
+      setDescription(response.data.description)
+      setDate(response.data.date)
+    }).catch(err => setParseError("Couldn't parse — please enter manually.")).finally(() => setIsParsing(false))
+  }
 
   function handleSubmit() {
     setError("")
@@ -36,6 +52,26 @@ function TransactionModal({transaction, accounts, categories, onSuccess, onClose
         {transaction ? (<h1 className = "absolute top-4 left-4 text-white font-semibold text-xl">Edit Transaction</h1>) : (<h1 className = "absolute top-4 left-4 text-white font-semibold text-xl">Create New Transaction</h1>)}
         <button className = "absolute top-4 right-4 text-white font-semibold" onClick = {onClose}>Close</button>
 
+        <div className="flex gap-4 items-end">
+          <div className="flex-1">
+            <h2 className="text-white font-semibold">Try with AI? Describe Transaction</h2>
+            <input 
+              className="modal-input" 
+              placeholder='e.g. "Spent $47.32 at Wawa for lunch"'
+              value={naturalLanguageInput}
+              onChange={(e) => setNaturalLanguageInput(e.target.value)}
+            />
+          </div>
+          <button 
+            className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 py-2 rounded-lg shadow-sm transition-colors disabled:opacity-50"
+            onClick={handleParse}
+            disabled={isParsing || !naturalLanguageInput.trim()}
+          >
+            {isParsing ? "Parsing..." : "Parse"}
+          </button>
+        </div>
+        {parseError && <div className="text-red-400 mt-2">{parseError}</div>}
+        
         <div className = "flex gap-4">
           <div className = "w-full">
             <h2 className = "text-white font-semibold">Select Account</h2>
