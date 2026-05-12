@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-05-12T10:18:57.698230",
+  "model": "claude-haiku-4-5-20251001",
+  "sample_size": 11,
+  "mode": "rich",
+  "category": {
+    "correct": 11,
+    "total": 11,
+    "accuracy": "%100"
+  },
+  "account": {
+    "correct": 11,
+    "total": 11,
+    "accuracy": "%100"
+  },
+  "type": {
+    "correct": 11,
+    "total": 11,
+    "accuracy": "%100"
+  },
+  "amount": {
+    "correct": 11,
+    "total": 11,
+    "accuracy": "%100"
+  },
+  "date": {
+    "correct": 11,
+    "total": 11,
+    "accuracy": "%100"
+  }
+}
