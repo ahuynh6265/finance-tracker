@@ -40,7 +40,6 @@ function AccountModal({account, onSuccess, onClose}) {
             <select className = "modal-input" value = {account_type} onChange = {(e) => setType(e.target.value)}>
             <option value = "checking">Checking</option> 
             <option value = "savings">Saving</option> 
-            <option value = "credit">Credit</option> 
             </select>
           </div>
           <div className = "w-full">

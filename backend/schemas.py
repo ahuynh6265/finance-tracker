@@ -8,7 +8,6 @@ from typing import Self
 class AccountType(str, Enum):
   checking = "checking"
   savings = "savings"
-  credit = "credit"
 
 class TransactionType(str, Enum):
   income = "income"
