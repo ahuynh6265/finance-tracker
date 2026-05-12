@@ -2,8 +2,9 @@ from anthropic import AsyncAnthropic
 from routes import categories
 from datetime import date 
 
+client = AsyncAnthropic()
+
 async def transaction_categorizer(description: str, accounts_info: list[dict]):
-  client = AsyncAnthropic()
   account_ids = [a["id"] for a in accounts_info]
   response = await client.messages.create(
     model="claude-haiku-4-5-20251001",
