@@ -18,6 +18,7 @@ export const deleteCategoryTransactions = (category_id) => api.delete(`/categori
 
 export const getTransactions = () => api.get(`/transactions`)
 export const createTransaction = (transaction_data) => api.post(`/transactions`, transaction_data)
+export const categorizeTransaction = (parse_data) => api.post("/transactions/categorize", parse_data)
 export const deleteTransaction = (transaction_id) => api.delete(`/transactions/${transaction_id}`)
 export const updateTransaction = (transaction_id, transaction_data) => api.put(`/transactions/${transaction_id}`, transaction_data)
 

@@ -6,6 +6,8 @@ from schemas import CategoryResponse
 from dependencies import category_lookup, account_lookup, adjust_balance
 import auth
 
+DEFAULT_CATEGORIES = ["Automotive", "Bills & utilities", "Cash out", "Education", "Entertainment", "Food & drink", "Gas", "Groceries", "Income", "Misc.", "Personal", "Shopping", "Transfer", "Travel"]
+
 router = APIRouter()
 
 @router.get("/categories", response_model=list[CategoryResponse])

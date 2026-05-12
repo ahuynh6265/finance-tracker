@@ -26,7 +26,7 @@ def test_check_transaction(create_account):
   assert response.status_code == 200 
   assert response.json()[0]["user_id"] == 1
   assert response.json()[0]["account_id"] == 1
-  assert response.json()[0]["category_id"] == 12
+  assert response.json()[0]["category_id"] == 13
   assert response.json()[0]["destination_account_id"] == None
   assert response.json()[0]["amount"] == "155.10"
   assert response.json()[0]["transaction_type"] == "transfer"
@@ -46,7 +46,7 @@ def test_delete_goal_transaction(create_account):
 
   assert transactions.json()[0]["id"] == 1
   assert transactions.json()[0]["account_id"] == 1
-  assert transactions.json()[0]["category_id"] == 12
+  assert transactions.json()[0]["category_id"] == 13
   assert transactions.json()[0]["destination_goal_id"] == 1
   assert transactions.json()[0]["description"] == f"Transfer to {name}"
 

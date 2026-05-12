@@ -130,6 +130,39 @@ Every foreign key on the schema declares explicit `ondelete` behavior:
 - `SET NULL` on `Transaction.destination_account_id`, `Transaction.source_goal_id`, `Transaction.destination_goal_id` (transactions persist as historical records when the related entity is deleted)
 - Default `RESTRICT` on `category_id` references (deletion blocked if any transactions/budgets reference the category)
 
+## AI Transaction Parser
+
+The transaction modal has a text input where you can type a description like "Spent $47.32 at Wawa for lunch". The backend sends that text to Anthropic's Claude model, which returns a structured guess: which category, which account, how much, what type, what date. The form fields fill in with those values. You can edit anything before submitting, and manual entry is always available as a fallback.
+
+The backend uses Anthropic's "tool use" feature, which makes the model return a structured JSON object with specific fields instead of free-form text. Before passing the values to the frontend, the backend checks them: the category and account must really exist for that user, and the model's confidence score must be above 0.5. If any check fails, the endpoint returns an error and the user fills the form manually. The endpoint requires login and is rate-limited.
+
+### Evaluation
+
+Claude doesn't always return the same answer for the same input, so regular pytest tests can't directly check the model's accuracy. The tests in this repo cover the Python code around the LLM call — validation, error handling, database lookups — by replacing the LLM with fake responses during the test. Measuring the model itself takes a different approach: a separate script runs Claude against past transactions that were already categorized by hand, then counts how often Claude got each field right.
+
+Two input formats were tested:
+
+- **Bare**: `"Spent $X on Y"` — what a user would typically type
+- **Rich**: same plus the date and which account — adds explicit hints
+
+Sample: 11 transactions. Model: `claude-haiku-4-5`.
+
+| Field | Bare | Rich |
+|---|---|---|
+| Category | 100% | 100% |
+| Transaction type | 100% | 100% |
+| Amount | 100% | 100% |
+| Account | 82% | 100% |
+| Date | 18% | 100% |
+
+Category, transaction type, and amount are easy — the model can figure them out from a basic description. Account and date are harder: with no hint, the model guesses the first account in order of account id and defaults the date to today, which is almost always wrong.
+
+This drove the UX decision: the model fills in what it can, but the account and date fields stay editable and visible in the modal so the user can fix them.
+
+Limitations: small sample (11 transactions, one user). Future work would run the eval on more data and compare against a simpler keyword-matching approach.
+
+Files: `backend/scripts/eval_bare.py`, `backend/scripts/eval_rich.py`, results saved to `backend/scripts/results/`.
+
 ## Getting Started
 
 ### Prerequisites
@@ -275,6 +308,7 @@ All authenticated routes require a `Authorization: Bearer <jwt>` header. User co
 | GET | `/transactions` | List all transactions |
 | GET | `/transactions/{id}` | Get transaction by ID |
 | POST | `/transactions` | Create a transaction (income, expense, or transfer) |
+| POST | `/transactions/categorize` | Parse natural-language description into structured transaction fields (LLM-backed, rate-limited) |
 | PUT | `/transactions/{id}` | Update a transaction (reverses old balance, applies new) |
 | DELETE | `/transactions/{id}` | Delete a transaction (reverses balance) |
 

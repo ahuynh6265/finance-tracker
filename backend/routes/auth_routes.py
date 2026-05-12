@@ -7,10 +7,10 @@ import auth
 from limiter import limiter 
 from fastapi import Request
 import structlog
+from routes.categories import DEFAULT_CATEGORIES
 
 router = APIRouter()
 log = structlog.get_logger()
-categories = ["Automotive", "Bills & utilities", "Cash out", "Education", "Entertainment", "Food & drink", "Gas", "Groceries", "Misc.", "Personal", "Shopping", "Transfer", "Travel"]
 
 @router.post("/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
@@ -26,7 +26,7 @@ def register_user(request: Request, user_data: UserCreate, db: Session = Depends
   db.refresh(user)
 
   set_categories = []
-  for category in categories:
+  for category in DEFAULT_CATEGORIES:
     set_category = Category(user_id = user.id, name = category)
     set_categories.append(set_category)
   db.add_all(set_categories)

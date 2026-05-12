@@ -328,3 +328,17 @@ class SubscriptionResponse(BaseModel):
   next_due_date: date
   created_at: datetime
   updated_at: datetime 
+
+class TransactionParseRequest(BaseModel):
+  description: str 
+
+class TransactionParseResponse(BaseModel):
+  model_config = ConfigDict(from_attributes=True)
+
+  account_id: int 
+  category_id: int
+  amount: Decimal 
+  transaction_type: TransactionType
+  description: str
+  date: date 
+  confidence: float
