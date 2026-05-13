@@ -26,5 +26,9 @@ celery_app.conf.update(
     "task": "tasks.process_due_subscriptions",
     "schedule": crontab(hour=0, minute=0)
     },
+  "reset-demo-data" : {
+    "task": "tasks.reset_demo_data",
+    "schedule": crontab(hour=8, minute=0)
+    }, 
   }
 )

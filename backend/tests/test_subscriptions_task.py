@@ -1,4 +1,4 @@
-from tasks import _process_due_subscriptions
+from subscription_service import run_due_subscriptions
 from models import Subscription
 from datetime import date
 from freezegun import freeze_time
@@ -7,7 +7,7 @@ from freezegun import freeze_time
 def test_due_today(create_account, create_subscription, db_session):
   client, token, _, _ = create_account 
   subscription = create_subscription(1, "Netflix", "12.99", "2026-04-28")
-  _process_due_subscriptions(db_session)
+  run_due_subscriptions(db_session)
   response = client.get("/transactions", headers ={"Authorization" : f"Bearer {token}"})
   assert response.status_code == 200 
   assert len(response.json()) == 1
@@ -24,7 +24,7 @@ def test_due_today(create_account, create_subscription, db_session):
 def test_due_future(create_account, create_subscription, db_session):
   client, token, _, _ = create_account 
   subscription = create_subscription(1, "Netflix", "12.99", "2026-04-30")
-  _process_due_subscriptions(db_session)
+  run_due_subscriptions(db_session)
   response = client.get("/transactions", headers ={"Authorization" : f"Bearer {token}"})
   assert response.status_code == 200 
   assert len(response.json()) == 0
@@ -38,7 +38,7 @@ def test_due_future(create_account, create_subscription, db_session):
 def test_sub_already_advanced(create_account, create_subscription, db_session):
   client, token, _, _ = create_account 
   subscription = create_subscription(1, "Netflix", "12.99", "2026-04-28")
-  _process_due_subscriptions(db_session)
+  run_due_subscriptions(db_session)
   response = client.get("/transactions", headers ={"Authorization" : f"Bearer {token}"})
   assert response.status_code == 200 
   assert len(response.json()) == 1
@@ -51,7 +51,7 @@ def test_sub_already_advanced(create_account, create_subscription, db_session):
   assert subscription_response.status_code == 200
   assert subscription_response.json()["next_due_date"] == "2026-05-28"
 
-  _process_due_subscriptions(db_session)
+  run_due_subscriptions(db_session)
   response = client.get("/transactions", headers ={"Authorization" : f"Bearer {token}"})
   assert response.status_code == 200 
   assert len(response.json()) == 1
@@ -97,7 +97,7 @@ def test_multiple_due(create_account, db_session):
   ))
   db_session.commit()
 
-  _process_due_subscriptions(db_session)
+  run_due_subscriptions(db_session)
   response = client.get("/transactions", headers ={"Authorization" : f"Bearer {token}"})
   assert response.status_code == 200 
   assert len(response.json()) == 3
@@ -138,7 +138,7 @@ def test_due_last_day_of_month(create_account, db_session):
     next_due_date = date.fromisoformat("2026-01-31")
   ))
   db_session.commit()
-  _process_due_subscriptions(db_session)
+  run_due_subscriptions(db_session)
   response = client.get("/transactions", headers ={"Authorization" : f"Bearer {token}"})
   assert response.status_code == 200 
   assert len(response.json()) == 1
@@ -167,7 +167,7 @@ def test_behind_subscription(create_account, db_session):
     next_due_date = date.fromisoformat("2026-01-12")
   ))
   db_session.commit()
-  _process_due_subscriptions(db_session)
+  run_due_subscriptions(db_session)
   response = client.get("/transactions", headers ={"Authorization" : f"Bearer {token}"})
   assert response.status_code == 200 
   assert len(response.json()) == 5

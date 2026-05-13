@@ -24,6 +24,7 @@ export const updateTransaction = (transaction_id, transaction_data) => api.put(`
 
 export const userRegister = (user_data) => api.post(`/auth/register`, user_data)
 export const userLogin = (user_data) => api.post(`/auth/login`, user_data)
+export const demoAccount = () => api.post("/auth/demo-login")
 
 export const setAuthToken = (token) => {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`

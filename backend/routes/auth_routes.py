@@ -49,7 +49,18 @@ def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db))
   access_token, refresh_token = auth.create_token(user.name, user_data.email, user.id)
   log.info("user_logged_in", user_id=user.id)
   return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer", "name": user.name} 
+
+@router.post("/auth/demo-login")
+@limiter.limit("5/minute")
+def demo_login(request: Request, db: Session = Depends(get_db)):
+  user = db.query(User).filter(User.email == "demo@example.com").first()
+  if not user:
+    log.warning("login_failed", email="demo@example.com", reason="demo_login_failed")
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Demo not found.")
   
+  access_token, refresh_token = auth.create_token(user.name, "demo@example.com", user.id)
+  log.info("user_logged_in", user_id=user.id)
+  return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer", "name": user.name} 
   
 @router.get("/auth/me")
 def get_email(token: dict = Depends(auth.get_current_user)):
