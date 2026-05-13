@@ -53,7 +53,7 @@ app.include_router(budgets_router)
 app.include_router(goals_router)
 app.include_router(subscriptions_router)
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def check_backend(): 
   return {"status": "ok"}
 
