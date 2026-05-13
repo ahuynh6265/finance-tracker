@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {userLogin, setAuthToken, handleAPIError} from "../api/api"
+import {userLogin, demoAccount, setAuthToken, handleAPIError} from "../api/api"
 import {useNavigate} from "react-router-dom"
 import AuthLayout from "./AuthLayout"
 import Button from '@mui/material/Button';
@@ -23,6 +23,18 @@ function Login({onLogin}) {
     }).catch(err => {setError(handleAPIError(err))})
   }
 
+  function demoLogin() {
+    setError("")
+    demoAccount().then(response => {
+      localStorage.setItem("access", response.data.access_token)
+      localStorage.setItem("refresh", response.data.refresh_token)
+      localStorage.setItem("name", response.data.name)
+      setAuthToken(response.data.access_token)
+      onLogin(response.data.name)
+      navigate("/")
+    }).catch(err => {setError(handleAPIError(err))})
+  }
+
   return (
     <AuthLayout>
       <div>
@@ -34,6 +46,27 @@ function Login({onLogin}) {
           <input className="auth-input" type="password" value={password} placeholder="Enter your password" onChange={(e) => setPassword(e.target.value)} />
           <Button type="submit" variant="contained" fullWidth sx={{color: 'white', bgcolor: "rgba(172, 138, 199)", borderRadius: '9999px', py: 1.5, mt: 2, textTransform: 'none', '&:hover': { bgcolor: '#8D8AC7' }}}>Login</Button>
         </form>
+        <Button 
+          onClick={demoLogin} 
+          variant="outlined" 
+          fullWidth 
+          sx={{
+            color: '#8D8AC7',
+            borderColor: 'rgba(172, 138, 199, 0.5)',
+            bgcolor: 'transparent',
+            borderRadius: '9999px',
+            py: 1.5,
+            mt: 2,
+            textTransform: 'none',
+            fontWeight: 500,
+            '&:hover': {
+              bgcolor: 'rgba(172, 138, 199, 0.08)',
+              borderColor: '#8D8AC7'
+            }
+          }}
+        >
+          Try Demo
+        </Button>
         <div className = "text-red-400 mt-4 text-sm">{error}</div>
       </div>
     </AuthLayout>
