@@ -15,22 +15,22 @@ def _process_due_subscriptions(db):
   for subscription in subscriptions:
     try: 
       logger.info(f"Processing {subscription.id} for User {subscription.user_id}")
-      transaction = Transaction(
-        user_id = subscription.user_id, 
-        account_id = subscription.account_id, 
-        category_id = subscription.category_id, 
-        amount = subscription.amount,
-        transaction_type = "expense", 
-        description = f"Subscription to {subscription.name}", 
-        date = subscription.next_due_date 
-      )
       account = account_lookup(subscription.account_id, db, subscription.user_id)
-      adjust_balance(account, transaction)
+      while subscription.next_due_date <= date.today():
+        transaction = Transaction(
+          user_id = subscription.user_id, 
+          account_id = subscription.account_id, 
+          category_id = subscription.category_id, 
+          amount = subscription.amount,
+          transaction_type = "expense", 
+          description = f"Subscription to {subscription.name}", 
+          date = subscription.next_due_date 
+        )
+        adjust_balance(account, transaction)
 
-      #only advances by one month per run, missed-billing backfill not implemented
-      subscription.next_due_date += relativedelta(months=1)
-      logger.info(f"Updated subscription due date: {subscription.next_due_date}")
-      db.add(transaction)
+        subscription.next_due_date += relativedelta(months=1)
+        logger.info(f"Updated subscription due date: {subscription.next_due_date}")
+        db.add(transaction)
       db.commit()
     except Exception as e:
       db.rollback()
