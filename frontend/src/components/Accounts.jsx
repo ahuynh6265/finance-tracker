@@ -209,7 +209,9 @@ function Accounts() {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
                         <YAxis width={60} />
-                        <Tooltip />
+                        <Tooltip 
+                        formatter = {(value) => Number(value).toFixed(2)}
+                        />
                         <Line type="monotone" name="Net Balance" dataKey="net" dot = {false} stroke="#14b8a6"/>
                       </LineChart>
                       </ResponsiveContainer>
