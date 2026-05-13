@@ -53,11 +53,13 @@ app.include_router(budgets_router)
 app.include_router(goals_router)
 app.include_router(subscriptions_router)
 
+@app.get("/health")
+def check_backend(): 
+  return {"status": "ok"}
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://finance-tracker-navy-xi.vercel.app", "http://localhost:3000"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
