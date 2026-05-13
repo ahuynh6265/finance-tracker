@@ -123,6 +123,7 @@ def test_multiple_due(create_account, db_session):
   assert subscription_response.json()[1]["next_due_date"] == "2026-05-24"
   assert subscription_response.json()[2]["next_due_date"] == "2026-05-26"
 
+@freeze_time("2026-01-31")
 def test_due_last_day_of_month(create_account, db_session):
   client, token, account_id, _ = create_account 
   account = client.get(f"accounts/{account_id}", headers ={"Authorization" : f"Bearer {token}"})
@@ -149,3 +150,24 @@ def test_due_last_day_of_month(create_account, db_session):
   subscription_response = client.get(f"/subscriptions", headers ={"Authorization" : f"Bearer {token}"})
   assert subscription_response.status_code == 200
   assert subscription_response.json()[0]["next_due_date"] == "2026-02-28"
+
+#test subscription months behind
+@freeze_time("2026-05-12")
+def test_behind_subscription(create_account, db_session): 
+  client, token, account_id, _ = create_account 
+  account = client.get(f"accounts/{account_id}", headers ={"Authorization" : f"Bearer {token}"})
+  assert account.status_code == 200
+  user_id = account.json()["user_id"]
+  db_session.add(Subscription(
+    user_id = user_id, 
+    account_id = account_id, 
+    category_id = 1, 
+    name = "Netflix", 
+    amount = "12.99", 
+    next_due_date = date.fromisoformat("2026-01-12")
+  ))
+  db_session.commit()
+  _process_due_subscriptions(db_session)
+  response = client.get("/transactions", headers ={"Authorization" : f"Bearer {token}"})
+  assert response.status_code == 200 
+  assert len(response.json()) == 5
