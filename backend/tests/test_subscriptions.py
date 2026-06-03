@@ -1,9 +1,12 @@
+from freezegun import freeze_time
+
 def test_get_subscriptions(create_account):
   client, token, account_id, _ = create_account 
   response = client.get("/subscriptions", headers = {"Authorization": f"Bearer {token}"})
   assert response.status_code == 200
   assert len(response.json()) == 0 
 
+@freeze_time("2026-05-27")
 def test_get_subscription(create_account, create_subscription):
   client, token, account_id, _ = create_account
   subscription = create_subscription(1, "Netflix", "12.99", "2026-05-27")
@@ -11,6 +14,7 @@ def test_get_subscription(create_account, create_subscription):
   response = client.get(f"/subscriptions/{subscription.json()["id"]}", headers = {"Authorization": f"Bearer {token}"})
   assert response.status_code == 200
 
+@freeze_time("2026-05-27")
 def test_create_subscription(create_account):
   client, token, account_id, _ = create_account
   response = client.post("/subscriptions", headers = {"Authorization": f"Bearer {token}"}, json = {
@@ -25,6 +29,7 @@ def test_create_subscription(create_account):
   assert response.json()["amount"] == "12.99"
   assert response.json()["next_due_date"] == "2026-05-27"
 
+@freeze_time("2026-05-27")
 def test_bad_name(create_account):
   client, token, account_id, _ = create_account
   response = client.post("/subscriptions", headers = {"Authorization": f"Bearer {token}"}, json = {
@@ -37,6 +42,7 @@ def test_bad_name(create_account):
   assert response.status_code == 422
   assert response.json()["detail"][0]["msg"] == "Value error, Subscription name can't be left empty." 
 
+@freeze_time("2026-05-27")
 def test_zero_amount(create_account):
   client, token, account_id, _ = create_account
   response = client.post("/subscriptions", headers = {"Authorization": f"Bearer {token}"}, json = {
@@ -49,6 +55,7 @@ def test_zero_amount(create_account):
   assert response.status_code == 422
   assert response.json()["detail"][0]["msg"] == "Value error, Amount can't be zero."
 
+@freeze_time("2026-05-27")
 def test_negative_amount(create_account): 
   client, token, account_id, _ = create_account
   response = client.post("/subscriptions", headers = {"Authorization": f"Bearer {token}"}, json = {
@@ -73,6 +80,7 @@ def test_past_date(create_account):
   assert response.status_code == 422
   assert response.json()["detail"][0]["msg"] == "Value error, This date has already passed."
 
+@freeze_time("2026-05-27")
 def test_delete_subscription(create_account, create_subscription):
   client, token, _, _ = create_account
   subscription = create_subscription(1, "Netflix", "12.99", "2026-05-27")
@@ -85,6 +93,7 @@ def test_404_delete(create_account):
   assert response.status_code == 404
   assert response.json()["detail"] == "Subscription ID not found"
 
+@freeze_time("2026-05-27")
 def test_403_delete(create_two_users, create_subscription):
   client, first_token, second_token = create_two_users
   first_token_account = client.post("/accounts", headers = {"Authorization" : f"Bearer {first_token}"}, json = {"bank_name": "Chase", "account_type": "checking", "balance": "500"})
@@ -93,7 +102,8 @@ def test_403_delete(create_two_users, create_subscription):
   response = client.delete(f"/subscriptions/{subscription.json()["id"]}", headers = {"Authorization": f"Bearer {second_token}"})
   assert response.status_code == 403
   assert response.json()["detail"] == f"Subscription ID {subscription.json()["id"]} does not belong to user"
-  
+
+@freeze_time("2026-05-27")  
 def test_update_subscription(create_two_accounts, create_subscription):
   client, token, first_account_id, second_account_id = create_two_accounts
   subscription = create_subscription(1, "Netflix", "12.99", "2026-05-27", first_account_id)
@@ -119,6 +129,7 @@ def test_update_subscription(create_two_accounts, create_subscription):
   assert response.json()["amount"] == "21.67"
   assert response.json()["next_due_date"] == "2026-07-01"
 
+@freeze_time("2026-05-27")
 def test_403_update(create_two_users, create_subscription):
   client, first_token, second_token = create_two_users
   first_token_account = client.post("/accounts", headers = {"Authorization" : f"Bearer {first_token}"}, json = {"bank_name": "Chase", "account_type": "checking", "balance": "500"})
