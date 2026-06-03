@@ -65,6 +65,7 @@ def test_sub_already_advanced(create_account, create_subscription, db_session):
   assert subscription_response.json()["next_due_date"] == "2026-05-28"
 
 #manually create subscription because of field validator on date
+@freeze_time("2026-04-28")
 def test_multiple_due(create_account, db_session):
   client, token, account_id, _ = create_account 
   account = client.get(f"accounts/{account_id}", headers ={"Authorization" : f"Bearer {token}"})
