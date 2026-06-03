@@ -58,7 +58,7 @@ def generate_demo_data():
     
     #income transactions, adjust balance after all income transactions finish, income goes only to savings
     starting_date = date(datetime.now().year, 1, 1)
-    current_month = datetime.now().month 
+    current_month = datetime.now().month + 1
     total_income = 0
     for _ in range(current_month): 
       num = round(uniform(1500, 2500), 2)
