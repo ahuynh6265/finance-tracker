@@ -58,8 +58,9 @@ def generate_demo_data():
     
     #income transactions, adjust balance after all income transactions finish, income goes only to savings
     starting_date = date(datetime.now().year, 1, 1)
+    current_month = datetime.now().month 
     total_income = 0
-    for _ in range(5): 
+    for _ in range(current_month): 
       num = round(uniform(1500, 2500), 2)
       total_income += num
       db.add(
@@ -85,7 +86,7 @@ def generate_demo_data():
       "Entertainment": ["Movie", "Concert", "Theater", "Streaming", "Gaming"],
       "Gas": ["Wawa", "7-Eleven", "RaceTrac", "Chevron", "Shell"]
     }
-    for i in range(1, 6):
+    for i in range(1, current_month):
       #generate three transactions for common categories
       for _ in range(3):  
         batch1 = [
@@ -207,7 +208,7 @@ def generate_demo_data():
 
     #transfer transactions, only transfers from savings to checking
     transfer_total = 0
-    for i in range(1, 6):
+    for i in range(1, current_month):
       transfer = Transaction(
         user_id = demo_user.id, 
         account_id = savings_account.id, 
